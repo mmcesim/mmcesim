@@ -104,7 +104,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }} 
       shell: bash
       run: |
-        vcpkg install yaml-cpp --triplet x64-windows-static
+        vcpkg install yaml-cpp --triplet x64-windows
         vcpkg integrate install
 
     # Retrieve the cache, uses cache@v2
