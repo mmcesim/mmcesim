@@ -4,7 +4,7 @@ CLI Application for Millimeter Wave Channel Estimation Simulation
 > This application is currently under active development.
 
 ## Usage
-```shell
+```
 $ ./mmcesim -h
 mmCEsim 0.1.0    (C) Wuqiong Zhao
 Millimeter Wave Channel Estimation Simulation

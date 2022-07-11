@@ -236,6 +236,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
+              -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
             RESULT_VARIABLE result
           )
         else()
