@@ -103,7 +103,9 @@ jobs:
     - name: Build yaml-cpp (Windows)
       if: ${{ runner.os == 'Windows' }} 
       shell: bash
-      run: vcpkg install yaml-cpp --triplet x64-windows
+      run: |
+        vcpkg install yaml-cpp --triplet x64-windows
+        vcpkg integrate install
 
     # Retrieve the cache, uses cache@v2
 #    - name: Cache boost
@@ -237,7 +239,6 @@ jobs:
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -D CMAKE_CXX_FLAGS="-IC:/vcpkg/installed/x64-windows/include -LC:/vcpkg/installed/x64-windows/lib -lyaml-cpp"
             RESULT_VARIABLE result
           )
         else()
