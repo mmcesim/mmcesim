@@ -1,6 +1,8 @@
 # mmCEsim
 CLI Application for Millimeter Wave Channel Estimation Simulation
 
+[![Build mmCEsim CLI](https://github.com/mmcesim/mmcesim/actions/workflows/build.yml/badge.svg)](https://github.com/mmcesim/mmcesim/actions/workflows/build.yml)
+
 > This application is currently under active development.
 
 ## Usage
