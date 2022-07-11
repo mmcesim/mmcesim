@@ -12,6 +12,8 @@
 #ifndef _READ_H_
 #define _READ_H_
 
+#define YAML_CPP_DLL
+
 #include <string>
 #include <tuple>
 #include <vector>

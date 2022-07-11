@@ -45,11 +45,11 @@ if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # work around for issue with Boost library
     # which is shown https://github.com/bitcoin/bitcoin/pull/24415
     set(CMAKE_CXX_FLAGS -Wno-error=narrowing)
-else()
-    # for yaml-cpp static linking
-    # reference: https://stackoverflow.com/q/14172856/15080514
-    set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-    set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+# else()
+#     # for yaml-cpp static linking
+#     # reference: https://stackoverflow.com/q/14172856/15080514
+#     set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+#     set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 endif()
 
 add_subdirectory(ext/astyle)

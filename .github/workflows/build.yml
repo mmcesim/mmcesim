@@ -104,7 +104,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }} 
       shell: bash
       run: |
-        vcpkg install yaml-cpp --triplet x64-windows-static
+        vcpkg install yaml-cpp --triplet x64-windows
         vcpkg integrate install
 
     # Retrieve the cache, uses cache@v2
@@ -239,8 +239,7 @@ jobs:
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -D VCPKG_TARGET_TRIPLET=x64-windows-static
-              -D CMAKE_CXX_FLAGS=-IC:/vcpkg/installed/x64-windows-static/include
+              -D CMAKE_CXX_FLAGS=-IC:/vcpkg/installed/x64-windows/include
             RESULT_VARIABLE result
           )
         else()
