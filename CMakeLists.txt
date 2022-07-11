@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(mmCEsim VERSION 0.1.0)
 
-set(Boost_USE_STATIC_LIBS ON)
+# set(Boost_USE_STATIC_LIBS ON)
 if (UNIX AND NOT APPLE) # Linux
     find_package(
         Boost 1.70 REQUIRED
