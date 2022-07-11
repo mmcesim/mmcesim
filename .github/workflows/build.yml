@@ -237,7 +237,7 @@ jobs:
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -D CMAKE_CXX_FLAGS=-I"C:/vcpkg/installed/x64-windows/include -LC:/vcpkg/installed/x64-windows/lib -lyaml-cpp"
+              -D CMAKE_CXX_FLAGS="-IC:/vcpkg/installed/x64-windows/include -LC:/vcpkg/installed/x64-windows/lib -lyaml-cpp"
             RESULT_VARIABLE result
           )
         else()
