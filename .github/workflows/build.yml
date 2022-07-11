@@ -240,7 +240,7 @@ jobs:
               -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
               -D VCPKG_TARGET_TRIPLET=x64-windows-static
-              -D CMAKE_CXX_FLAGS=-IC:/vcpkg/installed/x64-windows/include
+              -D CMAKE_CXX_FLAGS="-IC:/vcpkg/installed/x64-windows-static/include /MT"
             RESULT_VARIABLE result
           )
         else()
