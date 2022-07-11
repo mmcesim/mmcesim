@@ -1,0 +1,72 @@
+# MIMO.sim
+# Basic mmWave MIMO model
+# Author: Wuqiong Zhao
+# Date: 2022-07-10
+
+version: 0.1.0 # the targeted mmCEsim version
+meta: # document meta data
+  title: mmWave MIMO model
+  description:
+    This is a test document with extension '.sim'
+    for a mmWave MIMO model simulation configuration.
+  author: Wuqiong Zhao
+  email: contact@mmcesim.org
+  website: https://mmcesim.org
+  license: MIT
+  date: "2022-07-10"
+  comments: This is an uplink channel.
+physics:
+  frequency: narrow # assume narrow band
+nodes:
+  - id: BS # this should be unique
+    role: receiver
+    num: 1 # this is the default value
+    size: [8, 4] # UPA with size 8x4
+    beam: [4, 2]
+  - id: UE # user
+    role: transmitter
+    num: 1 # a single-user model
+    size: [8] # ULA with size 8
+    beam: [2]
+channels:
+  - id: H
+    from: BS
+    to: UE # 'from -> to' specifies the channel direction
+    sparsity: 5
+sounding: auto # use auto scheme (task-oriented scheme)
+simulation:
+  backend: cpp # cpp (default) | matlab | octave | py
+  metric: [NMSE] # used for compare
+  - name: NMSE v.s. SNR
+    SNR: [0:2:20]
+    SNR_mode: dB # dB (default) | linear
+    pilot: 0.25
+    pilot_mode: percent # num (default) | percent
+    algorithms: # compare different languages
+    - alg: OMP
+      max_iter: auto
+      label: OMP # used in report
+    - alg: SBL
+      max_iter: 100
+      stop_thr: 0.001
+      know_variance: true
+      label: SBL-EM
+  - name: NMSE v.s. pilot
+    SNR: 0
+    pilot: [100:50:400]
+    algorithms: # compare different languages
+    - alg: OMP
+      max_iter: auto
+      label: OMP # used in report
+    - alg: SBL
+      max_iter: 100
+      stop_thr: 0.001
+      know_variance: true
+      label: SBL-EM
+  report:
+    format: [pdf, latex] # both compiled PDF and tex files
+    plot: true # plot data
+    table: false # do not print table
+    latex:
+      command: xelatex # command to compile the report
+      UTF8: false # no need for UTF8 support with this setting

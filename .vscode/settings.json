@@ -3,7 +3,9 @@
     "doxdocgen.generic.authorEmail": "wqzhao@seu.edu.cn",
     "doxdocgen.generic.authorName": "Wuqiong Zhao",
     "cSpell.words": [
-        "MMCESIM"
+        "MIMO",
+        "MMCESIM",
+        "xelatex"
     ],
     "files.associations": {
         "__bit_reference": "cpp",
