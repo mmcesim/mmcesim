@@ -103,7 +103,7 @@ jobs:
     - name: Build yaml-cpp (Windows)
       if: ${{ runner.os == 'Windows' }} 
       shell: bash
-      run: vcpkg install yaml-cpp
+      run: vcpkg install yaml-cpp --triplet x64-windows
 
     # Retrieve the cache, uses cache@v2
 #    - name: Cache boost
