@@ -87,25 +87,25 @@ jobs:
           )
         endif()
 
-    - name: Build yaml-cpp (Unix)
-      if: ${{ runner.os != 'Windows' }} 
-      shell: bash
-      run: |
-        git clone https://github.com/mmcesim/yaml-cpp.git
-        cd yaml-cpp
-        mkdir build
-        cd build
-        cmake ..
-        make
-        sudo make install
-        cd ../..
+    # - name: Build yaml-cpp (Unix)
+    #   if: ${{ runner.os != 'Windows' }} 
+    #   shell: bash
+    #   run: |
+    #     git clone https://github.com/mmcesim/yaml-cpp.git
+    #     cd yaml-cpp
+    #     mkdir build
+    #     cd build
+    #     cmake ..
+    #     make
+    #     sudo make install
+    #     cd ../..
 
-    - name: Build yaml-cpp (Windows)
-      if: ${{ runner.os == 'Windows' }} 
-      shell: bash
-      run: |
-        vcpkg install yaml-cpp --triplet x64-windows
-        vcpkg integrate install
+    # - name: Build yaml-cpp (Windows)
+    #   if: ${{ runner.os == 'Windows' }} 
+    #   shell: bash
+    #   run: |
+    #     vcpkg install yaml-cpp --triplet x64-windows
+    #     vcpkg integrate install
 
     # Retrieve the cache, uses cache@v2
 #    - name: Cache boost
@@ -238,8 +238,6 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
-              -D CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -D CMAKE_CXX_FLAGS=-IC:/vcpkg/installed/x64-windows/include
             RESULT_VARIABLE result
           )
         else()

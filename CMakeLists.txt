@@ -25,14 +25,19 @@ if (USE_THREADS)
     find_package(Threads REQUIRED)
 endif()
 
-find_package(yaml-cpp 0.5 REQUIRED)
-# https://stackoverflow.com/a/62779940/15080514
-message(STATUS "YAML-CPP config file: ${yaml-cpp_CONFIG}")
+# find_package(yaml-cpp 0.5 REQUIRED)
+# # https://stackoverflow.com/a/62779940/15080514
+# message(STATUS "YAML-CPP config file: ${yaml-cpp_CONFIG}")
+
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "disable yaml tests")
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable yaml tools")
+set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "disable yaml contrib")
+
+add_subdirectory(ext/yaml-cpp)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${Boost_INCLUDE_DIR}
-    ${YAML_CPP_INCLUDE_DIR}
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -68,7 +73,7 @@ set_tests_properties(null1 null2 notexist PROPERTIES WILL_FAIL TRUE)
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 add_executable(mmcesim ${SOURCES})
 
-target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} ${YAML_CPP_LIBRARIES})
+target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp)
 if (USE_THREADS)
     target_link_libraries(mmcesim PRIVATE Threads::Threads)
 endif()

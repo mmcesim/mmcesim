@@ -4,3 +4,6 @@
 [submodule "mmcesim-doc"]
 	path = doc
 	url = https://github.com/mmcesim/mmcesim-doc.git
+[submodule "yaml-cpp"]
+	path = ext/yaml-cpp
+	url = https://github.com/mmcesim/yaml-cpp.git
