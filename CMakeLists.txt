@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(mmCEsim VERSION 0.1.0)
 
+set(Boost_USE_STATIC_LIBS ON)
 if (UNIX AND NOT APPLE) # Linux
     find_package(
         Boost 1.70 REQUIRED
@@ -40,10 +41,15 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
-# work around for issue with Boost library
-# which is shown https://github.com/bitcoin/bitcoin/pull/24415
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    # work around for issue with Boost library
+    # which is shown https://github.com/bitcoin/bitcoin/pull/24415
     set(CMAKE_CXX_FLAGS -Wno-error=narrowing)
+else()
+    # for yaml-cpp static linking
+    # reference: https://stackoverflow.com/q/14172856/15080514
+    set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+    set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 endif()
 
 add_subdirectory(ext/astyle)
