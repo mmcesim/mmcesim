@@ -12,7 +12,7 @@
 #ifndef _READ_H_
 #define _READ_H_
 
-#define YAML_CPP_DLL
+#define YAML_CPP_STATIC_DEFINE
 
 #include <string>
 #include <tuple>
