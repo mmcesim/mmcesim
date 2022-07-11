@@ -14,9 +14,9 @@ else()
 endif()
 
 if (UNIX)
-    set(USE_THREADS true BOOL "Use Threads in Unix")
+    set(USE_THREADS TRUE BOOL "Use Threads in Unix")
 else()
-    set(USE_THREADS false BOOL "Do not use Threads in Windows")
+    set(USE_THREADS FALSE BOOL "Do not use Threads in Windows")
 endif()
 
 if (USE_THREADS)
@@ -33,7 +33,7 @@ include_directories(
 )
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -48,7 +48,12 @@ add_subdirectory(ext/astyle)
 
 include(CTest)
 enable_testing()
-add_test(NAME astyle COMMAND astyle -h)
+add_test(NAME astyle  COMMAND astyle -h)
+add_test(NAME help    COMMAND mmcesim -h)
+add_test(NAME version COMMAND mmcesim --version)
+add_test(NAME null1   COMMAND mmcesim)     # [will fail]
+add_test(NAME null2   COMMAND mmcesim sim) # [will fail]
+set_tests_properties(null1 null2 PROPERTIES WILL_FAIL TRUE)
 
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 add_executable(mmcesim ${SOURCES})
