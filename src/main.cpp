@@ -19,6 +19,7 @@
 #include "error_code.h"
 #include "meta.h"
 #include "utils.h"
+#include "simulate.h"
 
 int main(int argc, char* argv[]) {
     namespace po = boost::program_options;
@@ -111,6 +112,16 @@ int main(int argc, char* argv[]) {
         std::cerr << e.what() << std::endl;
         std::cerr << "Use '" << argv[0] << " -h' for help." << std::endl;
         return errorCode(Err::CLI_OPTIONS);
+    }
+
+    if (!std::filesystem::exists(opt.input)) {
+        errorExit(Err::INPUT_NOT_EXISTS);
+    }
+    boost::algorithm::to_lower(opt.cmd);
+    if (opt.cmd == "sim" || opt.cmd == "simulate") {
+        auto [config, errors] = ReadConfig::read(opt.input);
+    } else {
+        // other things
     }
 
     return 0;

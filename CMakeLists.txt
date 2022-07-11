@@ -24,12 +24,14 @@ if (USE_THREADS)
     find_package(Threads REQUIRED)
 endif()
 
-find_package(yaml-cpp)
+find_package(yaml-cpp 0.5 REQUIRED)
+# https://stackoverflow.com/a/62779940/15080514
+message(STATUS "YAML-CPP config file: ${yaml-cpp_CONFIG}")
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${Boost_INCLUDE_DIR}
-    ${YAML_CPP_INCLUDE_DIRS}
+    ${YAML_CPP_INCLUDE_DIR}
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -48,12 +50,14 @@ add_subdirectory(ext/astyle)
 
 include(CTest)
 enable_testing()
-add_test(NAME astyle  COMMAND astyle -h)
-add_test(NAME help    COMMAND mmcesim -h)
-add_test(NAME version COMMAND mmcesim --version)
-add_test(NAME null1   COMMAND mmcesim)     # [will fail]
-add_test(NAME null2   COMMAND mmcesim sim) # [will fail]
-set_tests_properties(null1 null2 PROPERTIES WILL_FAIL TRUE)
+add_test(NAME astyle   COMMAND astyle -h)
+add_test(NAME help     COMMAND mmcesim -h)
+add_test(NAME version  COMMAND mmcesim --version)
+add_test(NAME null1    COMMAND mmcesim) # [will fail]
+add_test(NAME null2    COMMAND mmcesim sim) # [will fail]
+add_test(NAME basic    COMMAND mmcesim sim ../test/MIMO.sim)
+add_test(NAME notexist COMMAND mmcesim sim input_not_exists) # [will fail]
+set_tests_properties(null1 null2 notexist PROPERTIES WILL_FAIL TRUE)
 
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 add_executable(mmcesim ${SOURCES})

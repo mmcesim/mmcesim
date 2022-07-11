@@ -14,6 +14,7 @@
 
 #include <string>
 #include <type_traits>
+#include <iostream>
 
 /**
  * @brief Error Code
@@ -25,6 +26,7 @@ enum class Err: int {
     SUCCESS = 0,
     CLI_OPTIONS = 100,
     NO_GUI,
+    INPUT_NOT_EXISTS,
 };
 
 /**
@@ -48,8 +50,19 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::SUCCESS: return "Success!";
     case Err::CLI_OPTIONS: return "Command line options error.";
     case Err::NO_GUI: return "No GUI App.";
+    case Err::INPUT_NOT_EXISTS: return "Input file does not exist.";
     default: return "Error!";
     }
+}
+
+/**
+ * @brief Print error message and exit with exit code.
+ * 
+ * @param e Error code (class Err).
+ */
+static inline void errorExit(const Err& e) noexcept {
+    std::cerr << "ERROR: " << errorMsg(e) << '\n';
+    exit(errorCode(e));
 }
 
 /**

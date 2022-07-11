@@ -23,11 +23,13 @@ nodes:
     num: 1 # this is the default value
     size: [8, 4] # UPA with size 8x4
     beam: [4, 2]
+    grid: same # the same as physics size
   - id: UE # user
     role: transmitter
     num: 1 # a single-user model
     size: [8] # ULA with size 8
     beam: [2]
+    grid: 16
 channels:
   - id: H
     from: BS
@@ -37,6 +39,7 @@ sounding: auto # use auto scheme (task-oriented scheme)
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
+  jobs:
   - name: NMSE v.s. SNR
     SNR: [0:2:20]
     SNR_mode: dB # dB (default) | linear
