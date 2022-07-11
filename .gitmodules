@@ -1,0 +1,6 @@
+[submodule "ext/astyle"]
+	path = ext/astyle
+	url = https://github.com/mmcesim/astyle.git
+[submodule "mmcesim-doc"]
+	path = doc
+	url = https://github.com/mmcesim/mmcesim-doc.git
