@@ -103,15 +103,7 @@ jobs:
     - name: Build yaml-cpp (Windows)
       if: ${{ runner.os == 'Windows' }} 
       shell: bash
-      run: |
-        git clone https://github.com/mmcesim/yaml-cpp.git
-        cd yaml-cpp
-        mkdir build
-        cd build
-        cmake ..
-        make
-        make install
-        cd ../..
+      run: vcpkg install yaml-cpp
 
     # Retrieve the cache, uses cache@v2
 #    - name: Cache boost
