@@ -87,7 +87,8 @@ jobs:
           )
         endif()
 
-    - name: Build yaml-cpp
+    - name: Build yaml-cpp (Unix)
+      if: ${{ runner.os != 'Windows' }} 
       shell: bash
       run: |
         git clone https://github.com/mmcesim/yaml-cpp.git
@@ -96,6 +97,18 @@ jobs:
         cd build
         cmake ..
         sudo make install
+        cd ../..
+
+      - name: Build yaml-cpp (Windows)
+      if: ${{ runner.os == 'Windows' }} 
+      shell: bash
+      run: |
+        git clone https://github.com/mmcesim/yaml-cpp.git
+        cd yaml-cpp
+        mkdir build
+        cd build
+        cmake ..
+        make install
         cd ../..
 
     # Retrieve the cache, uses cache@v2
