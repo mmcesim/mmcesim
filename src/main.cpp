@@ -71,6 +71,7 @@ int main(int argc, char* argv[]) {
                       << "  sim [simulate]         run simulation\n"
                       << "  dbg [debug]            debug simulation settings\n"
                       << "  exp [export]           export code\n"
+                      << "  fmt [format]           format .sim configuration file\n"
                       << "  (Leave empty)          generic use\n" << std::endl;
             std::cout << visible << std::endl;
             return 0;

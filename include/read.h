@@ -43,7 +43,7 @@ public:
 
     std::tuple<YAML::Node, YAML_Errors> read() const;
 
-    static std::tuple<YAML::Node, YAML_Errors> read(std::string& file);
+    static std::tuple<YAML::Node, YAML_Errors> read(const std::string& file);
 
 private:
     std::string _file;

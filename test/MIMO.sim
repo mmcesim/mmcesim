@@ -40,32 +40,32 @@ simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
   jobs:
-  - name: NMSE v.s. SNR
-    SNR: [0:2:20]
-    SNR_mode: dB # dB (default) | linear
-    pilot: 0.25
-    pilot_mode: percent # num (default) | percent
-    algorithms: # compare different languages
-    - alg: OMP
-      max_iter: auto
-      label: OMP # used in report
-    - alg: SBL
-      max_iter: 100
-      stop_thr: 0.001
-      know_variance: true
-      label: SBL-EM
-  - name: NMSE v.s. pilot
-    SNR: 0
-    pilot: [100:50:400]
-    algorithms: # compare different languages
-    - alg: OMP
-      max_iter: auto
-      label: OMP # used in report
-    - alg: SBL
-      max_iter: 100
-      stop_thr: 0.001
-      know_variance: true
-      label: SBL-EM
+    - name: NMSE v.s. SNR
+      SNR: [0:2:20]
+      SNR_mode: dB # dB (default) | linear
+      pilot: 0.25
+      pilot_mode: percent # num (default) | percent
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: auto
+          label: OMP # used in report
+        - alg: SBL
+          max_iter: 100
+          stop_thr: 0.001
+          know_variance: true
+          label: SBL-EM
+    - name: NMSE v.s. pilot
+      SNR: 0
+      pilot: [100:50:400]
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: auto
+          label: OMP # used in report
+        - alg: SBL
+          max_iter: 100
+          stop_thr: 0.001
+          know_variance: true
+          label: SBL-EM
   report:
     format: [pdf, latex] # both compiled PDF and tex files
     plot: true # plot data

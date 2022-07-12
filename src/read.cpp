@@ -66,7 +66,7 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
     return { config, errors };
 }
 
-std::tuple<YAML::Node, YAML_Errors> ReadConfig::read(std::string& file) {
+std::tuple<YAML::Node, YAML_Errors> ReadConfig::read(const std::string& file) {
     ReadConfig c(file);
     return c.read();
 }
