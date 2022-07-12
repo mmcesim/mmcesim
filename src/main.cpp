@@ -20,6 +20,7 @@
 #include "meta.h"
 #include "utils.h"
 #include "simulate.h"
+#include "export.h"
 
 int main(int argc, char* argv[]) {
     namespace po = boost::program_options;
@@ -122,8 +123,10 @@ int main(int argc, char* argv[]) {
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
         auto [config, errors] = ReadConfig::read(opt.input);
         if (!errors.empty()) errorExit(errors[0].ec);
+    } else if (opt.cmd == "exp" || opt.cmd == "export") {
+        auto errors = Export::exportCode(opt);
     } else {
-        // other things
+        errorExit(Err::UNKOWN_CMD);
     }
 
     return 0;

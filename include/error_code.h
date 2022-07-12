@@ -30,7 +30,9 @@ enum class Err: int {
     CLI_OPTIONS = 100,
     NO_GUI,
     INPUT_NOT_EXISTS,
+    UNKOWN_CMD,
     YAML_SYNTAX,
+    YAML_DTYPE,
     VERSION_STRING_ERROR,
     // warning
     VERSION_NOT_SPECIFIED = 200,
@@ -58,7 +60,9 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::CLI_OPTIONS: return "Command line options error.";
     case Err::NO_GUI: return "No GUI App.";
     case Err::INPUT_NOT_EXISTS: return "Input file does not exist.";
+    case Err::UNKOWN_CMD: return "Unknown command (use mmcesim -h for more information).";
     case Err::YAML_SYNTAX: return "YAML syntax error.";
+    case Err::YAML_DTYPE: return "YAML data type error.";
     case Err::VERSION_STRING_ERROR: return "Invalid version string.";
     case Err::VERSION_NOT_SPECIFIED: return "Version string not specified. Assume as application version " + _MMCESIM_VER_STR + ".";
     default: return "Error!";

@@ -62,7 +62,6 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
         _compiled["version"] = _MMCESIM_VER;
         config["_compiled"] = _compiled;
     }
-    std::cout << config << std::endl;
     return { config, errors };
 }
 

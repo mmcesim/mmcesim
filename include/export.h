@@ -12,7 +12,12 @@
 #ifndef _EXPORT_H_
 #define _EXPORT_H_
 
+#include <iostream>
+#include <type_traits>
+#include <boost/algorithm/string.hpp>
+#include "error_code.h"
 #include "read.h"
+#include "cli_options.h"
 
 class Export {
 public:
@@ -23,26 +28,53 @@ public:
      */
     enum class Lang {
         CPP,    ///< C++ with Armadillo library
-        MATLAB, ///< Matlab or Octave
+        MATLAB, ///< MATLAB
+        OCTAVE, ///< GNU Octave
         PY,     ///< Python with NumPy library
         IPYNB   ///< IPyNb with NumPy library
-    } lang;
+    } lang = Lang::CPP;
 
-    Export(const std::string& file);
+    enum DType: unsigned {
+        INT = 1,     ///< int
+        DOUBLE = 2,  ///< double
+        STRING = 4,  ///< string
+        BOOL = 8,    ///< bool
+        CHAR = 16,   ///< map
+        SEQ = 32,    ///< sequence
+        MAP = 64,    ///< map
+        NUL = 1024,  ///< null
+        UNDEF = 2048 ///< undefined
+    };
 
-    Export(const YAML::Node& config, const YAML_Errors& errors);
+    Export(const CLI_Options& opt);
+
+    Export(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
 
     YAML_Errors exportCode();
 
-    static YAML_Errors exportCode(const std::string& file);
+    static YAML_Errors exportCode(const CLI_Options& opt);
 
-    static YAML_Errors exportCode(const YAML::Node& config, const YAML_Errors& errors);
+    static YAML_Errors exportCode(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
 
 private:
+    std::string _langName() const;
+
+    void _info(const std::string& str) const;
+
+    // error message can be specified later
+    bool _preCheck(const YAML::Node& node, unsigned allowed_type);
+
+    template<typename T>
+    T _as(const YAML::Node& n);
+
+    void _setLatestError(const std::string& str);
+
     void _setLang();
 
+    CLI_Options _opt;
     YAML::Node _config;
     YAML_Errors _errors;
+    bool _already_error_before_export = false;
     
 };
 
