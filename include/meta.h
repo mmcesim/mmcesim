@@ -24,6 +24,7 @@ const std::string _MMCESIM_TWI    = "https://twitter.com/mmcesim";
 const std::string _MMCESIM_EMAIL  = "contact@mmcesim.org";
 const std::string _MMCESIM_AUTHOR = "Wuqiong Zhao";
 const std::string _MMCESIM_LIC    = "MIT License";
+const int _MMCESIM_VER_COMP     = 0x000100; // compatibility: 0.1.0
 const int _MMCESIM_VER_MAJOR    = 0;
 const int _MMCESIM_VER_MINOR    = 1;
 const int _MMCESIM_VER_REVISION = 0;

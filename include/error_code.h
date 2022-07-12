@@ -1,9 +1,9 @@
 /**
  * @file error_code.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
- * @brief Error Codes
+ * @brief Error Codes (Including Warnings)
  * @version 0.1.0
- * @date 2022-07-11
+ * @date 2022-07-12
  * 
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
  * 
@@ -15,6 +15,7 @@
 #include <string>
 #include <type_traits>
 #include <iostream>
+#include "meta.h"
 
 /**
  * @brief Error Code
@@ -24,10 +25,14 @@
  */
 enum class Err: int {
     SUCCESS = 0,
+    // error
     CLI_OPTIONS = 100,
     NO_GUI,
     INPUT_NOT_EXISTS,
     YAML_SYNTAX,
+    VERSION_STRING_ERROR,
+    // warning
+    VERSION_NOT_SPECIFIED = 200,
 };
 
 /**
@@ -53,8 +58,45 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::NO_GUI: return "No GUI App.";
     case Err::INPUT_NOT_EXISTS: return "Input file does not exist.";
     case Err::YAML_SYNTAX: return "YAML syntax error.";
+    case Err::VERSION_STRING_ERROR: return "Invalid version string.";
+    case Err::VERSION_NOT_SPECIFIED: return "Version string not specified. Assume as application version " + _MMCESIM_VER_STR + ".";
     default: return "Error!";
     }
+}
+
+/**
+ * @brief Check if the error code corresponds to an error.
+ * 
+ * @param e Error code (class Err).
+ * @return true This is not an error.
+ * @return false This is a real error.
+ */
+static inline bool isError(const Err& e) noexcept {
+    return errorCode(e) >= 100 && errorCode(e) < 200;
+}
+
+/**
+ * @brief Check if the error code corresponds to a warning.
+ * 
+ * @param e Error code (class Err).
+ * @return true This is not a warning.
+ * @return false This is a real warning.
+ */
+static inline bool isWarning(const Err& e) noexcept {
+    return errorCode(e) >= 200;
+}
+
+/**
+ * @brief Check if the error code corresponds to a warning.
+ * 
+ * This is used to check if it is Err::SUCCESS.
+ * 
+ * @param e Error code (class Err).
+ * @return true This is success.
+ * @return false This is not success.
+ */
+static inline bool isSuccess(const Err& e) noexcept {
+    return e == Err::SUCCESS;
 }
 
 /**
@@ -63,21 +105,9 @@ static inline std::string errorMsg(const Err& e) noexcept {
  * @param e Error code (class Err).
  */
 static inline void errorExit(const Err& e) noexcept {
+    assert((isError(e) && "check if it is really an error in errorExit"));
     std::cerr << "ERROR: " << errorMsg(e) << '\n';
     exit(errorCode(e));
-}
-
-/**
- * @brief Check if the error code corresponds to an error.
- * 
- * This is used to excluded Err::SUCCESS.
- * 
- * @param e Error code (class Err).
- * @return true This is not an error (i.e. Err::SUCCESS).
- * @return false This is a real error (i.e. other than Err::SUCCESS).
- */
-static inline bool isError(const Err& e) noexcept {
-    return e != Err::SUCCESS;
 }
 
 #endif

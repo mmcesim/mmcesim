@@ -20,6 +20,7 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 #include "error_code.h"
+#include "meta.h"
 
 struct YAML_Error {
     int line = -1;
