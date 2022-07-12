@@ -120,6 +120,7 @@ int main(int argc, char* argv[]) {
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
         auto [config, errors] = ReadConfig::read(opt.input);
+        if (!errors.empty()) errorExit(errors[0].ec);
     } else {
         // other things
     }

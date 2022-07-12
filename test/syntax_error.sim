@@ -1,0 +1,6 @@
+# This document has YAML syntax error
+a:
+  - b: 12
+    c: az
+    d: hello
+  e: oh, this is an error

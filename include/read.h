@@ -22,8 +22,16 @@
 #include "error_code.h"
 
 struct YAML_Error {
-    std::string loc;
+    int line = -1;
+    int col = -1;
     std::string msg;
+    Err ec;
+
+    YAML_Error(const std::string& msg, int line = -1, int col = -1);
+
+    YAML_Error(const std::string& msg, Err ec, int line = -1, int col = -1);
+
+    YAML_Error(Err ec, int line = -1, int col = -1);
 };
 
 using YAML_Errors = std::vector<YAML_Error>;

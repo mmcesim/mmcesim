@@ -27,6 +27,7 @@ enum class Err: int {
     CLI_OPTIONS = 100,
     NO_GUI,
     INPUT_NOT_EXISTS,
+    YAML_SYNTAX,
 };
 
 /**
@@ -51,6 +52,7 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::CLI_OPTIONS: return "Command line options error.";
     case Err::NO_GUI: return "No GUI App.";
     case Err::INPUT_NOT_EXISTS: return "Input file does not exist.";
+    case Err::YAML_SYNTAX: return "YAML syntax error.";
     default: return "Error!";
     }
 }

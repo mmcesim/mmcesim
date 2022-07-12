@@ -25,10 +25,6 @@ if (USE_THREADS)
     find_package(Threads REQUIRED)
 endif()
 
-# find_package(yaml-cpp 0.5 REQUIRED)
-# # https://stackoverflow.com/a/62779940/15080514
-# message(STATUS "YAML-CPP config file: ${yaml-cpp_CONFIG}")
-
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "disable yaml tests")
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable yaml tools")
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "disable yaml contrib")
@@ -50,11 +46,6 @@ if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # work around for issue with Boost library
     # which is shown https://github.com/bitcoin/bitcoin/pull/24415
     set(CMAKE_CXX_FLAGS -Wno-error=narrowing)
-# else()
-#     # for yaml-cpp static linking
-#     # reference: https://stackoverflow.com/q/14172856/15080514
-#     set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-#     set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 endif()
 
 add_subdirectory(ext/astyle)
@@ -68,7 +59,8 @@ add_test(NAME null1    COMMAND mmcesim) # [will fail]
 add_test(NAME null2    COMMAND mmcesim sim) # [will fail]
 add_test(NAME basic    COMMAND mmcesim sim ../test/MIMO.sim)
 add_test(NAME notexist COMMAND mmcesim sim input_not_exists) # [will fail]
-set_tests_properties(null1 null2 notexist PROPERTIES WILL_FAIL TRUE)
+add_test(NAME yaml_err COMMAND mmcesim sim ../test/syntax_error.sim) # [will fail]
+set_tests_properties(null1 null2 notexist yaml_err PROPERTIES WILL_FAIL TRUE)
 
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 add_executable(mmcesim ${SOURCES})
