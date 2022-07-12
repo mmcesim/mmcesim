@@ -15,6 +15,7 @@
 #include <string>
 #include <type_traits>
 #include <iostream>
+#include <cassert>
 #include "meta.h"
 
 /**
