@@ -16,6 +16,7 @@ Commands:
   sim [simulate]         run simulation
   dbg [debug]            debug simulation settings
   exp [export]           export code
+  fmt [format]           format .sim configuration file
   (Leave empty)          generic use
 
 Allowed options:

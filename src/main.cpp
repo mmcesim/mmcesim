@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     config.add_options()
         ("output,o", po::value<std::string>(&opt.output),
             "output file name")
+        ("force,f", "force writing mode")
     ;
 
     po::options_description hidden("Hidden options");
@@ -115,6 +116,8 @@ int main(int argc, char* argv[]) {
         std::cerr << "Use '" << argv[0] << " -h' for help." << std::endl;
         return errorCode(Err::CLI_OPTIONS);
     }
+
+    if (vm.count("force")) opt.force = true;
 
     if (!std::filesystem::exists(opt.input)) {
         errorExit(Err::INPUT_NOT_EXISTS);

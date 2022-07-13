@@ -13,6 +13,8 @@
 #define _EXPORT_H_
 
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 #include <type_traits>
 #include <boost/algorithm/string.hpp>
 #include "error_code.h"
@@ -50,6 +52,8 @@ public:
 
     Export(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
 
+    ~Export();
+
     YAML_Errors exportCode();
 
     static YAML_Errors exportCode(const CLI_Options& opt);
@@ -57,7 +61,11 @@ public:
     static YAML_Errors exportCode(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
 
 private:
+    std::ofstream& _f();
+
     std::string _langName() const;
+
+    std::string _langExtension() const;
 
     void _info(const std::string& str) const;
 
@@ -75,6 +83,7 @@ private:
     YAML::Node _config;
     YAML_Errors _errors;
     bool _already_error_before_export = false;
+    std::ofstream* _f_ptr;
     
 };
 

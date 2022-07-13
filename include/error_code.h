@@ -31,6 +31,8 @@ enum class Err: int {
     NO_GUI,
     INPUT_NOT_EXISTS,
     UNKOWN_CMD,
+    OUTPUT_FILE_EXISTS,
+    CANNOT_OPEN_OUTPUT_FILE,
     YAML_SYNTAX,
     YAML_DTYPE,
     VERSION_STRING_ERROR,
@@ -61,6 +63,8 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::NO_GUI: return "No GUI App.";
     case Err::INPUT_NOT_EXISTS: return "Input file does not exist.";
     case Err::UNKOWN_CMD: return "Unknown command (use mmcesim -h for more information).";
+    case Err::OUTPUT_FILE_EXISTS: return "Output file exists. To force overwriting, you can use option '--force' or '-f'.";
+    case Err::CANNOT_OPEN_OUTPUT_FILE: return "Cannot open output file.";
     case Err::YAML_SYNTAX: return "YAML syntax error.";
     case Err::YAML_DTYPE: return "YAML data type error.";
     case Err::VERSION_STRING_ERROR: return "Invalid version string.";

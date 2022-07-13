@@ -1,0 +1,7 @@
+# main thing is to leave 
+
+*
+!.gitignore
+!README.md
+!*.sim
+!*.alg

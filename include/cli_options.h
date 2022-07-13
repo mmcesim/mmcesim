@@ -17,7 +17,8 @@
 struct CLI_Options {
     std::string cmd;
     std::string input;
-    std::string output;
+    std::string output = "__UNDEFINED";
+    bool force = false;
 };
 
 #endif

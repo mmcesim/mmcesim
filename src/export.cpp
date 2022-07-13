@@ -1,18 +1,53 @@
 #include "export.h"
 
-Export::Export(const CLI_Options& opt) {
-    std::tie(_config, _errors) = ReadConfig::read(opt.input);
+Export::Export(const CLI_Options& opt) : _opt(opt) {
+    std::tie(_config,_errors) = ReadConfig::read(opt.input);
     _setLang();
+    if (_opt.output == "__UNDEFINED") {
+        std::filesystem::path input_path = _opt.input;
+        _opt.output = input_path.replace_extension(_langExtension()).string();
+        if (!_opt.force && !std::filesystem::exists(_opt.output)) {
+            YAML_Error e(Err::OUTPUT_FILE_EXISTS);
+            _errors.push_back(e);
+            _already_error_before_export = true;
+        }
+    }
+    _f_ptr = new std::ofstream(_opt.output);
+    if (!_f().is_open()) {
+        YAML_Error e(Err::CANNOT_OPEN_OUTPUT_FILE);
+        _errors.push_back(e);
+        _already_error_before_export = true;
+    }
 }
 
 Export::Export(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) 
-    : _config(config), _errors(errors) {
+    : _opt(opt), _config(config), _errors(errors) {
     _setLang();
+    if (_opt.output == "__UNDEFINED") {
+        std::filesystem::path input_path = _opt.input;
+        _opt.output = input_path.replace_extension(_langExtension()).string();
+        if (!_opt.force && !std::filesystem::exists(_opt.output)) {
+            YAML_Error e(Err::OUTPUT_FILE_EXISTS);
+            _errors.push_back(e);
+            _already_error_before_export = true;
+        }
+    }
+    _f_ptr = new std::ofstream(_opt.output);
+    if (!_f().is_open()) {
+        YAML_Error e(Err::CANNOT_OPEN_OUTPUT_FILE);
+        _errors.push_back(e);
+        _already_error_before_export = true;
+    }
+}
+
+Export::~Export() {
+    delete _f_ptr;
 }
 
 YAML_Errors Export::exportCode() {
     if (_already_error_before_export) return _errors;
     // do something
+    _f_ptr->close();
     return _errors;
 }
 
@@ -26,6 +61,10 @@ YAML_Errors Export::exportCode(const CLI_Options& opt, const YAML::Node& config,
     return ep.exportCode();
 }
 
+std::ofstream& Export::_f() {
+    return *_f_ptr;
+}
+
 std::string Export::_langName() const {
     if (lang == Lang::CPP) return "C++ (with Armadillo library)";
     else if (lang == Lang::MATLAB) return "MATLAB";
@@ -33,6 +72,14 @@ std::string Export::_langName() const {
     else if (lang == Lang::PY) return "Python (with NumPy library)";
     else if (lang == Lang::IPYNB) return "IPyNb (with NumPy library)";
     else return "Impossible branch in \"Export::_langName()\"!";
+}
+
+std::string Export::_langExtension() const {
+    if (lang == Lang::CPP) return "cpp";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "m";
+    else if (lang == Lang::PY) return "py";
+    else if (lang == Lang::IPYNB) return "ipynb";
+    else return "Impossible branch in \"Export::_langExtension()\"!";
 }
 
 void Export::_info(const std::string& str) const {
@@ -107,7 +154,7 @@ T Export::_as(const YAML::Node& n) {
 }
 
 void Export::_setLatestError(const std::string& str) {
-    assert((!_errors.empty() & "Check if errors are empty when trying to edit the last record."));
+    assert((!_errors.empty() && "Check if errors are empty when trying to edit the last record."));
     (_errors.end() - 1)->msg = str;
 }
 
