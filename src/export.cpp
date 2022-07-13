@@ -82,6 +82,13 @@ std::string Export::_langExtension() const {
     else return "Impossible branch in \"Export::_langExtension()\"!";
 }
 
+std::string Export::_langCommentSymbol() const {
+    if (lang == Lang::CPP) return "//";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "%";
+    else if (lang == Lang::PY || lang == Lang::IPYNB) return "#";
+    else return "Impossible branch in \"Export::_langCommentSymbol()\"!";
+}
+
 void Export::_info(const std::string& str) const {
     std::cout << "[mmCEsim] export $ " << str << std::endl;
 }
@@ -179,4 +186,20 @@ void Export::_setLang() {
         _already_error_before_export = true;
     }
     _info("Set simulation backend as " + _langName() + ".");
+}
+
+bool Export::_isKeyword(const std::string& str) const {
+    if (lang == Lang::CPP) return contains(CPP_Keywords, str);
+    if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return contains(MATLAB_Keywords, str);
+    if (lang == Lang::PY || lang == Lang::IPYNB) return contains(PY_Keywords, str);
+}
+
+std::string Export::_asVarName(const std::string& str) const {
+    if (_isKeyword(str)) return str + "_";
+    else return str;
+}
+
+std::ofstream& Export::wComment() {
+    _f() << _langCommentSymbol() << ' ';
+    return _f();
 }

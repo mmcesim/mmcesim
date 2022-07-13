@@ -63,6 +63,15 @@ static inline std::string trim_copy(std::string s) {
     return s;
 }
 
+// check if STL container contains a value
+template<typename T>
+static inline bool contains(const T& container, const typename T::value_type value) {
+    for (const auto elem : container) {
+        if (elem == value) return true;
+    }
+    return false;
+}
+
 static inline std::string appDir() {
 #ifndef __linux__
     // application directory

@@ -21,6 +21,7 @@
 #include "error_code.h"
 #include "read.h"
 #include "cli_options.h"
+#include "utils.h"
 
 class Export {
 public:
@@ -68,6 +69,8 @@ private:
 
     std::string _langExtension() const;
 
+    std::string _langCommentSymbol() const;
+
     void _info(const std::string& str) const;
 
     // error message can be specified later
@@ -79,6 +82,12 @@ private:
     void _setLatestError(const std::string& str);
 
     void _setLang();
+
+    bool _isKeyword(const std::string& str) const;
+
+    std::string _asVarName(const std::string& str) const;
+
+    std::ofstream& wComment();
 
     CLI_Options _opt;
     YAML::Node _config;

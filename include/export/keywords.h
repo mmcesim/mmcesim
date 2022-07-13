@@ -21,6 +21,7 @@
 // C++ keywords
 // Reference: https://github.com/jeff-hykin/better-cpp-syntax/blob/master/main/tokens.rb
 static std::array CPP_Keywords = {
+    // standard C++
     std::string("alignof"),
     std::string("alignas"),
     std::string("typeid"),
@@ -228,12 +229,15 @@ static std::array CPP_Keywords = {
     std::string("pthread_once_t"),
     std::string("pthread_rwlock_t"),
     std::string("pthread_rwlockattr_t"),
-    std::string("pthread_key_t")
+    std::string("pthread_key_t"),
+    // Armadillo
+    std::string("armadillo"),
+    std::string("arma")
 };
 
 // MATLAB / Octave keywords
 // Use command "iskeyword"
-static std::array MATLAB_keywords = {
+static std::array MATLAB_Keywords = {
     // MATLAB specified keywords
     std::string("break"),
     std::string("case"),
@@ -260,7 +264,7 @@ static std::array MATLAB_keywords = {
 // Python keywords
 // import keyword
 // keyword.kwlist
-static std::array PY_keywords = {
+static std::array PY_Keywords = {
     // Python keywords
     std::string("False"),
     std::string("None"),
