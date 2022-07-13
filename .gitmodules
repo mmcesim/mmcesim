@@ -7,3 +7,6 @@
 [submodule "yaml-cpp"]
 	path = ext/yaml-cpp
 	url = https://github.com/mmcesim/yaml-cpp.git
+[submodule "mmcesim-gui"]
+	path = gui
+	url = https://github.com/mmcesim/mmcesim-gui.git
