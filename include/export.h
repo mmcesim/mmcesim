@@ -17,6 +17,7 @@
 #include <filesystem>
 #include <type_traits>
 #include <boost/algorithm/string.hpp>
+#include "export/keywords.h"
 #include "error_code.h"
 #include "read.h"
 #include "cli_options.h"
