@@ -22,6 +22,11 @@
 #include "simulate.h"
 #include "export.h"
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning (disable: 4244)
+#endif
+
 int main(int argc, char* argv[]) {
     namespace po = boost::program_options;
 

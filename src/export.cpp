@@ -47,6 +47,7 @@ Export::~Export() {
 YAML_Errors Export::exportCode() {
     if (_already_error_before_export) return _errors;
     // do something
+    _topComment();
     _f_ptr->close();
     return _errors;
 }
@@ -80,6 +81,14 @@ std::string Export::_langExtension() const {
     else if (lang == Lang::PY) return "py";
     else if (lang == Lang::IPYNB) return "ipynb";
     else return "Impossible branch in \"Export::_langExtension()\"!";
+}
+
+std::string Export::_langHeaderExtension() const {
+    if (lang == Lang::CPP) return "h";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "m";
+    else if (lang == Lang::PY) return "py";
+    else if (lang == Lang::IPYNB) return "ipynb";
+    else return "Impossible branch in \"Export::_langHeaderExtension()\"!";
 }
 
 std::string Export::_langCommentSymbol() const {
@@ -160,6 +169,10 @@ T Export::_as(const YAML::Node& n) {
     }
 }
 
+std::string Export::_asStr(const YAML::Node& n) {
+    return _as<std::string>(n);
+}
+
 void Export::_setLatestError(const std::string& str) {
     assert((!_errors.empty() && "Check if errors are empty when trying to edit the last record."));
     (_errors.end() - 1)->msg = str;
@@ -192,6 +205,7 @@ bool Export::_isKeyword(const std::string& str) const {
     if (lang == Lang::CPP) return contains(CPP_Keywords, str);
     if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return contains(MATLAB_Keywords, str);
     if (lang == Lang::PY || lang == Lang::IPYNB) return contains(PY_Keywords, str);
+    else return false; // though impossible here
 }
 
 std::string Export::_asVarName(const std::string& str) const {
@@ -199,7 +213,51 @@ std::string Export::_asVarName(const std::string& str) const {
     else return str;
 }
 
-std::ofstream& Export::wComment() {
+std::ofstream& Export::_wComment() {
     _f() << _langCommentSymbol() << ' ';
     return _f();
+}
+
+void Export::_topComment() {
+    // TODO: ipynb settings
+    std::string title;
+    try {
+        title = _asStr(_config["meta"]["title"]);
+        if (title == "") throw("Title empty!");
+    } catch(...) {
+        title =  _opt.output ; // TODO: Only file name.
+    }
+    _wComment() << "Title: " << title << '\n';
+    try {
+        std::string desc = _asStr(_config["meta"]["description"]);
+        _wComment() << "Description: " << desc << '\n';
+    } catch(...) {}
+    try {
+        std::string author = _asStr(_config["meta"]["author"]);
+        _wComment() << "Author: " << author << '\n';
+    } catch(...) {}
+
+    // get the current time
+    std::time_t curr_time = std::time(nullptr);
+    std::tm     curr_tm   = *std::localtime(&curr_time);
+    const char* time_format = "%F %T (UTC %z)";
+
+    _wComment() << "Date: " << std::put_time(&curr_tm, time_format) << "\n";
+    _wComment() << '\n';
+    _wComment() << "This file is auto generated using " << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << ",\n";
+    _wComment() << "With initial target as version " << _config["_compiled"]["version_str"] << ".\n";
+    _wComment() << '\n';
+    _wComment() << _MMCESIM_NAME << " is open source under the " << _MMCESIM_LIC << ".\n";
+    _wComment() << "GitHub organization at " << _MMCESIM_GIT << ".\n";
+    _wComment() << "Web app is available at " << _MMCESIM_WEBAPP << ".\n";
+    _wComment() << "Visit " << _MMCESIM_WEB << " for more information.\n";
+    if (lang == Lang::CPP) {
+        _wComment() << '\n';
+        _wComment() << "Compile Commands:\n";
+        _wComment() << "  g++ " << _opt.output << " -std=c++11 -larmadillo\n";
+        _wComment() << "or\n";
+        _wComment() << "  clang++ " << _opt.output << " -std=c++11 -larmadillo\n";
+        _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
+    }
+    _f() << "\n";
 }

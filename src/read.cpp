@@ -47,6 +47,9 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
             _compiled["version"] = _compiled["versions"][0].as<int>() * 0x10000
                                  + _compiled["versions"][1].as<int>() * 0x100
                                  + _compiled["versions"][2].as<int>(); // 0x000100
+            _compiled["version_str"] = _compiled["versions"][0].as<std::string>() + "."
+                                     + _compiled["versions"][1].as<std::string>() + "."
+                                     + _compiled["versions"][2].as<std::string>();
             config["_compiled"] = _compiled;
         } else {
             YAML_Error err(Err::VERSION_STRING_ERROR);

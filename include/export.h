@@ -16,6 +16,7 @@
 #include <fstream>
 #include <filesystem>
 #include <type_traits>
+#include <ctime>
 #include <boost/algorithm/string.hpp>
 #include "export/keywords.h"
 #include "error_code.h"
@@ -69,6 +70,8 @@ private:
 
     std::string _langExtension() const;
 
+    std::string _langHeaderExtension() const;
+
     std::string _langCommentSymbol() const;
 
     void _info(const std::string& str) const;
@@ -79,6 +82,8 @@ private:
     template<typename T>
     T _as(const YAML::Node& n);
 
+    std::string _asStr(const YAML::Node& n);
+
     void _setLatestError(const std::string& str);
 
     void _setLang();
@@ -87,7 +92,9 @@ private:
 
     std::string _asVarName(const std::string& str) const;
 
-    std::ofstream& wComment();
+    std::ofstream& _wComment();
+
+    void _topComment();
 
     CLI_Options _opt;
     YAML::Node _config;
