@@ -77,12 +77,12 @@ private:
     void _info(const std::string& str) const;
 
     // error message can be specified later
-    bool _preCheck(const YAML::Node& node, unsigned allowed_type);
+    bool _preCheck(const YAML::Node& node, unsigned allowed_type, bool mattered = true);
 
     template<typename T>
-    T _as(const YAML::Node& n);
+    T _as(const YAML::Node& n, bool mattered = true);
 
-    std::string _asStr(const YAML::Node& n);
+    std::string _asStr(const YAML::Node& n, bool mattered = true);
 
     void _setLatestError(const std::string& str);
 

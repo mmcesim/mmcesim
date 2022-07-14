@@ -102,7 +102,7 @@ void Export::_info(const std::string& str) const {
     std::cout << "[mmCEsim] export $ " << str << std::endl;
 }
 
-bool Export::_preCheck(const YAML::Node& n, unsigned a_t) {
+bool Export::_preCheck(const YAML::Node& n, unsigned a_t, bool mattered) {
     bool find_match = false;
     if (a_t & DType::INT && n.IsScalar()) {
         find_match = true;
@@ -138,29 +138,31 @@ bool Export::_preCheck(const YAML::Node& n, unsigned a_t) {
     }
     if (find_match) return true;
     else {
-        // This is the general error message,
-        // but in use, the error message can be more specific
-        // by using method _setLatestError.
-        std::string msg = errorMsg(Err::YAML_DTYPE) + " (" + n.Tag() + ")";
-        YAML_Error e(msg, Err::YAML_DTYPE);
-        _errors.push_back(e);
+        if (mattered) {
+            // This is the general error message,
+            // but in use, the error message can be more specific
+            // by using method _setLatestError.
+            std::string msg = errorMsg(Err::YAML_DTYPE) + " (" + n.Tag() + ")";
+            YAML_Error e(msg, Err::YAML_DTYPE);
+            _errors.push_back(e);
+        }
         return false;
     }
 }
 
 template<typename T>
-T Export::_as(const YAML::Node& n) {
+T Export::_as(const YAML::Node& n, bool mattered) {
     bool l;
     if (std::is_same_v<T, int>) {
-        l = _preCheck(n, DType::INT);
+        l = _preCheck(n, DType::INT, mattered);
     } else if (std::is_same_v<T, double>) {
-        l = _preCheck(n, DType::DOUBLE);
+        l = _preCheck(n, DType::DOUBLE, mattered);
     } else if (std::is_same_v<T, std::string>) {
-        l = _preCheck(n, DType::STRING);
+        l = _preCheck(n, DType::STRING, mattered);
     } else if (std::is_same_v<T, bool>) {
-        l = _preCheck(n, DType::BOOL);
+        l = _preCheck(n, DType::BOOL, mattered);
     } else if (std::is_same_v<T, char>) {
-        l = _preCheck(n, DType::CHAR);
+        l = _preCheck(n, DType::CHAR, mattered);
     }
     if (l) {
         return n.as<T>();
@@ -169,8 +171,8 @@ T Export::_as(const YAML::Node& n) {
     }
 }
 
-std::string Export::_asStr(const YAML::Node& n) {
-    return _as<std::string>(n);
+std::string Export::_asStr(const YAML::Node& n, bool mattered) {
+    return _as<std::string>(n, mattered);
 }
 
 void Export::_setLatestError(const std::string& str) {
@@ -222,18 +224,18 @@ void Export::_topComment() {
     // TODO: ipynb settings
     std::string title;
     try {
-        title = _asStr(_config["meta"]["title"]);
+        title = _asStr(_config["meta"]["title"], false);
         if (title == "") throw("Title empty!");
     } catch(...) {
         title =  _opt.output ; // TODO: Only file name.
     }
     _wComment() << "Title: " << title << '\n';
     try {
-        std::string desc = _asStr(_config["meta"]["description"]);
+        std::string desc = _asStr(_config["meta"]["description"], false);
         _wComment() << "Description: " << desc << '\n';
     } catch(...) {}
     try {
-        std::string author = _asStr(_config["meta"]["author"]);
+        std::string author = _asStr(_config["meta"]["author"], false);
         _wComment() << "Author: " << author << '\n';
     } catch(...) {}
 
