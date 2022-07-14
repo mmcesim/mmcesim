@@ -104,4 +104,91 @@ private:
     
 };
 
+template<typename T>
+inline T Export::_as(const YAML::Node& n, bool mattered) {
+    bool l;
+    if (std::is_same_v<T, int>) {
+        l = _preCheck(n, DType::INT, mattered);
+    } else if (std::is_same_v<T, double>) {
+        l = _preCheck(n, DType::DOUBLE, mattered);
+    } else if (std::is_same_v<T, std::string>) {
+        l = _preCheck(n, DType::STRING, mattered);
+    } else if (std::is_same_v<T, bool>) {
+        l = _preCheck(n, DType::BOOL, mattered);
+    } else if (std::is_same_v<T, char>) {
+        l = _preCheck(n, DType::CHAR, mattered);
+    }
+    if (l) {
+        return n.as<T>();
+    } else {
+        throw("Invalid!");
+    }
+}
+
+inline std::ofstream& Export::_f() {
+    return *_f_ptr;
+}
+
+inline std::string Export::_langName() const {
+    if (lang == Lang::CPP) return "C++ (with Armadillo library)";
+    else if (lang == Lang::MATLAB) return "MATLAB";
+    else if (lang == Lang::OCTAVE) return "GNU Octave";
+    else if (lang == Lang::PY) return "Python (with NumPy library)";
+    else if (lang == Lang::IPYNB) return "IPyNb (with NumPy library)";
+    else return "Impossible branch in \"Export::_langName()\"!";
+}
+
+inline std::string Export::_langExtension() const {
+    if (lang == Lang::CPP) return "cpp";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "m";
+    else if (lang == Lang::PY) return "py";
+    else if (lang == Lang::IPYNB) return "ipynb";
+    else return "Impossible branch in \"Export::_langExtension()\"!";
+}
+
+inline std::string Export::_langHeaderExtension() const {
+    if (lang == Lang::CPP) return "h";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "m";
+    else if (lang == Lang::PY) return "py";
+    else if (lang == Lang::IPYNB) return "ipynb";
+    else return "Impossible branch in \"Export::_langHeaderExtension()\"!";
+}
+
+inline std::string Export::_langCommentSymbol() const {
+    if (lang == Lang::CPP) return "//";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "%";
+    else if (lang == Lang::PY || lang == Lang::IPYNB) return "#";
+    else return "Impossible branch in \"Export::_langCommentSymbol()\"!";
+}
+
+inline void Export::_info(const std::string& str) const {
+    std::cout << "[mmCEsim] export $ " << str << std::endl;
+}
+
+inline std::string Export::_asStr(const YAML::Node& n, bool mattered) {
+    return _as<std::string>(n, mattered);
+}
+
+inline void Export::_setLatestError(const std::string& str) {
+    assert((!_errors.empty() && "Check if errors are empty when trying to edit the last record."));
+    (_errors.end() - 1)->msg = str;
+}
+
+inline bool Export::_isKeyword(const std::string& str) const {
+    if (lang == Lang::CPP) return contains(CPP_Keywords, str);
+    if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return contains(MATLAB_Keywords, str);
+    if (lang == Lang::PY || lang == Lang::IPYNB) return contains(PY_Keywords, str);
+    else return false; // though impossible here
+}
+
+inline std::string Export::_asVarName(const std::string& str) const {
+    if (_isKeyword(str)) return str + "_";
+    else return str;
+}
+
+inline std::ofstream& Export::_wComment() {
+    _f() << _langCommentSymbol() << ' ';
+    return _f();
+}
+
 #endif

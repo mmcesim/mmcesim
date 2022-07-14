@@ -62,46 +62,6 @@ YAML_Errors Export::exportCode(const CLI_Options& opt, const YAML::Node& config,
     return ep.exportCode();
 }
 
-std::ofstream& Export::_f() {
-    return *_f_ptr;
-}
-
-std::string Export::_langName() const {
-    if (lang == Lang::CPP) return "C++ (with Armadillo library)";
-    else if (lang == Lang::MATLAB) return "MATLAB";
-    else if (lang == Lang::OCTAVE) return "GNU Octave";
-    else if (lang == Lang::PY) return "Python (with NumPy library)";
-    else if (lang == Lang::IPYNB) return "IPyNb (with NumPy library)";
-    else return "Impossible branch in \"Export::_langName()\"!";
-}
-
-std::string Export::_langExtension() const {
-    if (lang == Lang::CPP) return "cpp";
-    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "m";
-    else if (lang == Lang::PY) return "py";
-    else if (lang == Lang::IPYNB) return "ipynb";
-    else return "Impossible branch in \"Export::_langExtension()\"!";
-}
-
-std::string Export::_langHeaderExtension() const {
-    if (lang == Lang::CPP) return "h";
-    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "m";
-    else if (lang == Lang::PY) return "py";
-    else if (lang == Lang::IPYNB) return "ipynb";
-    else return "Impossible branch in \"Export::_langHeaderExtension()\"!";
-}
-
-std::string Export::_langCommentSymbol() const {
-    if (lang == Lang::CPP) return "//";
-    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "%";
-    else if (lang == Lang::PY || lang == Lang::IPYNB) return "#";
-    else return "Impossible branch in \"Export::_langCommentSymbol()\"!";
-}
-
-void Export::_info(const std::string& str) const {
-    std::cout << "[mmCEsim] export $ " << str << std::endl;
-}
-
 bool Export::_preCheck(const YAML::Node& n, unsigned a_t, bool mattered) {
     bool find_match = false;
     if (a_t & DType::INT && n.IsScalar()) {
@@ -150,36 +110,6 @@ bool Export::_preCheck(const YAML::Node& n, unsigned a_t, bool mattered) {
     }
 }
 
-template<typename T>
-T Export::_as(const YAML::Node& n, bool mattered) {
-    bool l;
-    if (std::is_same_v<T, int>) {
-        l = _preCheck(n, DType::INT, mattered);
-    } else if (std::is_same_v<T, double>) {
-        l = _preCheck(n, DType::DOUBLE, mattered);
-    } else if (std::is_same_v<T, std::string>) {
-        l = _preCheck(n, DType::STRING, mattered);
-    } else if (std::is_same_v<T, bool>) {
-        l = _preCheck(n, DType::BOOL, mattered);
-    } else if (std::is_same_v<T, char>) {
-        l = _preCheck(n, DType::CHAR, mattered);
-    }
-    if (l) {
-        return n.as<T>();
-    } else {
-        throw("Invalid!");
-    }
-}
-
-std::string Export::_asStr(const YAML::Node& n, bool mattered) {
-    return _as<std::string>(n, mattered);
-}
-
-void Export::_setLatestError(const std::string& str) {
-    assert((!_errors.empty() && "Check if errors are empty when trying to edit the last record."));
-    (_errors.end() - 1)->msg = str;
-}
-
 void Export::_setLang() {
     _info(std::string("This is mmCEsim ") + _MMCESIM_VER_STR
         + ", with target version " + _config["version"].as<std::string>() + ".");
@@ -201,23 +131,6 @@ void Export::_setLang() {
         _already_error_before_export = true;
     }
     _info("Set simulation backend as " + _langName() + ".");
-}
-
-bool Export::_isKeyword(const std::string& str) const {
-    if (lang == Lang::CPP) return contains(CPP_Keywords, str);
-    if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return contains(MATLAB_Keywords, str);
-    if (lang == Lang::PY || lang == Lang::IPYNB) return contains(PY_Keywords, str);
-    else return false; // though impossible here
-}
-
-std::string Export::_asVarName(const std::string& str) const {
-    if (_isKeyword(str)) return str + "_";
-    else return str;
-}
-
-std::ofstream& Export::_wComment() {
-    _f() << _langCommentSymbol() << ' ';
-    return _f();
 }
 
 void Export::_topComment() {
@@ -256,9 +169,9 @@ void Export::_topComment() {
     if (lang == Lang::CPP) {
         _wComment() << '\n';
         _wComment() << "Compile Commands:\n";
-        _wComment() << "  g++ " << _opt.output << " -std=c++11 -larmadillo\n";
+        _wComment() << "$ g++ " << _opt.output << " -std=c++11 -larmadillo\n";
         _wComment() << "or\n";
-        _wComment() << "  clang++ " << _opt.output << " -std=c++11 -larmadillo\n";
+        _wComment() << "$ clang++ " << _opt.output << " -std=c++11 -larmadillo\n";
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
     }
     _f() << "\n";
