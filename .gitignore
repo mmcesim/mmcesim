@@ -37,3 +37,11 @@
 # This Project
 /build
 /bin
+build-*
+CMakeCache.txt
+DartConfiguration.tcl
+CMakeFiles
+cmake_install.cmake
+CPack*
+CTest*
+Makefile

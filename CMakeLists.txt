@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(mmCEsim VERSION 0.1.0)
 
+option(MMCESIM_BUILD_GUI "Build mmCEsim GUI App with Qt" OFF)
+
 # set(Boost_USE_STATIC_LIBS ON)
 if (UNIX AND NOT APPLE) # Linux
     find_package(
@@ -69,6 +71,10 @@ add_executable(mmcesim ${SOURCES})
 target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp)
 if (USE_THREADS)
     target_link_libraries(mmcesim PRIVATE Threads::Threads)
+endif()
+
+if (MMCESIM_BUILD_GUI)
+    add_subdirectory(gui)
 endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
