@@ -48,7 +48,8 @@ YAML_Errors Export::exportCode() {
     if (_already_error_before_export) return _errors;
     // do something
     _topComment();
-    _f_ptr->close();
+    _setTransmitterReceiver();
+    _f().close();
     return _errors;
 }
 
@@ -175,4 +176,32 @@ void Export::_topComment() {
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
     }
     _f() << "\n";
+}
+
+bool Export::_setTransmitterReceiver() {
+    if (!_preCheck(_config["nodes"], DType::SEQ)) return false;
+    auto nodes = _config["nodes"];
+    for (int i = 0; i != nodes.size(); ++i) {
+        auto node = nodes[i]["role"];
+        if (!_preCheck(node, DType::STRING | DType::UNDEF)) return false;
+        if (node.IsDefined()) {
+            if (auto s = boost::algorithm::to_lower_copy(node.as<std::string>());
+                s == "transmitter" || s == "transmit" || s == "tx" || s == "t") {
+                _transmitters.push_back(i);
+            } else if (s == "receiver" || s == "receive" || s == "rx" || s == "r") {
+                _receivers.push_back(i);
+            }
+        }
+    }
+    if (_transmitters.size() > _MAX_TX) {
+        YAML_Error e("Too many transmitters. In mmCEsim " + _MMCESIM_VER_STR +
+            " there can be at most " + std::to_string(_MAX_TX) + "transmitters.", Err::TOO_MANY_TX);
+        return false;
+    }
+    if (_receivers.size() > _MAX_RX) {
+        YAML_Error e("Too many receivers. In mmCEsim " + _MMCESIM_VER_STR +
+            " there can be at most " + std::to_string(_MAX_TX) + "receivers.", Err::TOO_MANY_RX);
+        return false;
+    }
+    return true;
 }

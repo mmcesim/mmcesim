@@ -17,6 +17,7 @@
 #include <filesystem>
 #include <type_traits>
 #include <ctime>
+#include <vector>
 #include <boost/algorithm/string.hpp>
 #include "export/keywords.h"
 #include "error_code.h"
@@ -96,12 +97,18 @@ private:
 
     void _topComment();
 
+    bool _setTransmitterReceiver();
+
     CLI_Options _opt;
     YAML::Node _config;
     YAML_Errors _errors;
     bool _already_error_before_export = false;
     std::ofstream* _f_ptr;
-    
+    std::vector<int> _transmitters;
+    std::vector<int> _receivers;
+
+    const int _MAX_TX = 1;
+    const int _MAX_RX = 1;
 };
 
 template<typename T>
