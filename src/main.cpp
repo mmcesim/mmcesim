@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "simulate.h"
 #include "export.h"
+#include "style.h"
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
@@ -43,6 +44,8 @@ int main(int argc, char* argv[]) {
     config.add_options()
         ("output,o", po::value<std::string>(&opt.output),
             "output file name")
+        ("style,s", po::value<std::string>(&opt.style),
+            "style options (C++ only, with astyle)")
         ("force,f", "force writing mode")
     ;
 
@@ -135,6 +138,9 @@ int main(int argc, char* argv[]) {
         auto errors = Export::exportCode(opt);
     } else {
         errorExit(Err::UNKOWN_CMD);
+    }
+    if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
+        // TODO: fill astyle afterwards check
     }
 
     return 0;

@@ -229,12 +229,12 @@ bool Export::_setTransmitterReceiver() {
     }
     if (_transmitters.size() > _MAX_TX) {
         YAML_Error e("Too many transmitters. In mmCEsim " + _MMCESIM_VER_STR +
-            " there can be at most " + std::to_string(_MAX_TX) + "transmitters.", Err::TOO_MANY_TX);
+            " there can be at most " + std::to_string(_MAX_TX) + " transmitters.", Err::TOO_MANY_TX);
         return false;
     }
     if (_receivers.size() > _MAX_RX) {
         YAML_Error e("Too many receivers. In mmCEsim " + _MMCESIM_VER_STR +
-            " there can be at most " + std::to_string(_MAX_TX) + "receivers.", Err::TOO_MANY_RX);
+            " there can be at most " + std::to_string(_MAX_RX) + " receivers.", Err::TOO_MANY_RX);
         return false;
     }
     return true;
