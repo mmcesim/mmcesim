@@ -73,6 +73,8 @@ private:
 
     std::string _langHeaderExtension() const;
 
+    std::string _langMmcesimExtension() const;
+
     std::string _langCommentSymbol() const;
 
     void _info(const std::string& str) const;
@@ -96,6 +98,12 @@ private:
     std::ofstream& _wComment();
 
     void _topComment();
+
+    void _beginning();
+
+    void _generateChannels();
+
+    void _ending();
 
     bool _setTransmitterReceiver();
 
@@ -159,6 +167,13 @@ inline std::string Export::_langHeaderExtension() const {
     else if (lang == Lang::PY) return "py";
     else if (lang == Lang::IPYNB) return "ipynb";
     else return "Impossible branch in \"Export::_langHeaderExtension()\"!";
+}
+
+inline std::string Export::_langMmcesimExtension() const {
+    if (lang == Lang::CPP) return "mmcesim-cpp";
+    else if (lang == Lang::MATLAB || lang == Lang::OCTAVE) return "mmcesim-m";
+    else if (lang == Lang::PY || lang == Lang::IPYNB) return "mmcesim-py";
+    else return "Impossible branch in \"Export::_langMmcesimExtension()\"!";
 }
 
 inline std::string Export::_langCommentSymbol() const {

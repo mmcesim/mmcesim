@@ -17,9 +17,14 @@ meta: # document meta data
   comments: This is an uplink channel.
 physics:
   frequency: narrow # assume narrow band
+  off_grid: false # do not consider off-grid problem
 nodes:
   - id: BS # this should be unique
     role: receiver
+    gains:
+      mode: normal
+      mean: 0
+      variance: 1
     num: 1 # this is the default value
     size: [8, 4] # UPA with size 8x4
     beam: [4, 2]

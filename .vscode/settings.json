@@ -7,9 +7,11 @@
         "IPYNB",
         "MIMO",
         "MMCESIM",
+        "uword",
         "xelatex"
     ],
     "files.associations": {
+        "*.sim": "yaml",
         "__bit_reference": "cpp",
         "__bits": "cpp",
         "__config": "cpp",
@@ -110,6 +112,7 @@
         "valarray": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "*.mmcesim-cpp": "cpp"
     }
 }

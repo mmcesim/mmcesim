@@ -1,2 +1,5 @@
 *.sim linguist-language=YAML
 *.alg linguist-language=YAML
+*.mmcesim-cpp linguist-language=C++
+*.mmcesim-py linguist-language=Python
+*.mmcesim-m linguist-language=MATLAB

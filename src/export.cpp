@@ -48,7 +48,10 @@ YAML_Errors Export::exportCode() {
     if (_already_error_before_export) return _errors;
     // do something
     _topComment();
+    _beginning();
     _setTransmitterReceiver();
+    _generateChannels();
+    _ending();
     _f().close();
     return _errors;
 }
@@ -176,6 +179,37 @@ void Export::_topComment() {
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
     }
     _f() << "\n";
+}
+
+void Export::_beginning() {
+    std::ifstream header_file("../include/mmcesim/copy/header." + _langMmcesimExtension());
+    std::string header_content = "";
+    while (!header_file.eof()) {
+        header_content += header_file.get();
+    }
+    header_content.erase(header_content.end() - 1); // last read character is invalid, erase it
+    _f() << header_content << '\n';
+}
+
+void Export::_generateChannels() {
+    std::ifstream channel_file("../include/mmcesim/copy/channel." + _langMmcesimExtension());
+    std::string channel_content = "";
+    while (!channel_file.eof()) {
+        channel_content += channel_file.get();
+    }
+    channel_content.erase(channel_content.end() - 1); // last read character is invalid, erase it
+    _f() << channel_content << '\n';
+    if (lang == Lang::CPP) {
+        _f() << "int main(int argc, char* argv[]) {\n"
+             << "arma_rng::set_seed_random();\n";
+    }
+    // TODO: Generate channels.
+}
+
+void Export::_ending() {
+    if (lang == Lang::CPP) {
+        _f() << "}\n";
+    }
 }
 
 bool Export::_setTransmitterReceiver() {
