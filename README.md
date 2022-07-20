@@ -29,3 +29,10 @@ Generic options:
 Configuration:
   -o [ --output ] arg    output file name
 ```
+
+## Build
+| TinyTeX-mmCEsim | MinGW-mmCEsim |
+| :-: | :-: |
+| Portable LaTeX Engine for Report Export | C++ Compiler Backend on Windows |
+| [mmcesim/tinytex-mmcesim](https://github.com/mmcesim/tinytex-mmcesim) | [mmcesim/mingw-mmcesim](https://github.com/mmcesim/mingw-mmcesim) |
+| [![Build TinyTeX-mmCEsim](https://github.com/mmcesim/tinytex-mmcesim/actions/workflows/build.yml/badge.svg)](https://github.com/mmcesim/tinytex-mmcesim/actions/workflows/build.yml) | [![Build MinGW-mmCEsim](https://github.com/mmcesim/mingw-mmcesim/actions/workflows/build.yml/badge.svg)](https://github.com/mmcesim/mingw-mmcesim/actions/workflows/build.yml) |
