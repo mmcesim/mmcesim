@@ -1,4 +1,11 @@
 # mmCEsim [![Build mmCEsim CLI](https://github.com/mmcesim/mmcesim/actions/workflows/build.yml/badge.svg)](https://github.com/mmcesim/mmcesim/actions/workflows/build.yml)
+![Code Size](https://img.shields.io/github/languages/code-size/mmcesim/mmcesim)
+![Total Lines](https://img.shields.io/tokei/lines/github/mmcesim/mmcesim)
+![License](https://img.shields.io/github/license/mmcesim/mmcesim)
+![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)
+![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)
+<!-- ![Twitter](https://img.shields.io/twitter/follow/mmcesim?style=social) -->
+
 CLI Application for Millimeter Wave Channel Estimation Simulation
 
 > This application is currently under active development.
