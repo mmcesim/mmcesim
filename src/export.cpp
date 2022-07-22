@@ -1,7 +1,13 @@
 #include "export.h"
 
-Export::Export(const CLI_Options& opt) : _opt(opt) {
-    std::tie(_config,_errors) = ReadConfig::read(opt.input);
+Export::Export(CLI_Options& opt) : _opt(opt) {
+    std::tie(_config, _errors) = ReadConfig::read(opt.input);
+    if (_hasError(_errors)) {
+        // The reading process already has errors not warnings,
+        // so there is no need to export.
+        _already_error_before_export = true;
+        return;
+    }
     _setLang();
     if (_opt.output == "__UNDEFINED") {
         std::filesystem::path input_path = _opt.input;
@@ -20,8 +26,14 @@ Export::Export(const CLI_Options& opt) : _opt(opt) {
     }
 }
 
-Export::Export(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) 
+Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) 
     : _opt(opt), _config(config), _errors(errors) {
+    if (_hasError(_errors)) {
+        // The reading process already has errors not warnings,
+        // so there is no need to export.
+        _already_error_before_export = true;
+        return;
+    }
     _setLang();
     if (_opt.output == "__UNDEFINED") {
         std::filesystem::path input_path = _opt.input;
@@ -56,12 +68,12 @@ YAML_Errors Export::exportCode() {
     return _errors;
 }
 
-YAML_Errors Export::exportCode(const CLI_Options& opt) {
+YAML_Errors Export::exportCode(CLI_Options& opt) {
     Export ep(opt);
     return ep.exportCode();
 }
 
-YAML_Errors Export::exportCode(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) {
+YAML_Errors Export::exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) {
     Export ep(opt, config, errors);
     return ep.exportCode();
 }
@@ -173,16 +185,16 @@ void Export::_topComment() {
     if (lang == Lang::CPP) {
         _wComment() << '\n';
         _wComment() << "Compile Commands:\n";
-        _wComment() << "$ g++ " << _opt.output << " -std=c++11 -larmadillo\n";
+        _wComment() << "$ g++ " << _opt.output << " -std=c++17 -larmadillo\n";
         _wComment() << "or\n";
-        _wComment() << "$ clang++ " << _opt.output << " -std=c++11 -larmadillo\n";
+        _wComment() << "$ clang++ " << _opt.output << " -std=c++17 -larmadillo\n";
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
     }
     _f() << "\n";
 }
 
 void Export::_beginning() {
-    std::ifstream header_file("../include/mmcesim/copy/header." + _langMmcesimExtension());
+    std::ifstream header_file(appDir() + "/../include/mmcesim/copy/header." + _langMmcesimExtension());
     std::string header_content = "";
     while (!header_file.eof()) {
         header_content += header_file.get();
@@ -192,8 +204,9 @@ void Export::_beginning() {
 }
 
 void Export::_generateChannels() {
-    std::ifstream channel_file("../include/mmcesim/copy/channel." + _langMmcesimExtension());
+    std::ifstream channel_file(appDir() + "/../include/mmcesim/copy/channel." + _langMmcesimExtension());
     std::string channel_content = "";
+    if (!channel_file.is_open()) errorExit(Err::CANNOT_COPY_FROM_INCLUDE);
     while (!channel_file.eof()) {
         channel_content += channel_file.get();
     }
@@ -208,7 +221,7 @@ void Export::_generateChannels() {
 
 void Export::_ending() {
     if (lang == Lang::CPP) {
-        _f() << "}\n";
+        _f() << "return 0;\n}\n";
     }
 }
 

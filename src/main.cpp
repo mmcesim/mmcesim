@@ -132,7 +132,7 @@ int main(int argc, char* argv[]) {
     }
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
-        auto [config, errors] = ReadConfig::read(opt.input);
+        auto errors = Export::exportCode(opt);
         if (!errors.empty()) errorExit(errors[0].ec);
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
         auto errors = Export::exportCode(opt);
@@ -140,7 +140,8 @@ int main(int argc, char* argv[]) {
         errorExit(Err::UNKOWN_CMD);
     }
     if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
-        // TODO: fill astyle afterwards check
+        std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+        return errorCode(Err::ASTYLE_ERROR);
     }
 
     return 0;

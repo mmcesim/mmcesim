@@ -18,7 +18,7 @@ int Style::style() const {
     std::cout << "\n";
     std::string app_dir = appDir();
     std::string astyle_path = app_dir.append("/astyle");
-    std::string astyle_options = _options + " " + _file_name;
+    std::string astyle_options = std::string("--suffix=none --indent-namespaces ") + _options + " " + _file_name;
     std::string line;
     boost::process::ipstream is; //reading pipe-stream
     boost::process::child astyle_process(
@@ -31,7 +31,7 @@ int Style::style() const {
     }
     astyle_process.wait();
     int e = astyle_process.exit_code();
-    if (e) std::cerr << "\nInternal astyle command: " << astyle_path + " " + astyle_options;
+    if (e) std::cerr << "\nInternal astyle command: " << astyle_path + " " + astyle_options << std::endl;
     return e;
 }
 

@@ -52,17 +52,17 @@ public:
         UNDEF = 2048 ///< undefined
     };
 
-    Export(const CLI_Options& opt);
+    Export(CLI_Options& opt);
 
-    Export(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
+    Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
 
     ~Export();
 
     YAML_Errors exportCode();
 
-    static YAML_Errors exportCode(const CLI_Options& opt);
+    static YAML_Errors exportCode(CLI_Options& opt);
 
-    static YAML_Errors exportCode(const CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
+    static YAML_Errors exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
 
 private:
     std::ofstream& _f();
@@ -78,6 +78,9 @@ private:
     std::string _langCommentSymbol() const;
 
     void _info(const std::string& str) const;
+
+    // should distinguish between error and warning
+    bool _hasError(const YAML_Errors& e) const;
 
     // error message can be specified later
     bool _preCheck(const YAML::Node& node, unsigned allowed_type, bool mattered = true);
@@ -107,7 +110,7 @@ private:
 
     bool _setTransmitterReceiver();
 
-    CLI_Options _opt;
+    CLI_Options& _opt;
     YAML::Node _config;
     YAML_Errors _errors;
     bool _already_error_before_export = false;
@@ -185,6 +188,13 @@ inline std::string Export::_langCommentSymbol() const {
 
 inline void Export::_info(const std::string& str) const {
     std::cout << "[mmCEsim] export $ " << str << std::endl;
+}
+
+inline bool Export::_hasError(const YAML_Errors& e) const {
+    for (auto&& item : e) {
+        if (isError(item.ec)) return true;
+    }
+    return false;
 }
 
 inline std::string Export::_asStr(const YAML::Node& n, bool mattered) {
