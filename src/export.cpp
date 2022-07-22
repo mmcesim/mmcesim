@@ -2,7 +2,7 @@
 
 Export::Export(CLI_Options& opt) : _opt(opt) {
     std::tie(_config, _errors) = ReadConfig::read(opt.input);
-    if (_hasError(_errors)) {
+    if (hasError(_errors)) {
         // The reading process already has errors not warnings,
         // so there is no need to export.
         _already_error_before_export = true;
@@ -28,7 +28,7 @@ Export::Export(CLI_Options& opt) : _opt(opt) {
 
 Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) 
     : _opt(opt), _config(config), _errors(errors) {
-    if (_hasError(_errors)) {
+    if (hasError(_errors)) {
         // The reading process already has errors not warnings,
         // so there is no need to export.
         _already_error_before_export = true;
@@ -57,7 +57,10 @@ Export::~Export() {
 }
 
 YAML_Errors Export::exportCode() {
-    if (_already_error_before_export) return _errors;
+    if (_already_error_before_export) {
+        _info("Error while reading .sim configuration file.");
+        return _errors;
+    }
     // do something
     _topComment();
     _beginning();

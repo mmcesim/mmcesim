@@ -49,4 +49,11 @@ private:
     std::string _file;
 };
 
+static inline bool hasError(const YAML_Errors& e) {
+    for (auto&& item : e) {
+        if (isError(item.ec)) return true;
+    }
+    return false;
+}
+
 #endif

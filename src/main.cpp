@@ -132,10 +132,11 @@ int main(int argc, char* argv[]) {
     }
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
-        auto errors = Export::exportCode(opt);
-        if (!errors.empty()) errorExit(errors[0].ec);
+        auto&& errors = Export::exportCode(opt);
+        if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
-        auto errors = Export::exportCode(opt);
+        auto&& errors = Export::exportCode(opt);
+        if (hasError(errors)) errorExit(errors[0].ec);
     } else {
         errorExit(Err::UNKOWN_CMD);
     }

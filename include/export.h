@@ -79,9 +79,6 @@ private:
 
     void _info(const std::string& str) const;
 
-    // should distinguish between error and warning
-    bool _hasError(const YAML_Errors& e) const;
-
     // error message can be specified later
     bool _preCheck(const YAML::Node& node, unsigned allowed_type, bool mattered = true);
 
@@ -188,13 +185,6 @@ inline std::string Export::_langCommentSymbol() const {
 
 inline void Export::_info(const std::string& str) const {
     std::cout << "[mmCEsim] export $ " << str << std::endl;
-}
-
-inline bool Export::_hasError(const YAML_Errors& e) const {
-    for (auto&& item : e) {
-        if (isError(item.ec)) return true;
-    }
-    return false;
 }
 
 inline std::string Export::_asStr(const YAML::Node& n, bool mattered) {
