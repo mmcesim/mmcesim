@@ -12,6 +12,8 @@
 #ifndef _ALG_H_
 #define _ALG_H_
 
+#include "export/alg_line.h"
+
 class Alg {
 
 };

@@ -1,7 +1,7 @@
 /**
- * @file alg.cpp
+ * @file alg_line.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
- * @brief Implementation of class Alg
+ * @brief Implementation of Alg_Line Class
  * @version 0.1.0
  * @date 2022-07-22
  * 
@@ -9,5 +9,4 @@
  * 
  */
 
-#include "export/alg.h"
-#include "export.h"
+#include "export/alg_line.h"

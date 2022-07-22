@@ -20,6 +20,7 @@
 #include <vector>
 #include <boost/algorithm/string.hpp>
 #include "export/keywords.h"
+#include "export/alg.h"
 #include "error_code.h"
 #include "read.h"
 #include "cli_options.h"
