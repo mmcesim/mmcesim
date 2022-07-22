@@ -3,5 +3,6 @@
 *
 !.gitignore
 !README.md
+!test.cmake
 !*.sim
 !*.alg

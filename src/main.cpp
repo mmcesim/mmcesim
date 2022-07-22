@@ -46,6 +46,8 @@ int main(int argc, char* argv[]) {
             "output file name")
         ("style,s", po::value<std::string>(&opt.style),
             "style options (C++ only, with astyle)")
+        ("lang,l", po::value<std::string>(&opt.lang),
+            "export language or simulation backend")
         ("force,f", "force writing mode")
     ;
 
@@ -106,7 +108,9 @@ int main(int argc, char* argv[]) {
             }
 #else
             // open GUI app without handling its result
-            if (!std::filesystem::exists(gui_path)) {
+            if (!std::filesystem::exists(gui_path) &&
+                !std::filesystem::exists(gui_path + ".out") &&
+                !std::filesystem::exists(gui_path + ".exe")) {
                 std::cerr << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
@@ -128,7 +132,8 @@ int main(int argc, char* argv[]) {
     if (vm.count("force")) opt.force = true;
 
     if (!std::filesystem::exists(opt.input)) {
-        errorExit(Err::INPUT_NOT_EXISTS);
+        opt.input += ".sim";
+        if (!std::filesystem::exists(opt.input)) errorExit(Err::INPUT_NOT_EXISTS);
     }
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
@@ -137,12 +142,12 @@ int main(int argc, char* argv[]) {
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) errorExit(errors[0].ec);
+        if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
+            std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+            return errorCode(Err::ASTYLE_ERROR);
+        }
     } else {
         errorExit(Err::UNKOWN_CMD);
-    }
-    if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
-        std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
-        return errorCode(Err::ASTYLE_ERROR);
     }
 
     return 0;

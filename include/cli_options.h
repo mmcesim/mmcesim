@@ -19,6 +19,7 @@ struct CLI_Options {
     std::string input;
     std::string output = "__UNDEFINED";
     std::string style;
+    std::string lang;
     bool force = false;
 };
 

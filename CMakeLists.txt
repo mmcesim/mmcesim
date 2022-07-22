@@ -52,18 +52,7 @@ endif()
 
 add_subdirectory(ext/astyle)
 
-include(CTest)
-enable_testing()
-add_test(NAME astyle   COMMAND astyle -h)
-add_test(NAME help     COMMAND mmcesim -h)
-add_test(NAME version  COMMAND mmcesim --version)
-add_test(NAME null1    COMMAND mmcesim) # [will fail]
-add_test(NAME null2    COMMAND mmcesim sim) # [will fail]
-add_test(NAME sim      COMMAND mmcesim sim ../test/MIMO.sim -f)
-add_test(NAME exp      COMMAND mmcesim exp ../test/MIMO.sim -f)
-add_test(NAME notexist COMMAND mmcesim sim input_not_exists) # [will fail]
-add_test(NAME yaml_err COMMAND mmcesim sim ../test/syntax_error.sim) # [will fail]
-set_tests_properties(null1 null2 notexist yaml_err PROPERTIES WILL_FAIL TRUE)
+include(test/test.cmake)
 
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 add_executable(mmcesim ${SOURCES})

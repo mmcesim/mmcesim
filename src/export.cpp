@@ -61,7 +61,7 @@ Export::~Export() {
 
 YAML_Errors Export::exportCode() {
     if (_already_error_before_export) {
-        _info("Error while reading .sim configuration file.");
+        _info("Error before executing exporting.");
         return _errors;
     }
     // do something
@@ -132,25 +132,56 @@ bool Export::_preCheck(const YAML::Node& n, unsigned a_t, bool mattered) {
     }
 }
 
+// TODO: If backend in configuration disagrees with the command line option, raise a warning.
 void Export::_setLang() {
     _info(std::string("This is mmCEsim ") + _MMCESIM_VER_STR
-        + ", with target version " + _config["version"].as<std::string>() + ".");
-    if (auto n = _config["simulation"]; _preCheck(n, DType::MAP | DType::UNDEF)) {
-        try {
-            std::string lang_str = _as<std::string>(n["backend"]);
+        + ", with target version " + _config["_compiled"]["version_str"].as<std::string>() + ".");
+    if (auto n = _config["simulation"]; _preCheck(n, DType::MAP)) {
+        if (n["backend"].IsDefined()) {
+            try {
+                std::string lang_str = _as<std::string>(n["backend"]);
+                boost::algorithm::to_lower(lang_str);
+                if (lang_str == "cpp" || lang_str == "c++") lang = Lang::CPP;
+                if (lang_str == "matlab" || lang_str == "m") lang = Lang::MATLAB;
+                if (lang_str == "octave" || lang_str == "gnu octave") lang = Lang::OCTAVE;
+                if (lang_str == "py" || lang_str == "python") lang = Lang::PY;
+                if (lang_str == "ipynb" || lang_str == "jupyter") lang = Lang::IPYNB;
+            } catch(...) {
+                _setLatestError("'simulation->backend' is not a string"
+                    " (should be \"cpp\", \"matlab\", \"octave\", \"py\" or \"ipynb\").");
+                return;
+            }
+        } else if (auto lang_str = _opt.lang; lang_str != "") {
             boost::algorithm::to_lower(lang_str);
             if (lang_str == "cpp" || lang_str == "c++") lang = Lang::CPP;
             if (lang_str == "matlab" || lang_str == "m") lang = Lang::MATLAB;
             if (lang_str == "octave" || lang_str == "gnu octave") lang = Lang::OCTAVE;
             if (lang_str == "py" || lang_str == "python") lang = Lang::PY;
+            if (lang_str == "ipynb" || lang_str == "jupyter") lang = Lang::IPYNB;
+            else {
+                YAML_Error e("Unrecognized language with command line option '--lang' or '-l'.", Err::CLI_OPTIONS);
+                _errors.push_back(e);
+                _already_error_before_export = true;
+                return;
+            }
+        } else {
+            std::filesystem::path path = _opt.output;
+            lang_str = path.extension();
+            if (lang_str == "cpp" || lang_str == "c++") lang = Lang::CPP;
+            if (lang_str == "matlab" || lang_str == "m") lang = Lang::MATLAB;
+            if (lang_str == "octave" || lang_str == "octave") lang = Lang::OCTAVE;
+            if (lang_str == "py" || lang_str == "python") lang = Lang::PY;
             if (lang_str == "ipynb") lang = Lang::IPYNB;
-        } catch(...) {
-            _setLatestError("'simulation->backend' is not a string"
-                " (should be \"cpp\", \"matlab\", \"octave\", \"py\" or \"ipynb\").");
+            else {
+                lang = Lang::CPP;
+                _info("Language/backend not specified. Assumed as " + _langName() + ".");
+                return;
+            }
         }
     } else {
-        _setLatestError("No simulation block defined.");
+        _setLatestError("Simulation block is not defined or has wrong type.");
         _already_error_before_export = true;
+        return;
     }
     _info("Set simulation backend as " + _langName() + ".");
 }
