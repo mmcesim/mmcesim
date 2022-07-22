@@ -151,7 +151,7 @@ void Export::_setLang() {
                     " (should be \"cpp\", \"matlab\", \"octave\", \"py\" or \"ipynb\").");
                 return;
             }
-        } else if (auto lang_str = _opt.lang; lang_str != "") {
+        } else if (std::string lang_str = _opt.lang; lang_str != "") {
             boost::algorithm::to_lower(lang_str);
             if (lang_str == "cpp" || lang_str == "c++") lang = Lang::CPP;
             if (lang_str == "matlab" || lang_str == "m") lang = Lang::MATLAB;
@@ -166,7 +166,7 @@ void Export::_setLang() {
             }
         } else {
             std::filesystem::path path(_opt.output);
-            lang_str = path.extension();
+            lang_str = path.extension().string();
             if (lang_str == "cpp" || lang_str == "c++") lang = Lang::CPP;
             if (lang_str == "matlab" || lang_str == "m") lang = Lang::MATLAB;
             if (lang_str == "octave" || lang_str == "octave") lang = Lang::OCTAVE;
