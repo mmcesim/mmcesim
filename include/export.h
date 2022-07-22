@@ -111,7 +111,7 @@ private:
     YAML::Node _config;
     YAML_Errors _errors;
     bool _already_error_before_export = false;
-    std::ofstream* _f_ptr;
+    std::ofstream* _f_ptr = nullptr;
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
 

@@ -53,7 +53,10 @@ Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& er
 }
 
 Export::~Export() {
-    delete _f_ptr;
+    // need to check if _f_ptr has been initialized
+    // since if there is YAML reading error,
+    // the file stream pointer is never initialized.
+    if (_f_ptr) delete _f_ptr;
 }
 
 YAML_Errors Export::exportCode() {
