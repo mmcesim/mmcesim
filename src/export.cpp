@@ -10,7 +10,7 @@ Export::Export(CLI_Options& opt) : _opt(opt) {
     }
     _setLang();
     if (_opt.output == "__UNDEFINED") {
-        std::filesystem::path input_path = _opt.input;
+        std::filesystem::path input_path(_opt.input);
         _opt.output = input_path.replace_extension(_langExtension()).string();
         if (!_opt.force && !std::filesystem::exists(_opt.output)) {
             YAML_Error e(Err::OUTPUT_FILE_EXISTS);
