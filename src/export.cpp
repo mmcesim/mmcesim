@@ -36,7 +36,7 @@ Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& er
     }
     _setLang();
     if (_opt.output == "__UNDEFINED") {
-        std::filesystem::path input_path = _opt.input;
+        std::filesystem::path input_path(_opt.input);
         _opt.output = input_path.replace_extension(_langExtension()).string();
         if (!_opt.force && !std::filesystem::exists(_opt.output)) {
             YAML_Error e(Err::OUTPUT_FILE_EXISTS);
@@ -165,7 +165,7 @@ void Export::_setLang() {
                 return;
             }
         } else {
-            std::filesystem::path path = _opt.output;
+            std::filesystem::path path(_opt.output);
             lang_str = path.extension();
             if (lang_str == "cpp" || lang_str == "c++") lang = Lang::CPP;
             if (lang_str == "matlab" || lang_str == "m") lang = Lang::MATLAB;
