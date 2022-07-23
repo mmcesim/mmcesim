@@ -1,0 +1,54 @@
+/**
+ * @file functions.h
+ * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
+ * @brief Function Lists
+ * @version 0.1.0
+ * @date 2022-07-23
+ * 
+ * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
+ * 
+ */
+
+#ifndef _FUNCTIONS_H_
+#define _FUNCTIONS_H_
+
+#include <string>
+#include <array>
+#include "utils.h"
+
+static std::array functions_no_end = {
+    std::string("CALC"),
+    std::string("EVAL"),
+    std::string("INIT"),
+};
+
+static std::array functions_needs_end = {
+    std::string("FOR"),
+    std::string("FOREVER"),
+    std::string("LOOP"),
+    std::string("WHILE"),
+};
+
+static std::array functions_is_end = {
+    std::string("END"),
+    std::string("ELSE"),
+    std::string("ELIF"),
+};
+
+static inline bool isFuncNoEnd(const std::string& str) noexcept {
+    return contains(functions_no_end, str);
+}
+
+static inline bool isFuncNeedsEnd(const std::string& str) noexcept {
+    return contains(functions_needs_end, str);
+}
+
+static inline bool isFuncIsEnd(const std::string& str) noexcept {
+    return contains(functions_needs_end, str);
+}
+
+static inline bool isFunc(const std::string& str) noexcept {
+    return (isFuncNoEnd(str) || isFuncNeedsEnd(str) || isFuncIsEnd(str));
+}
+
+#endif

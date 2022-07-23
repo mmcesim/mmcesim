@@ -10,3 +10,7 @@
  */
 
 #include "export/alg_line.h"
+
+Alg_Line::Alg_Line(const std::string& str) {
+
+}
