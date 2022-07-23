@@ -12,5 +12,152 @@
 #include "export/alg_line.h"
 
 Alg_Line::Alg_Line(const std::string& str) {
+    std::string s = str;
+    _removeComment(s);
+    auto eq_index = _findChar(s, '=');
+    // Now we need to tell whether this is assign '=' or parameter '='.
+    bool eq_is_assign = false;
+    if (eq_index + 1 != s.size()) {
+        if (isspace(s[eq_index + 1])) {
+            // Since parameter '=' should be strictly between key and val,
+            // like 'key=val', the space after '=' means that it should be the assign '='.
+            // If this does not satisfy, we cannot conclude it is parameter '='.
+            eq_is_assign = true;
+        }
+    } else {
+        throw std::runtime_error("Trailing '='.");
+    }
+    std::string buf;
+    if (!eq_is_assign) {
+        // Now that we have not concluded whether '=' is the assign '=',
+        // we try to see the next word of '='.
+        // If it is a function name (which should be in all capital),
+        // we can conclude it is an assign '=' instead of parameter '='.
+        std::stringstream ss(s.substr(eq_index + 1));
+        if (ss >> buf) {
+            if (isFunc(buf)) eq_is_assign = true;
+            else eq_is_assign = false;
+        } else {
+            throw std::runtime_error("Trailing '='.");
+        }
+    }
+    if (!eq_is_assign) {
+        // If the equation we found is not assign '=',
+        // we now pretend we have not found it at all!
+        eq_index = s.size();
+    }
+    std::string s_returns = "";
+    std::string s_func_params = "";
+    if (eq_index == s.size()) {
+        // There is no valid '=', and therefore,
+        // all contents are function name and parameters.
+        s_func_params = s;
+    } else {
+        s_returns = s.substr(0, eq_index);
+        s_func_params = s.substr(eq_index + 1);
+    }
+    std::vector<std::string> unprocessed_returns;
+    std::vector<std::string> unprocessed_func_params;
+    std::stringstream ss_returns(s_returns);
+    while (ss_returns >> buf) {
+        unprocessed_returns.push_back(buf);
+    }
+    std::stringstream ss_params(s_func_params);
+    while (ss_params >> buf) {
+        assert((buf.size() > 0 && "The buf normally will not take empty string"));
+        if (char c = buf[0]; c == '$' || c == '\'' || c == '"') {
+            // Here starts the search to the end of the pair.
+            char next_char;
+            bool found_pair_end = false;
+            while (ss_params >> next_char) {
+                // If the next character is not the ending pair character,
+                // simply add this to the string.
+                buf += next_char;
+                if (next_char == c) {
+                    found_pair_end = true;
+                    unprocessed_func_params.push_back(buf);
+                    break;
+                }
+            }
+            if (!found_pair_end) {
+                // If it goes here, it means there is an unclosed pair.
+                // So we make a complaint here.
+                throw std::runtime_error(std::string("Unclosed pair '") + c + "'");
+            }
+        } else {
+            unprocessed_func_params.push_back(buf);
+        }
+    }
+    _processReturns(unprocessed_returns);
+    _processFuncParams(unprocessed_func_params);
+}
 
+std::string::size_type Alg_Line::_findChar(const std::string& s, char c) const noexcept {
+    std::string::size_type iter = s.size();
+    bool has_double_quote = false;
+    bool has_single_quote = false;
+    bool has_dollar = false;
+    bool is_escape = false;
+    for (auto&& e : s) {
+        if (e == '\'' && !is_escape) has_single_quote = !has_single_quote;
+        else if (e == '"' && !is_escape) has_double_quote = !has_double_quote;
+        else if (e == '$' && !is_escape) has_dollar = !has_dollar;
+        else if (e == '#' &&
+            !is_escape && !has_single_quote && !has_double_quote && !has_dollar) {
+            // Since C++11, std::string is contiguous.
+            iter = &e - &s[0];
+            break;
+        }
+        else if (e == '\\') is_escape = true;
+        else is_escape = false;
+    }
+    return iter;
+}
+
+void Alg_Line::_removeComment(std::string& s) const noexcept {
+    s.erase(s.begin() + _findChar(s, '#'), s.end());
+}
+
+void Alg_Line::_processReturns(const std::vector<std::string>& v) {
+    for (auto&& s : v) {
+        // '::' is indicator for type specification.
+        auto type_loc = s.rfind("::");
+        bool has_type = false;
+        if (type_loc != std::string::npos) {
+            has_type = true;
+            std::string type_str = s.substr(type_loc + 2);
+            for (auto&& c : type_str) {
+                if (c == '$' || c == '\'' || c == '"') {
+                    // This is not a real type specification.
+                    has_type = false;
+                }
+            }
+        }
+        Return_Type r;
+        if (has_type) {
+            r.name = s.substr(0, type_loc);
+            r.type = s.substr(type_loc + 2);
+        } else {
+            r.name = s;
+            r.type = "";
+        }
+        _returns.push_back(r);
+    }
+}
+    
+void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
+    if (v.empty()) {
+        throw std::runtime_error("No function name specified.");
+    }
+    if (auto&& func = v[0]; isFunc(func)) {
+        _func = func;
+    } else {
+        throw std::runtime_error("Unknown function name '" + func + "'.");
+    }
+    for (decltype(v.size()) i = 1; i != v.size(); ++i) {
+        auto&& s = v[i];
+        // First find if it is the 'key=val' syntax.
+        auto eq_index = _findChar(s, '=');
+        // TODO: 1. check '=', 2. check '::'
+    }
 }

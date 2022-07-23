@@ -14,8 +14,9 @@
 
 #include <string>
 #include <vector>
-#include <any>
+#include <sstream>
 #include <cassert>
+#include <stdexcept>
 #include "utils.h"
 #include "export/functions.h"
 
@@ -27,16 +28,17 @@ public:
     };
 
     struct Param_Type {
-        std::string name;
-        std::string type;
         std::string key;
-        std::any value;
+        std::string value;
+        std::string type;
     };
 
 public:
     Alg_Line() = default;
 
     Alg_Line(const std::string& str);
+
+    const std::string& func() const noexcept;
 
     const std::vector<Return_Type>& returns() const noexcept;
 
@@ -51,10 +53,37 @@ public:
     bool needsEnd() const noexcept;
 
 private:
-    std::string func;
+    /**
+     * @brief Find the first occupance of character in string
+     *        that is not an escape or within quotes.
+     * 
+     * @param s string
+     * @param c the character to find
+     * @return (std::string::size_type) The index of the found char. Return s.size() if not found.
+     */
+    std::string::size_type _findChar(const std::string& s, char c) const noexcept;
+
+    /**
+     * @brief Remove the comment from the string.
+     * 
+     * Comment starts with hash(#).
+     * @param s The string to be modified.
+     */
+    void _removeComment(std::string& s) const noexcept;
+
+    void _processReturns(const std::vector<std::string>& v);
+
+    void _processFuncParams(const std::vector<std::string>& v);
+
+private:
+    std::string _func;
     std::vector<Return_Type> _returns;
     std::vector<Param_Type> _params;
 };
+
+inline const std::string& Alg_Line::func() const noexcept {
+    return _func;
+}
 
 inline const std::vector<Alg_Line::Return_Type>& Alg_Line::returns() const noexcept {
     return _returns;
@@ -75,7 +104,7 @@ inline const Alg_Line::Param_Type& Alg_Line::params(std::vector<Alg_Line::Param_
 }
 
 inline bool Alg_Line::needsEnd() const noexcept {
-    return isFuncIsEnd(func);
+    return isFuncIsEnd(_func);
 }
 
 inline const Alg_Line::Param_Type& Alg_Line::params(const std::string& key) const {
