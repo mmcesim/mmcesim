@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Parse Line of Alg
  * @version 0.1.0
- * @date 2022-07-22
+ * @date 2022-07-24
  * 
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
  * 
@@ -20,37 +20,106 @@
 #include "utils.h"
 #include "export/functions.h"
 
+/**
+ * @brief Process line of Alg into standard formats.
+ * 
+ * The main process is done during constructing.
+ */
 class Alg_Line {
 public:
+    /**
+     * @brief Return type.
+     * 
+     * Part that is left of '='.
+     */
     struct Return_Type {
-        std::string name;
-        std::string type;
+        std::string name; /**< name of the return variable */
+        std::string type; /**< data type of the return type */
     };
 
+    /**
+     * @brief Parameter type.
+     * 
+     * Part that is right of '=' except for the function name.
+     */
     struct Param_Type {
-        std::string key;
-        std::string value;
-        std::string type;
+        std::string key;   /**< the key of the parameter */
+        std::string value; /**< the value of the parameter */
+        std::string type;  /**< the data type of the parameter */
     };
 
 public:
+    // Default constructor.
     Alg_Line() = default;
 
+    /**
+     * @brief Construct a new Alg_Line object. 
+     *        Process string at the same time.
+     * 
+     * @param str The raw string from Alg that is to be processed.
+     */
     Alg_Line(const std::string& str);
 
+    /**
+     * @brief Get the function name.
+     * 
+     * @return (const std::string&) The function name.
+     */
     const std::string& func() const noexcept;
 
+    /**
+     * @brief Return variables.
+     * 
+     * @return (const std::vector<Return_Type>&) The vector of return variables.
+     */
     const std::vector<Return_Type>& returns() const noexcept;
 
+    /**
+     * @brief Return variable of an index.
+     * 
+     * @param index The index of the return variable.
+     * @return (const Return_Type&) The variable.
+     */
     const Return_Type& returns(std::vector<Return_Type>::size_type index) const;
 
+    /**
+     * @brief Parameter variables.
+     * 
+     * @return (const std::vector<Param_Type>&) The vector of parameter variables.
+     */
     const std::vector<Param_Type>& params() const noexcept;
 
+    /**
+     * @brief Parameter variable of an index.
+     * 
+     * @param index The index of the parameter index.
+     * @return (const Param_Type&) The variable.
+     */
     const Param_Type& params(std::vector<Param_Type>::size_type index) const;
 
+    /**
+     * @brief Parameter variable with a key.
+     * 
+     * @param key The key string.
+     * @return (const Param_Type&) The parameter variable.
+     */
     const Param_Type& params(const std::string& key) const;
 
+    /**
+     * @brief Test whether the function name needs an 'end'
+     * 
+     * @return true The function needs 'end'. ('IF', 'ELSE', 'LOOP', etc.)
+     * @return false The function does need 'end'.
+     */
     bool needsEnd() const noexcept;
+
+    /**
+     * @brief Test whether the function name serves as an 'end'.
+     * 
+     * @return true The function serves as 'end'. ('END', 'ELSE', etc.)
+     * @return false The function does not serve as 'end'.
+     */
+    bool isEnd() const noexcept;
 
 private:
     /**
@@ -71,14 +140,24 @@ private:
      */
     void _removeComment(std::string& s) const noexcept;
 
+    /**
+     * @brief Process returns variables.
+     * 
+     * @param v The unprocessed return variables token vector.
+     */
     void _processReturns(const std::vector<std::string>& v);
 
+    /**
+     * @brief Process function name and parameter variables.
+     * 
+     * @param v The unprocessed function name and parameter variables token variable.
+     */
     void _processFuncParams(const std::vector<std::string>& v);
 
 private:
-    std::string _func;
-    std::vector<Return_Type> _returns;
-    std::vector<Param_Type> _params;
+    std::string _func; /**< function name */
+    std::vector<Return_Type> _returns; /**< return variables */
+    std::vector<Param_Type> _params; /**< parameter variables */
 };
 
 inline const std::string& Alg_Line::func() const noexcept {
@@ -103,15 +182,19 @@ inline const Alg_Line::Param_Type& Alg_Line::params(std::vector<Alg_Line::Param_
     return _params[index];
 }
 
-inline bool Alg_Line::needsEnd() const noexcept {
-    return isFuncIsEnd(_func);
-}
-
 inline const Alg_Line::Param_Type& Alg_Line::params(const std::string& key) const {
     for (auto&& elem : _params) {
         if (elem.key == key) return elem;
     }
     throw("No such key!");
+}
+
+inline bool Alg_Line::needsEnd() const noexcept {
+    return isFuncIsEnd(_func);
+}
+
+inline bool Alg_Line::isEnd() const noexcept {
+    return isFuncIsEnd(_func);
 }
 
 #endif

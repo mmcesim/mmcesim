@@ -17,7 +17,7 @@ i = LOOP from=0 to=3 step=1
   PRINT i
   IF i==1
     # do something
-    e = TRAN a # transform
+    e = TRAN a # transpose
     e = t(a)
   ELSE
     # do something else

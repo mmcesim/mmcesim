@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
  * @version 0.1.0
- * @date 2022-07-22
+ * @date 2022-07-24
  * 
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
  * 
@@ -158,6 +158,28 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         auto&& s = v[i];
         // First find if it is the 'key=val' syntax.
         auto eq_index = _findChar(s, '=');
-        // TODO: 1. check '=', 2. check '::'
+        Param_Type p;
+        if (eq_index == 0) throw std::runtime_error("Empty parameter key before '='.");
+        p.key = s.substr(0, eq_index);
+        auto type_loc = s.rfind("::");
+        bool has_type = false;
+        if (type_loc != std::string::npos) {
+            has_type = true;
+            std::string type_str = s.substr(type_loc + 2);
+            for (auto&& c : type_str) {
+                if (c == '$' || c == '\'' || c == '"') {
+                    // This is not a real type specification.
+                    has_type = false;
+                }
+            }
+        }
+        if (has_type) {
+            p.value = s.substr(eq_index + 1, type_loc);
+            p.type = s.substr(type_loc + 2);
+        } else {
+            p.value = s.substr(eq_index + 1);
+            p.type = "";
+        }
+        _params.push_back(p);
     }
 }
