@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <random>
 #ifndef __linux__
 #include <boost/dll/runtime_symbol_info.hpp>
 #else
@@ -63,6 +64,13 @@ static inline std::string trim_copy(std::string s) {
     return s;
 }
 
+// If the string is quoted with a character
+static inline bool isQuoted(const std::string& s, char c = '"') {
+    if (s.length() < 2) return false;
+    if (s[0] == c && *(s.end() - 1) == c) return true;
+    else return false;
+}
+
 // check if STL container contains a value
 template<typename T>
 static inline bool contains(const T& container, const typename T::value_type value) {
@@ -72,6 +80,7 @@ static inline bool contains(const T& container, const typename T::value_type val
     return false;
 }
 
+// get the application directory
 static inline std::string appDir() {
 #ifndef __linux__
     // application directory
@@ -83,6 +92,22 @@ static inline std::string appDir() {
     if (count != -1) path = dirname(result);
     return path;
 #endif
+}
+
+// random string
+// Reference: https://stackoverflow.com/a/24586587/15080514
+static std::string randomString(std::string::size_type length) {
+    static auto& chrs = "0123456789"
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    thread_local static std::mt19937 rg{std::random_device{}()};
+    thread_local static std::uniform_int_distribution<std::string::size_type> pick(0, sizeof(chrs) - 2);
+    std::string s;
+    s.reserve(length);
+    while (length--) {
+        s += chrs[pick(rg)];
+    }
+    return s;
 }
 
 #endif

@@ -149,12 +149,17 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
     if (v.empty()) {
         throw std::runtime_error("No function name specified.");
     }
+    std::vector<std::string>::size_type start_i = 0;
     if (auto&& func = v[0]; isFunc(func)) {
         _func = func;
+        start_i = 1;
     } else {
-        throw std::runtime_error("Unknown function name '" + func + "'.");
+        // If no (correct) function name specified,
+        // we assume it is 'CALC'.
+        _func = "CALC";
+        start_i = 0;
     }
-    for (decltype(v.size()) i = 1; i != v.size(); ++i) {
+    for (auto i = start_i; i != v.size(); ++i) {
         auto&& s = v[i];
         // First find if it is the 'key=val' syntax.
         auto eq_index = _findChar(s, '=');

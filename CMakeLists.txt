@@ -4,6 +4,7 @@ project(mmCEsim VERSION 0.1.0)
 option(MMCESIM_BUILD_GUI "Build mmCEsim GUI App with Qt" OFF)
 
 # set(Boost_USE_STATIC_LIBS ON)
+set(Boost_NO_WARN_NEW_VERSIONS ON)
 if (UNIX AND NOT APPLE) # Linux
     find_package(
         Boost 1.70 REQUIRED

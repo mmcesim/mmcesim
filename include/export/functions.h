@@ -18,8 +18,9 @@
 
 static std::array functions_no_end = {
     std::string("CALC"),
-    std::string("EVAL"),
+    std::string("COMMENT"),
     std::string("INIT"),
+    std::string("PRINT"),
 };
 
 static std::array functions_needs_end = {
