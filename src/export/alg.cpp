@@ -38,7 +38,7 @@ Alg::Alg(const std::string& str, bool fail_fast) {
                     // Therefore, we only push line when we have not failed.
                     _lines.push_back(l);
                 }
-            } catch (std::runtime_error e) {
+            } catch (const std::runtime_error& e) {
                 failed = true;
                 _errors.push_back({e.what(), unterminated_line + line, line_no});
             }
