@@ -252,14 +252,14 @@ inline bool Alg_Line::hasKey(const std::string& key) const noexcept {
     return false;
 }
 
-bool Alg_Line::hasUnknownKey(const std::vector<std::string>& keys) const noexcept {
+inline bool Alg_Line::hasUnknownKey(const std::vector<std::string>& keys) const noexcept {
     for (auto&& elem : _params) {
         if (!contains(keys, elem.key)) return false;
     }
     return true;
 }
 
-bool Alg_Line::hasRepeatedKey() const noexcept {
+inline bool Alg_Line::hasRepeatedKey() const noexcept {
     std::vector<std::string> keys(_params.size());
     for (decltype(_params.size()) i = 0; i != _params.size(); ++i) {
         keys[i] = _params[i].key;
