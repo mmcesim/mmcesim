@@ -44,7 +44,7 @@ static inline bool isFuncNeedsEnd(const std::string& str) noexcept {
 }
 
 static inline bool isFuncIsEnd(const std::string& str) noexcept {
-    return contains(functions_needs_end, str);
+    return contains(functions_is_end, str);
 }
 
 static inline bool isFunc(const std::string& str) noexcept {
