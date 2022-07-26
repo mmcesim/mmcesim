@@ -1,8 +1,9 @@
 # main thing is to leave 
 
-*
+/*
 !.gitignore
 !README.md
 !test.cmake
 !*.sim
 !*.alg
+!armadillo
