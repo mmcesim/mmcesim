@@ -97,7 +97,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 if (line.returns().size() > 1) ERROR("Return variable more than 1 in 'INIT'.");
                 else if (line.returns().empty()) WARNING("Unused 'INIT', i.e. no return variable.");
                 else {
-                    Keys keys { "dim1", "dim2", "dim3", "fill", "dtype" };
+                    Keys keys { "dim1", "dim2", "dim3", "fill", "scale", "dtype" };
                     APPLY_KEYS("INIT");
                     if (line.hasKey("dim1")) {
                         if (line.hasKey("dim2")) {
