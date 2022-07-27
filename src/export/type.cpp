@@ -36,7 +36,7 @@ Type::Type(const std::string& str) {
             has_number = true;
         } else {
             char dim_unused;
-            if (auto c = str[1]; isnumber(c)) {
+            if (auto c = str[1]; isdigit(c)) {
                 Dim dim_unused = c - '0';
                 // If the user specified dimension is the same as the first simplification representation,
                 // we now pretend nothing has happened. (For example, 'm2' is just 'm' or 'c2'.)
