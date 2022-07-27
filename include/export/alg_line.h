@@ -226,7 +226,7 @@ inline const std::vector<Alg_Line::Return_Type>& Alg_Line::returns() const noexc
 }
 
 inline const Alg_Line::Return_Type& Alg_Line::returns(std::vector<Return_Type>::size_type index) const {
-    assert((index < _returns.size() && "Alg_Line check returns index size within bound."));
+    assert(index < _returns.size() && "Alg_Line check returns index size within bound.");
     return _returns[index];
 }
 
@@ -270,7 +270,6 @@ inline bool Alg_Line::hasRepeatedKey() const noexcept {
 }
 
 inline bool Alg_Line::isValidKey(const std::string& key, const std::vector<std::string>& keys) const noexcept {
-    // The vector to store status whether the key is found.
     if (!hasKey(key)) return false;
     std::vector<bool> exists(keys.size(), false);
     for (auto&& elem : _params) {
@@ -296,7 +295,7 @@ inline bool Alg_Line::setKey(std::vector<Param_Type>::size_type index, const std
 }
 
 inline bool Alg_Line::needsEnd() const noexcept {
-    return isFuncIsEnd(_func);
+    return isFuncNeedsEnd(_func);
 }
 
 inline bool Alg_Line::isEnd() const noexcept {
