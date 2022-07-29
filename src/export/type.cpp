@@ -60,7 +60,7 @@ Type::Type(const std::string& str) {
 
 std::string Type::string() const noexcept {
     if (isUnknown()) return "";
-    std::string type = _suffix == Suffix::CONST ? "const " : "";
+    std::string type = _suffix == Suffix::CONST_ ? "const " : "";
     if (_data == Data::COMPLEX) {
         if (_dim == 0) type += "std::complex<double>";
         else if (_dim == 1) type += "cx_vec";
@@ -113,8 +113,8 @@ std::tuple<Type::Data, Type::Dim> Type::_getData(char c) const noexcept {
 
 Type::Suffix Type::_getSuffix(char c) const noexcept {
     switch (tolower(c)) {
-    case 'c': return Suffix::CONST;
-/*  case 'v': return Suffix::VOLATILE; */
+    case 'c': return Suffix::CONST_;
+/*  case 'v': return Suffix::VOLATILE_; */
     case 0:   return Suffix::NONE;
     default:  return Suffix::UNKNOWN;
     }
