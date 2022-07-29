@@ -108,6 +108,14 @@ public:
     const Param_Type& params(const std::string& key) const;
 
     /**
+     * @brief Get the parameter value with the key.
+     * 
+     * @param key The key string.
+     * @return (const std::string&) The parameter variable value.
+     */
+    const std::string& operator[](const std::string key) const;
+
+    /**
      * @brief Check whether parameters contain the key.
      * 
      * Normally, the function 'setKey' needs to be called first
@@ -244,6 +252,10 @@ inline const Alg_Line::Param_Type& Alg_Line::params(const std::string& key) cons
         if (elem.key == key) return elem;
     }
     throw("No such key!");
+}
+
+inline const std::string& Alg_Line::operator[](const std::string key) const {
+    return params(key).value;
 }
 
 inline bool Alg_Line::hasKey(const std::string& key) const noexcept {

@@ -71,6 +71,17 @@ static inline bool isQuoted(const std::string& s, char c = '"') {
     else return false;
 }
 
+// If the string is quoted, remove the quote.
+static std::string removeQuote(const std::string& s) {
+    if (isQuoted(s, '"') || isQuoted(s, '\'')) {
+        // If the above statement is true,
+        // 's' is surely longer than 2.
+        return s.substr(1, s.length() - 2);
+    } else {
+        return s;
+    }
+}
+
 // check if STL container contains a value
 template<typename T>
 static inline bool contains(const T& container, const typename T::value_type value) {

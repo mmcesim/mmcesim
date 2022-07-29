@@ -99,18 +99,60 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 else {
                     Keys keys { "dim1", "dim2", "dim3", "fill", "scale", "dtype" };
                     APPLY_KEYS("INIT");
+                    auto getReturnType = [&line] (char dim) {
+                        if (auto&& s = line.returns(0).type; s.empty()) {
+                            // 'dtype' is ignored if the return type is specified
+                            return s;
+                        } else {
+                            return (line.hasKey("dtype") ?
+                                    removeQuote(line["dtype"]) :
+                                    std::string("c")) + dim;
+                        }
+                    };
+                    auto cppScaleFill = [&line, &f] (const Type& t) {
+                        f << t.string() << " " << line.returns(0).name << " = ";
+                        if (line.hasKey("scale")) {
+                            f << '(' << line["scale"] << ") * ";
+                        }
+                        std::string fill = "zeros";
+                        if (line.hasKey("fill")) {
+                            fill = boost::algorithm::to_lower_copy(line["fill"]);
+                        }
+                        return fill;
+                    };
                     if (line.hasKey("dim1")) {
                         if (line.hasKey("dim2")) {
                             if (line.hasKey("dim3")) {
                                 // dim: 3 (a tensor)
+                                Type type = getReturnType('3');
+                                LANG_CPP
+                                    auto fill = cppScaleFill(type);
+                                    f << "arma::" << fill << '(' << line["dim1"] << ", "
+                                      << line["dim2"] << ", " << line["dim3"] << ");";
+                                END_LANG
                             } else {
                                 // dim: 2 (a matrix)
+                                Type type = getReturnType('2');
+                                LANG_CPP
+                                    auto fill = cppScaleFill(type);
+                                    f << "arma::" << fill << '(' << line["dim1"] << ", " << line["dim2"] << ");";
+                                END_LANG
                             }
                         } else {
                             // dim: 1 (a vector)
+                            Type type = getReturnType('1');
+                            LANG_CPP
+                                auto fill = cppScaleFill(type);
+                                f << "arma::" << fill << '(' << line["dim1"] << ");";
+                            END_LANG
                         }
                     } else {
                         // dim: 0 (a scalar)
+                        Type type = getReturnType('0');
+                        LANG_CPP
+                            auto fill = cppScaleFill(type);
+                            // TODO: scalar initialization
+                        END_LANG
                     }
                 }
             CASE ("PRINT")

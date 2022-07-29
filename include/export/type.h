@@ -47,6 +47,7 @@ class Type {
     enum class Suffix {
         NONE,      /**< (none) */
         CONST,     /**< c */
+        VOLATILE,  /**< v (not implemented yet) */
         UNKNOWN,   /** (unknown) */
     };
 

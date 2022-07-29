@@ -114,6 +114,7 @@ std::tuple<Type::Data, Type::Dim> Type::_getData(char c) const noexcept {
 Type::Suffix Type::_getSuffix(char c) const noexcept {
     switch (tolower(c)) {
     case 'c': return Suffix::CONST;
+/*  case 'v': return Suffix::VOLATILE; */
     case 0:   return Suffix::NONE;
     default:  return Suffix::UNKNOWN;
     }

@@ -14,6 +14,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/algorithm/string.hpp>
+#include "utils.h"
+#include "export/type.h"
 #include "export/alg_line.h"
 
 class Alg {
