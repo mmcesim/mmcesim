@@ -1,0 +1,59 @@
+function H = channel(...
+    Mx, My, Nx, Ny, GMx, GMy, GNx, GNy, L, ...
+    gain_normal, gain_param1, gain_param2, off_grid ...
+)
+    M = Mx * My;
+    N = Nx * Ny;
+    GM = GMx * GMy;
+    GN = GNx * GNy;
+    function s = steering(n)
+        if off_grid
+            u = rand(1, n);
+        else
+            u = randperm(n) - 1;
+        end
+        s = 2 * u - 1;
+    end
+    steering_Mx = steering(GMx);
+    steering_My = steering(GMy);
+    steering_Nx = steering(GNx);
+    steering_Ny = steering(GNy);
+
+    index1 = randperm(GMx, L);
+    index2 = randperm(GMy, L);
+    index3 = randperm(GNx, L);
+    index4 = randperm(GNy, L);
+
+    if gain_normal
+        % normal distribution
+        alpha = (randn(L, 1) + 1i * randn(L, 1)) * sqrt(0.5 * gain_param2) + gain_param1;
+    else
+        % uniform distribution
+        alpha = (randn(L, 1) + 1i * randn(L, 1)) * sqrt(0.5) ...
+            * (randn(L, 1) * (gain_param2 - gain_param1) + gain_param1);
+    end
+
+    H = zeros(M, N);
+    for l = 1 : L
+        if My == 1
+            % ULA
+            a = sqrt(1 / Mx) * exp(-1i * 2*pi * 0:(Mx-1) * steering_Mx(index1(l)));
+        else
+            % UPA
+            a1 = sqrt(1 / Mx) * exp(-1i * 2*pi * 0:(Mx-1) * steering_Mx(index1(l)));
+            a2 = sqrt(1 / My) * exp(-1i * 2*pi * 0:(My-1) * steering_My(index2(l)));
+            a = kron(a1, a2);
+        end
+        if Ny == 1
+            % ULA
+            b = sqrt(1 / Nx) * exp(-1i * 2*pi * 0:(Nx-1) * steering_Nx(index3(l)));
+        else
+            b1 = sqrt(1 / Nx) * exp(-1i * 2*pi * 0:(Nx-1) * steering_Nx(index3(l)));
+            b2 = sqrt(1 / Ny) * exp(-1i * 2*pi * 0:(Nx-1) * steering_Ny(index4(l)));
+            b = kron(b1, b2);
+        end
+        H = H + alpha(l) * b * a';
+    end
+    H = sqrt(M * N / L) * H;
+
+end

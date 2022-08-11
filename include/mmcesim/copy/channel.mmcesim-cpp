@@ -74,11 +74,11 @@ namespace mmce {
         uvec index4 = randperm_s(GNy, L);
 
         // channel gain
-        cx_vec alpha1;
+        cx_vec alpha;
         if (gain_normal) { // normal distribution
-            alpha1 = (randn<vec>(L) + 1i * randn<vec>(L)) * std::sqrt(0.5 * gain_param2) + gain_param1;
+            alpha = (randn<vec>(L) + 1i * randn<vec>(L)) * std::sqrt(0.5 * gain_param2) + gain_param1;
         } else { // uniform distribution
-            alpha1 = (randu<vec>(L) + 1i * randu<vec>(L)) * std::sqrt(0.5)
+            alpha = (randu<vec>(L) + 1i * randu<vec>(L)) * std::sqrt(0.5)
                 * (randu<vec>(L) * (gain_param2 - gain_param1) + gain_param1);
         }
 
