@@ -10,7 +10,7 @@ function H = channel(...
         if off_grid
             u = rand(1, n);
         else
-            u = randperm(n) - 1;
+            u = (randperm(n) - 1)' / n;
         end
         s = 2 * u - 1;
     end
@@ -19,17 +19,24 @@ function H = channel(...
     steering_Nx = steering(GNx);
     steering_Ny = steering(GNy);
 
-    index1 = randperm(GMx, L);
-    index2 = randperm(GMy, L);
-    index3 = randperm(GNx, L);
-    index4 = randperm(GNy, L);
+    function index = randperm_s(m, n)
+        if m >= n
+            index = randperm(m, n);
+        else
+            index = randi([1, m], 1, n);
+        end
+    end
+    index1 = randperm_s(GMx, L);
+    index2 = randperm_s(GMy, L);
+    index3 = randperm_s(GNx, L);
+    index4 = randperm_s(GNy, L);
 
     if gain_normal
         % normal distribution
         alpha = (randn(L, 1) + 1i * randn(L, 1)) * sqrt(0.5 * gain_param2) + gain_param1;
     else
         % uniform distribution
-        alpha = (randn(L, 1) + 1i * randn(L, 1)) * sqrt(0.5) ...
+        alpha = (rand(1) + 1i * rand(1)) * sqrt(0.5) ...
             * (randn(L, 1) * (gain_param2 - gain_param1) + gain_param1);
     end
 
@@ -37,22 +44,23 @@ function H = channel(...
     for l = 1 : L
         if My == 1
             % ULA
-            a = sqrt(1 / Mx) * exp(-1i * 2*pi * 0:(Mx-1) * steering_Mx(index1(l)));
+            a = sqrt(1 / Mx) * exp(-1i * 2*pi * (0:Mx-1)' * steering_Mx(index1(l)));
         else
             % UPA
-            a1 = sqrt(1 / Mx) * exp(-1i * 2*pi * 0:(Mx-1) * steering_Mx(index1(l)));
-            a2 = sqrt(1 / My) * exp(-1i * 2*pi * 0:(My-1) * steering_My(index2(l)));
+            a1 = sqrt(1 / Mx) * exp(-1i * 2*pi * (0:Mx-1)' * steering_Mx(index1(l)));
+            a2 = sqrt(1 / My) * exp(-1i * 2*pi * (0:My-1)' * steering_My(index2(l)));
             a = kron(a1, a2);
         end
         if Ny == 1
             % ULA
-            b = sqrt(1 / Nx) * exp(-1i * 2*pi * 0:(Nx-1) * steering_Nx(index3(l)));
+            b = sqrt(1 / Nx) * exp(-1i * 2*pi * (0:Nx-1)' * steering_Nx(index3(l)));
         else
-            b1 = sqrt(1 / Nx) * exp(-1i * 2*pi * 0:(Nx-1) * steering_Nx(index3(l)));
-            b2 = sqrt(1 / Ny) * exp(-1i * 2*pi * 0:(Nx-1) * steering_Ny(index4(l)));
+            % UPA
+            b1 = sqrt(1 / Nx) * exp(-1i * 2*pi * (0:Nx-1)' * steering_Nx(index3(l)));
+            b2 = sqrt(1 / Ny) * exp(-1i * 2*pi * (0:Ny-1)' * steering_Ny(index4(l)));
             b = kron(b1, b2);
         end
-        H = H + alpha(l) * b * a';
+        H = H + alpha(l) * a * b';
     end
     H = sqrt(M * N / L) * H;
 

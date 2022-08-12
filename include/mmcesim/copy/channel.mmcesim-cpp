@@ -61,10 +61,10 @@ namespace mmce {
         const rowvec steering_My = steering(GMy, off_grid);
         const rowvec steering_Nx = steering(GNx, off_grid);
         const rowvec steering_Ny = steering(GNy, off_grid);
-        const vec _0_Mx = linspace(0, double(Mx - 1), Mx);
-        const vec _0_My = linspace(0, double(My - 1), My);
-        const vec _0_Nx = linspace(0, double(Nx - 1), Nx);
-        const vec _0_Ny = linspace(0, double(Ny - 1), Ny);
+        const vec _0_Mx = linspace(0, double(Mx - 1), Mx) / Mx;
+        const vec _0_My = linspace(0, double(My - 1), My) / My;
+        const vec _0_Nx = linspace(0, double(Nx - 1), Nx) / Nx;
+        const vec _0_Ny = linspace(0, double(Ny - 1), Ny) / Ny;
         const double _2pi = 2 * 3.141592653587932384625;
         cx_mat H(M, N, arma::fill::zeros);
 
@@ -99,7 +99,7 @@ namespace mmce {
                 const cx_vec b2 = std::sqrt(1.0 / Ny) * exp(-1i * _2pi * _0_Ny * steering_Ny[index4[l]]);
                 b = kron(b1, b2);
             }
-            H += alpha[l] * b * a.t();
+            H += alpha[l] * a * b.t();
         }
         return std::sqrt((double)M * N / L) * H;
     }
