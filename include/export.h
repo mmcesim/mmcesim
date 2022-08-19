@@ -68,6 +68,8 @@ public:
 private:
     std::ofstream& _f();
 
+    std::string _langStr() const;
+
     std::string _langName() const;
 
     std::string _langExtension() const;
@@ -103,6 +105,14 @@ private:
     void _beginning();
 
     void _generateChannels();
+
+    void _algorithms();
+
+    void _sounding();
+
+    void _estimation();
+
+    void _reporting();
 
     void _ending();
 
@@ -143,6 +153,15 @@ inline T Export::_as(const YAML::Node& n, bool mattered) {
 
 inline std::ofstream& Export::_f() {
     return *_f_ptr;
+}
+
+inline std::string Export::_langStr() const {
+    if (lang == Lang::CPP) return "cpp";
+    else if (lang == Lang::MATLAB) return "matlab";
+    else if (lang == Lang::OCTAVE) return "octave";
+    else if (lang == Lang::PY) return "py";
+    else if (lang == Lang::IPYNB) return "ipynb";
+    else return "Impossible branch in \"Export::_langStr()\"!";
 }
 
 inline std::string Export::_langName() const {

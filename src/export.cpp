@@ -69,6 +69,10 @@ YAML_Errors Export::exportCode() {
     _beginning();
     _setTransmitterReceiver();
     _generateChannels();
+    _algorithms();
+    _sounding();
+    _estimation();
+    _reporting();
     _ending();
     _f().close();
     return _errors;
@@ -250,10 +254,49 @@ void Export::_generateChannels() {
     channel_content.erase(channel_content.end() - 1); // last read character is invalid, erase it
     _f() << channel_content << '\n';
     if (lang == Lang::CPP) {
-        _f() << "int main(int argc, char* argv[]) {\n"
-             << "arma_rng::set_seed_random();\n";
+        _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
+        _f() << "// This part is being developed.\nreturn true;\n";
+        _f() << "}}\n\n";
     }
     // TODO: Generate channels.
+}
+
+void Export::_algorithms() {
+    // search through all used algorithms,
+    // and generate them here as a function.
+}
+
+void Export::_sounding() {
+    if (lang == Lang::CPP) {
+        _f() << "int main(int argc, char* argv[]) {\n"
+             << "arma_rng::set_seed_random();\n"
+             << "mmce::generateChannels();\n";
+    }
+    // so far, the test of Alg implementation will be here.
+}
+
+void Export::_estimation() {
+    std::string sounding_str;
+    if (!_preCheck(_config["sounding"], DType::STRING)) {
+        // maybe add a message on the console
+        sounding_str = "auto";
+    } else {
+        sounding_str = _asStr(_config["sounding"]);
+    }
+    trim(sounding_str);
+    std::cout << sounding_str << "\n";
+    if (sounding_str.length() == 4 && boost::algorithm::to_lower_copy(sounding_str) == "auto") {
+        // TODO: use tasked-oriented algorithm
+        // just do nothing right now
+        std::cout << "Use auto sounding." << std::endl;
+    } else {
+        Alg alg(sounding_str);
+        alg.write(_f(), _langStr());
+    }
+}
+
+void Export::_reporting() {
+
 }
 
 void Export::_ending() {

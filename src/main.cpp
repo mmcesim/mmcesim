@@ -141,7 +141,12 @@ int main(int argc, char* argv[]) {
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
         auto&& errors = Export::exportCode(opt);
-        if (hasError(errors)) errorExit(errors[0].ec);
+        if (hasError(errors)) {
+            for (auto&& err : errors) {
+                std::cerr << err.msg << '\n';
+            }
+            errorExit(errors[0].ec);
+        }
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
             std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
             return errorCode(Err::ASTYLE_ERROR);

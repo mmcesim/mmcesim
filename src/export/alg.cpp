@@ -50,7 +50,7 @@ Alg::Alg(const std::string& str, bool fail_fast) : _failed(false) {
     }
 }
 
-#define SWITCH_FUNC if (true) {
+#define SWITCH_FUNC if (false) {
 #define CASE(_func_name__) } else if (func == _func_name__) {
 #define END_SWITCH }
 #define LANG_CPP if (lang == "cpp") {
@@ -75,6 +75,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
     for (decltype(_lines.size()) i = 0; i != _lines.size(); ++i) {
         Alg_Line line = _lines[i];
         const std::string& func = line.func();
+        std::cout << "func: '" << func << "'\n";
         SWITCH_FUNC
             // function no end
             CASE ("CALC")
@@ -85,22 +86,25 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             CASE ("COMMENT")
                 std::string comment;
                 if (line.params().size() > 1) {
-                    comment = line.params(0).value;
                     for (auto&& s : line.params()) comment += s.value + ' ';
                 } else if (line.params().empty()) WARNING("Empty comment content.");
                 else comment = line.params(0).value;
                 trim(comment);
                 if (isQuoted(comment))
-                    _wComment(f, lang, INDENT) << std::quoted(comment);
-                else _wComment(f, lang, INDENT) << comment;
+                    _wComment(f, lang, INDENT) << std::quoted(comment) << '\n';
+                else _wComment(f, lang, INDENT) << comment << '\n';
             CASE ("INIT")
+                std::cout << "I am in INIT" << std::endl;
+                for (auto&& param : line.params()) {
+                    std::cout << param.value << '\n';
+                }
                 if (line.returns().size() > 1) ERROR("Return variable more than 1 in 'INIT'.");
                 else if (line.returns().empty()) WARNING("Unused 'INIT', i.e. no return variable.");
                 else {
                     Keys keys { "dim1", "dim2", "dim3", "fill", "scale", "dtype" };
                     APPLY_KEYS("INIT");
                     auto getReturnType = [&line] (char dim) {
-                        if (auto&& s = line.returns(0).type; s.empty()) {
+                        if (auto&& s = line.returns(0).type; !s.empty()) {
                             // 'dtype' is ignored if the return type is specified
                             return s;
                         } else {
@@ -112,7 +116,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     auto cppScaleFill = [&line, &f] (const Type& t) {
                         f << t.string() << " " << line.returns(0).name << " = ";
                         if (line.hasKey("scale")) {
-                            f << '(' << line["scale"] << ") * ";
+                            f << '(' << removeQuote(line["scale"]) << ") * ";
                         }
                         std::string fill = "zeros";
                         if (line.hasKey("fill")) {
@@ -143,7 +147,20 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                             Type type = getReturnType('1');
                             LANG_CPP
                                 auto fill = cppScaleFill(type);
-                                f << "arma::" << fill << '(' << line["dim1"] << ");";
+                                if (auto&& s = line.returns(0).type; s == "r") {
+                                    // If it is a row vector,
+                                    // the user may only specify one dimension.
+                                    // But it should be understood as a matrix now.
+                                    f << "arma::" << fill << "(1, " << line["dim1"] << ");";
+                                } else if (Type type = s; type.dim() == 0) {
+                                    if (line.hasKey("scale")) {
+                                        f << removeQuote(line["scale"]) << ";";
+                                    } else {
+                                        f << removeQuote(line["dim1"]) << ";";
+                                    }
+                                } else {
+                                    f << "arma::" << fill << '(' << line["dim1"] << ");";
+                                }
                             END_LANG
                         }
                     } else {
@@ -151,7 +168,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         Type type = getReturnType('0');
                         LANG_CPP
                             auto fill = cppScaleFill(type);
-                            // TODO: scalar initialization
+                            f << fill << ";"; // this may not be correct since it is such a long time
+                            if (line.hasKey("scale")) {
+                                f << removeQuote(line["scale"]) << ";";
+                            }
                         END_LANG
                     }
                 }
@@ -176,7 +196,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_M f << INDENT << "end";
                 END_LANG
         END_SWITCH
-        _wComment(f, lang, " ") << _raw_strings[i] << '\n';
+        if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
     }
     return true;
 }

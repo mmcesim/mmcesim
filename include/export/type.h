@@ -71,6 +71,8 @@ public:
 
     bool isUnknown() const noexcept;
 
+    static std::string string(const std::string&) noexcept;
+
 private:
     std::tuple<Data, Dim> _getData(char c) const noexcept;
 
@@ -94,6 +96,11 @@ inline Type::Dim Type::dim() const noexcept {
 
 inline bool Type::isUnknown() const noexcept {
     return (_data == Data::UNKNOWN || _dim == -1 || _suffix == Suffix::UNKNOWN);
+}
+
+inline static std::string string(const std::string& str) noexcept {
+    Type t(str);
+    return t.string();
 }
 
 #endif

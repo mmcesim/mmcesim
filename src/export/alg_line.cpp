@@ -10,35 +10,39 @@
  */
 
 #include "export/alg_line.h"
+#include <iostream>
 
 Alg_Line::Alg_Line(const std::string& str) {
     std::string s = str;
     _removeComment(s);
     auto eq_index = _findChar(s, '=');
+    std::cout << s << " eq_index: " << eq_index << "\n";
     // Now we need to tell whether this is assign '=' or parameter '='.
     bool eq_is_assign = false;
-    if (eq_index + 1 != s.size()) {
-        if (isspace(s[eq_index + 1])) {
-            // Since parameter '=' should be strictly between key and val,
-            // like 'key=val', the space after '=' means that it should be the assign '='.
-            // If this does not satisfy, we cannot conclude it is parameter '='.
-            eq_is_assign = true;
-        }
-    } else {
-        throw std::runtime_error("Trailing '='.");
-    }
     std::string buf;
-    if (!eq_is_assign) {
-        // Now that we have not concluded whether '=' is the assign '=',
-        // we try to see the next word of '='.
-        // If it is a function name (which should be in all capital),
-        // we can conclude it is an assign '=' instead of parameter '='.
-        std::stringstream ss(s.substr(eq_index + 1));
-        if (ss >> buf) {
-            if (isFunc(buf)) eq_is_assign = true;
-            else eq_is_assign = false;
+    if (eq_index != s.size()) {
+        if (eq_index + 1 != s.size()) {
+            if (isspace(s[eq_index + 1])) {
+                // Since parameter '=' should be strictly between key and val,
+                // like 'key=val', the space after '=' means that it should be the assign '='.
+                // If this does not satisfy, we cannot conclude it is parameter '='.
+                eq_is_assign = true;
+            }
         } else {
             throw std::runtime_error("Trailing '='.");
+        }
+        if (!eq_is_assign) {
+            // Now that we have not concluded whether '=' is the assign '=',
+            // we try to see the next word of '='.
+            // If it is a function name (which should be in all capital),
+            // we can conclude it is an assign '=' instead of parameter '='.
+            std::stringstream ss(s.substr(eq_index + 1));
+            if (ss >> buf) {
+                if (isFunc(buf)) eq_is_assign = true;
+                else eq_is_assign = false;
+            } else {
+                throw std::runtime_error("Trailing '='.");
+            }
         }
     }
     if (!eq_is_assign) {
@@ -64,7 +68,7 @@ Alg_Line::Alg_Line(const std::string& str) {
     }
     std::stringstream ss_params(s_func_params);
     while (ss_params >> buf) {
-        assert((buf.size() > 0 && "The buf normally will not take empty string"));
+        assert(buf.size() > 0 && "The buf normally will not take empty string");
         if (char c = buf[0]; c == '$' || c == '\'' || c == '"') {
             // Here starts the search to the end of the pair.
             char next_char;
@@ -102,7 +106,7 @@ std::string::size_type Alg_Line::_findChar(const std::string& s, char c) const n
         if (e == '\'' && !is_escape) has_single_quote = !has_single_quote;
         else if (e == '"' && !is_escape) has_double_quote = !has_double_quote;
         else if (e == '$' && !is_escape) has_dollar = !has_dollar;
-        else if (e == '#' &&
+        else if (e == c &&
             !is_escape && !has_single_quote && !has_double_quote && !has_dollar) {
             // Since C++11, std::string is contiguous.
             iter = &e - &s[0];
@@ -150,7 +154,7 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         throw std::runtime_error("No function name specified.");
     }
     std::vector<std::string>::size_type start_i = 0;
-    if (auto&& func = v[0]; isFunc(func)) {
+    if (auto&& func = v[0]; std::cout << "Try as func name: " << func << "\n", isFunc(func)) {
         _func = func;
         start_i = 1;
     } else {
@@ -164,8 +168,18 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         // First find if it is the 'key=val' syntax.
         auto eq_index = _findChar(s, '=');
         Param_Type p;
+        size_t start_index_of_value = 0;
         if (eq_index == 0) throw std::runtime_error("Empty parameter key before '='.");
-        p.key = s.substr(0, eq_index);
+        else if (eq_index == s.size()) {
+            // There is no '=' in the parameter
+            p.key = "";
+            start_index_of_value = 0;
+        }
+        else {
+            // The key is the text before '='.
+            p.key = s.substr(0, eq_index);
+            start_index_of_value = eq_index + 1;
+        }
         auto type_loc = s.rfind("::");
         bool has_type = false;
         if (type_loc != std::string::npos) {
@@ -179,10 +193,10 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
             }
         }
         if (has_type) {
-            p.value = s.substr(eq_index + 1, type_loc);
+            p.value = s.substr(start_index_of_value, type_loc);
             p.type = s.substr(type_loc + 2);
         } else {
-            p.value = s.substr(eq_index + 1);
+            p.value = s.substr(start_index_of_value);
             p.type = "";
         }
         _params.push_back(p);

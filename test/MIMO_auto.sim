@@ -40,11 +40,7 @@ channels:
     from: BS
     to: UE # 'from -> to' specifies the channel direction
     sparsity: 5
-sounding: | # Alg test here
-  COMMENT Hello, this is a comment!
-  a = INIT 4 3 fill=ones scale=4 dtype=c # a matrix
-  b::r = INIT 10 scale="-1+i" # row vector (viewed as a matrix)
-  pi::f0c = INIT 3.1415926 # a const float
+sounding: auto # use auto scheme (task-oriented scheme)
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
