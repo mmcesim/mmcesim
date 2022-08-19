@@ -113,16 +113,37 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     std::string("c")) + dim;
                         }
                     };
-                    auto cppScaleFill = [&line, &f] (const Type& t) {
+                    auto cppScaleFill = [&line, &f] (const Type& t) -> std::string {
                         f << t.string() << " " << line.returns(0).name << " = ";
-                        if (line.hasKey("scale")) {
-                            f << '(' << removeQuote(line["scale"]) << ") * ";
+                        if (t.dim() > 0) {
+                            if (line.hasKey("scale")) {
+                                f << '(' << removeQuote(line["scale"]) << ") * ";
+                            }
+                            std::string fill = "zeros";
+                            if (line.hasKey("fill")) {
+                                fill = boost::algorithm::to_lower_copy(line["fill"]);
+                            }
+                            return fill + "<" + t.string() + ">";
+                        } else if (t.dim() == 0) {
+                            std::string fill = "0";
+                            if (line.hasKey("fill")) {
+                                auto&& s = line["fill"];
+                                if (s == "zeros") {
+                                    fill = "0";
+                                } else if (s == "ones") {
+                                    if (line.hasKey("scale")) fill = removeQuote(line["scale"]);
+                                    else fill = "1";
+                                } else {
+                                    f << '(' << removeQuote(line["scale"]) << ") * ";
+                                    fill = std::string("arma::") + line["fill"];
+                                    // TODO: check if it is randn or randi
+                                }
+                            }
+                            return fill + "<" + t.string() + ">";
+                        } else {
+                            // TODO: handle error of unknown dimension
+                            return "";
                         }
-                        std::string fill = "zeros";
-                        if (line.hasKey("fill")) {
-                            fill = boost::algorithm::to_lower_copy(line["fill"]);
-                        }
-                        return fill;
                     };
                     if (line.hasKey("dim1")) {
                         if (line.hasKey("dim2")) {
@@ -153,6 +174,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     // But it should be understood as a matrix now.
                                     f << "arma::" << fill << "(1, " << line["dim1"] << ");";
                                 } else if (Type type = s; type.dim() == 0) {
+                                    // scalar assigning can just use the 
                                     if (line.hasKey("scale")) {
                                         f << removeQuote(line["scale"]) << ";";
                                     } else {
@@ -168,10 +190,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         Type type = getReturnType('0');
                         LANG_CPP
                             auto fill = cppScaleFill(type);
-                            f << fill << ";"; // this may not be correct since it is such a long time
-                            if (line.hasKey("scale")) {
-                                f << removeQuote(line["scale"]) << ";";
-                            }
+                            f << fill << "();"; // this may not be correct since it is such a long time
                         END_LANG
                     }
                 }

@@ -45,6 +45,7 @@ sounding: | # Alg test here
   a = INIT 4 3 fill=ones scale=4 dtype=c # a matrix
   b::r = INIT 10 scale="-1+i" # row vector (viewed as a matrix)
   pi::f0c = INIT 3.1415926 # a const float
+  random_number = INIT fill=randn scale=-2
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
