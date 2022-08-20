@@ -163,11 +163,20 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         _func = "CALC";
         start_i = 0;
     }
+    if (_func == "CALC") {
+        // do no more parsing for CALC
+        Param_Type p;
+        for (auto i = start_i; i != v.size(); ++i) {
+            p.value += v[i];
+        }
+        _params.push_back(p);
+        return;
+    }
     for (auto i = start_i; i != v.size(); ++i) {
         auto&& s = v[i];
         // First find if it is the 'key=val' syntax.
-        auto eq_index = _findChar(s, '=');
         Param_Type p;
+        auto eq_index = _findChar(s, '=');
         size_t start_index_of_value = 0;
         if (eq_index == 0) throw std::runtime_error("Empty parameter key before '='.");
         else if (eq_index == s.size()) {

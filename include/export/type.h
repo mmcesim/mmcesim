@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef _TYPE_H_
-#define _TYPE_H_
+#ifndef _EXPORT_TYPE_H_
+#define _EXPORT_TYPE_H_
 
 #include <string>
 #include <tuple>
@@ -98,7 +98,7 @@ inline bool Type::isUnknown() const noexcept {
     return (_data == Data::UNKNOWN || _dim == -1 || _suffix == Suffix::UNKNOWN);
 }
 
-inline static std::string string(const std::string& str) noexcept {
+inline std::string Type::string(const std::string& str) noexcept {
     Type t(str);
     return t.string();
 }

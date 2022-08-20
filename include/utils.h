@@ -16,6 +16,7 @@
 #include <cctype>
 #include <string>
 #include <random>
+#include <vector>
 #ifndef __linux__
 #include <boost/dll/runtime_symbol_info.hpp>
 #else
@@ -82,10 +83,35 @@ static std::string removeQuote(const std::string& s) {
     }
 }
 
+// remove all white space in a string
+static inline std::string& removeSpaceInPlace(std::string& str) {
+    str.erase(std::remove_if(str.begin(), str.end(),
+        [](unsigned char x) { return std::isspace(x); }), str.end());
+    return str;
+}
+
+// remove all white space in a string and make a copy
+static inline std::string removeSpaceCopy(const std::string& str) {
+    std::string new_str = str;
+    new_str.erase(std::remove_if(new_str.begin(), new_str.end(),
+        [](unsigned char x) { return std::isspace(x); }), new_str.end());
+    return new_str;
+}
+
+// get a vector of string as one string
+static std::string stringVecAsString(const std::vector<std::string>& l, std::string div = " ") {
+    if (l.empty()) return "";
+    std::string str;
+    for (auto iter = l.cbegin(); iter != l.cend() - 1; ++iter) {
+        str += *iter + div;
+    }
+    return str + *(div.cend() - 1);
+}
+
 // check if STL container contains a value
 template<typename T>
 static inline bool contains(const T& container, const typename T::value_type value) {
-    for (const auto elem : container) {
+    for (auto&& elem : container) {
         if (elem == value) return true;
     }
     return false;

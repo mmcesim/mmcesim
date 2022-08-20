@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef _ALG_H_
-#define _ALG_H_
+#ifndef _EXPORT_ALG_H_
+#define _EXPORT_ALG_H_
 
 #include <iostream>
 #include <fstream>
@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "export/type.h"
 #include "export/alg_line.h"
+#include "export/calc.h"
 
 class Alg {
 public:

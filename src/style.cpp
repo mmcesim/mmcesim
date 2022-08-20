@@ -18,7 +18,12 @@ int Style::style() const {
     std::cout << "\n";
     std::string app_dir = appDir();
     std::string astyle_path = app_dir.append("/astyle");
-    std::string astyle_options = std::string("--suffix=none --indent-namespaces ") + _options + " " + _file_name;
+    // --indent-namespaces / -N
+    // --indent-col1-comments / -Y
+    // --pad-oper / -p
+    // --pad-comma / -xg
+    // --pad-header / -H
+    std::string astyle_options = std::string("--suffix=none -N -Y -p -xg -H ") + _options + " " + _file_name;
     std::string line;
     boost::process::ipstream is; //reading pipe-stream
     boost::process::child astyle_process(

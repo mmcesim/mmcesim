@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef _FUNCTIONS_H_
-#define _FUNCTIONS_H_
+#ifndef _EXPORT_FUNCTIONS_H_
+#define _EXPORT_FUNCTIONS_H_
 
 #include <string>
 #include <array>

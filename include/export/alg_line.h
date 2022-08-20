@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef _ALG_LINE_H_
-#define _ALG_LINE_H_
+#ifndef _EXPORT_ALG_LINE_H_
+#define _EXPORT_ALG_LINE_H_
 
 #include <string>
 #include <vector>

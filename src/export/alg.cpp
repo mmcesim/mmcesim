@@ -79,7 +79,24 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         SWITCH_FUNC
             // function no end
             CASE ("CALC")
+                std::string msg;
+                std::string out;
                 LANG_CPP
+                    out = Calc::as(line.params(0).value, "cpp", &msg);
+                    if (msg.empty()) {
+                        if (size_t s = line.returns().size(); s != 0) {
+                            if (s == 1) {
+                                f << line.returns(0).name;
+                            } else {
+                                // TODO: multiple return values
+                            }
+                            f << "=";
+                        }
+                        f << out << ";";
+                    } else {
+                        std::cerr << msg << "\n";
+                        // TODO: handle error here
+                    }
                 LANG_PY
                 LANG_M
                 END_LANG
