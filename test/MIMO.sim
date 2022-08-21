@@ -52,6 +52,9 @@ sounding: | # Alg test here
   c = b_{2, 3} # get element of a matrix
   c = \abs{b_{:, 3}} + \pow(b_{}, 2) # use : in subscript & use {} for function
   \exp2(a + c .* d) ./ e^T -f_{:,3,1:index} # element-wise operator and subscript : range
+  FOR "i::u0 = INIT 0" "i != 10" "i=i+2" # a for loop taking three parameters
+    COMMENT "Do something here in the for loop."
+  END
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare

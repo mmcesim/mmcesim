@@ -21,17 +21,22 @@ Alg_Line::Alg_Line(const std::string& str) {
     bool eq_is_assign = false;
     std::string buf;
     if (eq_index != s.size()) {
-        if (eq_index + 1 != s.size()) {
-            if (isspace(s[eq_index + 1])) {
-                // Since parameter '=' should be strictly between key and val,
-                // like 'key=val', the space after '=' means that it should be the assign '='.
-                // If this does not satisfy, we cannot conclude it is parameter '='.
-                eq_is_assign = true;
-            }
+        bool surely_not_assign = false;
+        if (eq_index != 0 && (s[eq_index - 1] == '=' || s[eq_index - 1] == '!' || s[eq_index - 1] == '>' || s[eq_index - 1] == '<')) {
+            surely_not_assign = true;
         } else {
-            throw std::runtime_error("Trailing '='.");
+            if (eq_index + 1 != s.size()) {
+                if (isspace(s[eq_index + 1])) {
+                    // Since parameter '=' should be strictly between key and val,
+                    // like 'key=val', the space after '=' means that it should be the assign '='.
+                    // If this does not satisfy, we cannot conclude it is parameter '='.
+                    eq_is_assign = true;
+                }
+            } else {
+                throw std::runtime_error("Trailing '='.");
+            }
         }
-        if (!eq_is_assign) {
+        if (!surely_not_assign && !eq_is_assign) {
             // Now that we have not concluded whether '=' is the assign '=',
             // we try to see the next word of '='.
             // If it is a function name (which should be in all capital),
@@ -69,11 +74,15 @@ Alg_Line::Alg_Line(const std::string& str) {
     std::stringstream ss_params(s_func_params);
     while (ss_params >> buf) {
         assert(buf.size() > 0 && "The buf normally will not take empty string");
-        if (char c = buf[0]; c == '$' || c == '\'' || c == '"') {
+        if (char c = buf[0], end_c = *(buf.cend() - 1);
+            (c == '$' || c == '\'' || c == '"') && c != end_c) {
             // Here starts the search to the end of the pair.
+            // Also check the last character is because the quote may be closed
+            // in this exact token.
             char next_char;
             bool found_pair_end = false;
-            while (ss_params >> next_char) {
+            while (!ss_params.eof()) {
+                next_char = ss_params.get();
                 // If the next character is not the ending pair character,
                 // simply add this to the string.
                 buf += next_char;
@@ -86,6 +95,7 @@ Alg_Line::Alg_Line(const std::string& str) {
             if (!found_pair_end) {
                 // If it goes here, it means there is an unclosed pair.
                 // So we make a complaint here.
+                std::cerr << std::string("Unclosed pair '") + c + "'\n";
                 throw std::runtime_error(std::string("Unclosed pair '") + c + "'");
             }
         } else {
@@ -169,6 +179,7 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         for (auto i = start_i; i != v.size(); ++i) {
             p.value += v[i];
         }
+        std::cout << "CALC content: " << p.value << '\n';
         _params.push_back(p);
         return;
     }

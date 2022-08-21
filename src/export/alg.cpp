@@ -11,7 +11,8 @@
 
 #include "export/alg.h"
 
-Alg::Alg(const std::string& str, bool fail_fast) : _failed(false) {
+Alg::Alg(const std::string& str, bool fail_fast, bool add_comment, bool add_semicolon)
+    : _failed(false), _add_semicolon(add_semicolon), _add_comment(add_comment) {
     std::stringstream ss(str);
     std::string line;
     std::string unterminated_line = "";
@@ -82,20 +83,25 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 std::string msg;
                 std::string out;
                 LANG_CPP
-                    out = Calc::as(line.params(0).value, "cpp", &msg);
-                    if (msg.empty()) {
-                        if (size_t s = line.returns().size(); s != 0) {
-                            if (s == 1) {
-                                f << line.returns(0).name;
-                            } else {
-                                // TODO: multiple return values
-                            }
-                            f << "=";
-                        }
-                        f << out << ";";
+                    if (line.params().size() == 0) {
+                        if (_add_semicolon) f << out << ";";
                     } else {
-                        std::cerr << msg << "\n";
-                        // TODO: handle error here
+                        out = Calc::as(line.params(0).value, "cpp", &msg);
+                        if (msg.empty()) {
+                            if (size_t s = line.returns().size(); s != 0) {
+                                if (s == 1) {
+                                    f << line.returns(0).name;
+                                } else {
+                                    // TODO: multiple return values
+                                }
+                                f << "=";
+                            }
+                            f << out;
+                            if (_add_semicolon) f << ";";
+                        } else {
+                            std::cerr << msg << "\n";
+                            // TODO: handle error here
+                        }
                     }
                 LANG_PY
                 LANG_M
@@ -107,9 +113,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 } else if (line.params().empty()) WARNING("Empty comment content.");
                 else comment = line.params(0).value;
                 trim(comment);
-                if (isQuoted(comment))
-                    _wComment(f, lang, INDENT) << std::quoted(comment) << '\n';
-                else _wComment(f, lang, INDENT) << comment << '\n';
+                // if (isQuoted(comment))
+                //     _wComment(f, lang, INDENT) << std::quoted(comment) << '\n';
+                // else _wComment(f, lang, INDENT) << comment << '\n';
+                _wComment(f, lang, INDENT) << removeQuote(comment) << '\n';
             CASE ("INIT")
                 std::cout << "I am in INIT" << std::endl;
                 for (auto&& param : line.params()) {
@@ -170,14 +177,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 LANG_CPP
                                     auto fill = cppScaleFill(type);
                                     f << "arma::" << fill << '(' << line["dim1"] << ", "
-                                      << line["dim2"] << ", " << line["dim3"] << ");";
+                                        << line["dim2"] << ", " << line["dim3"] << ")";
                                 END_LANG
                             } else {
                                 // dim: 2 (a matrix)
                                 Type type = getReturnType('2');
                                 LANG_CPP
                                     auto fill = cppScaleFill(type);
-                                    f << "arma::" << fill << '(' << line["dim1"] << ", " << line["dim2"] << ");";
+                                    f << "arma::" << fill << '(' << line["dim1"] << ", " << line["dim2"] << ")";
                                 END_LANG
                             }
                         } else {
@@ -189,16 +196,16 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     // If it is a row vector,
                                     // the user may only specify one dimension.
                                     // But it should be understood as a matrix now.
-                                    f << "arma::" << fill << "(1, " << line["dim1"] << ");";
+                                    f << "arma::" << fill << "(1, " << line["dim1"] << ")";
                                 } else if (Type type = s; type.dim() == 0) {
                                     // scalar assigning can just use the 
                                     if (line.hasKey("scale")) {
-                                        f << removeQuote(line["scale"]) << ";";
+                                        f << removeQuote(line["scale"]) << "";
                                     } else {
-                                        f << removeQuote(line["dim1"]) << ";";
+                                        f << removeQuote(line["dim1"]) << "";
                                     }
                                 } else {
-                                    f << "arma::" << fill << '(' << line["dim1"] << ");";
+                                    f << "arma::" << fill << '(' << line["dim1"] << ")";
                                 }
                             END_LANG
                         }
@@ -207,13 +214,37 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         Type type = getReturnType('0');
                         LANG_CPP
                             auto fill = cppScaleFill(type);
-                            f << fill << "();"; // this may not be correct since it is such a long time
+                            f << fill << "()"; // this may not be correct since it is such a long time
                         END_LANG
                     }
+                    LANG_CPP
+                        if (_add_semicolon) f << ";";
+                    END_LANG
                 }
             CASE ("PRINT")
             // function needs end
             CASE ("FOR")
+                Keys keys { "init", "cond", "oper" };
+                APPLY_KEYS("FOR");
+                // init call INIT/CALC function
+                LANG_CPP
+                    f << "for (";
+                    std::cout << "line[init] = " << line["init"] << '\n';
+                    if (line.hasKey("init")) {
+                        Alg init(removeQuote(line["init"]), false, false, true);
+                        init.write(f, "cpp");
+                    } else f << ";";
+                    if (line.hasKey("cond")) {
+                        Alg cond(removeQuote(line["cond"]), false, false, true);
+                        cond.write(f, "cpp");
+                    } else f << ";";
+                    if (line.hasKey("oper")) {
+                        Alg oper(removeQuote(line["oper"]), false, false, false);
+                        oper.write(f, "cpp");
+                        std::cout << "has oper!\n";
+                    }
+                    f << ") {";
+                END_LANG
             CASE ("FOREVER")
             CASE ("LOOP")
             CASE ("WHILE")
@@ -222,7 +253,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 if (line.params().size() != 0) {
                     _warnings.push_back({"Parameters "});
                 }
-                if (indent_cnt == 0) {
+                if (lang != "cpp" && indent_cnt == 0) {
                     ERROR("More 'END' than should.");
                     continue;
                 }
@@ -232,7 +263,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_M f << INDENT << "end";
                 END_LANG
         END_SWITCH
-        if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
+        if (_add_comment) {
+            if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
+        }
     }
     return true;
 }

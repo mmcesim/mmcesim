@@ -52,7 +52,7 @@ public:
 public:
     Alg() = default;
 
-    Alg(const std::string& str, bool fail_fast = false);
+    Alg(const std::string& str, bool fail_fast = false, bool add_comment = true, bool add_semicolon = true);
 
     const Alg_Lines& lines() const;
 
@@ -88,6 +88,8 @@ private:
     Vars _vars;
     bool _failed = false;
     bool _use_space = false;
+    bool _add_semicolon = true;
+    bool _add_comment = true;
     unsigned _indent_size = 4;
 };
 
