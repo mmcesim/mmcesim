@@ -55,6 +55,9 @@ sounding: | # Alg test here
   FOR "i::u0 = INIT 0" "i != 10" "i=i+2" # a for loop taking three parameters
     COMMENT "Do something here in the for loop."
   END
+  WHILE i != 100 && result == false # no quote is needed because there will be only one param
+    COMMENT "Do something in the while loop."
+  END
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare

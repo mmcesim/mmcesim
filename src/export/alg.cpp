@@ -245,9 +245,23 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                     f << ") {";
                 END_LANG
+                ++indent_cnt;
             CASE ("FOREVER")
             CASE ("LOOP")
             CASE ("WHILE")
+                Keys keys { "cond" };
+                APPLY_KEYS("WHILE");
+                LANG_CPP
+                    f << "while (";
+                    if (line.hasKey("cond")) {
+                        Alg cond(removeQuote(line["cond"]), false, false, false);
+                        cond.write(f, "cpp");
+                    } else {
+                        // TODO: handle error when no contents specified
+                    }
+                    f << ") {";
+                END_LANG
+                ++indent_cnt;
             // function is end
             CASE ("END")
                 if (line.params().size() != 0) {
