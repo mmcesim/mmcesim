@@ -49,7 +49,9 @@ sounding: | # Alg test here
   a = CALC b + 2 # explicit CALC function
   a = \sin(b) @ c # implicit CALC function
   a = b^H + c^{-1} # conjugate transpose and inverse
-  # c = b_{2, 3} # get element of a matrix <-- This has problem currently.
+  c = b_{2, 3} # get element of a matrix
+  c = \abs{b_{:, 3}} + \pow(b_{}, 2) # use : in subscript & use {} for function
+  \exp2(a + c .* d) ./ e^T -f_{:,3,1:index} # element-wise operator and subscript : range
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare

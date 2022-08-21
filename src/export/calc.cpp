@@ -10,6 +10,7 @@
  */
 
 #include "export/calc.h"
+#include <iostream>
 
 Calc::Calc(const std::string& str) : _str(removeSpaceCopy(str)) {}
 
@@ -126,7 +127,11 @@ bool Calc::_changeSuperScript(std::string& str, std::string lang, std::string* m
 }
 
 bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg) const {
-    for (size_t i = 0; i != str.size(); ++i) {
+    boost::replace_all(str, "_{}", ""); // meaning less contents
+    boost::replace_all(str, "_{:}", ""); // meaning less contents
+    boost::replace_all(str, "_{:,:}", ""); // meaning less contents
+    boost::replace_all(str, "_{:,:,:}", ""); // meaning less contents
+    for (size_t i = 0; i < str.size(); ++i) {
         if (str[i] == '_') {
             size_t start_i = i;
             std::string subs = "(";
@@ -148,7 +153,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                     std::string dims[3];
                     bool starts_from_1[3] = { false, false, false };
                     int dim = 0;
-                    while (i != str.size()) {
+                    while (i < str.size()) {
                         char ch = str[i];
                         if (ch == ',') {
                             ++dim;
@@ -170,6 +175,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                             dims[dim] += ch;
                         }
                         ++i;
+                        std::cout << "Iter " << i << '\n';
                     }
                     for (int j = 0; j <= dim; ++j) {
                         size_t colon_pos = dims[j].find(':');
@@ -192,9 +198,13 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                             subs += dims[j];
                         }
                         if (j != dim) subs += ',';
-                            else subs += ')';
+                        else subs += ')';
                     }
-                    str.replace(start_i, i, subs);
+                    std::cout << start_i << ' ' << i << ' ' << subs << '\n';
+                    std::cout << str << std::endl;
+                    str.replace(start_i, i - start_i + 1, subs);
+                    std::cout << "alive\n";
+
                 } // otherwise it might just be part of variable name
             }
         }
