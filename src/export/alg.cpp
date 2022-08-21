@@ -79,12 +79,17 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         std::cout << "func: '" << func << "'\n";
         SWITCH_FUNC
             // function no end
+            CASE ("BREAK")
+                f << "break";
+                LANG_CPP
+                    if (_add_semicolon) f << ";";
+                END_LANG
             CASE ("CALC")
                 std::string msg;
                 std::string out;
                 LANG_CPP
                     if (line.params().size() == 0) {
-                        if (_add_semicolon) f << out << ";";
+                        if (_add_semicolon) f << ";";
                     } else {
                         out = Calc::as(line.params(0).value, "cpp", &msg);
                         if (msg.empty()) {
@@ -117,6 +122,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 //     _wComment(f, lang, INDENT) << std::quoted(comment) << '\n';
                 // else _wComment(f, lang, INDENT) << comment << '\n';
                 _wComment(f, lang, INDENT) << removeQuote(comment) << '\n';
+            CASE ("CPP")
+                LANG_CPP
+                END_LANG
             CASE ("INIT")
                 std::cout << "I am in INIT" << std::endl;
                 for (auto&& param : line.params()) {
@@ -221,6 +229,8 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         if (_add_semicolon) f << ";";
                     END_LANG
                 }
+            CASE ("MATLAB")
+            CASE ("OCTAVE")
             CASE ("PRINT")
             // function needs end
             CASE ("FOR")
@@ -247,6 +257,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 END_LANG
                 ++indent_cnt;
             CASE ("FOREVER")
+                LANG_CPP
+                    f << "while(1) {";
+                END_LANG
+            CASE ("IF")
             CASE ("LOOP")
             CASE ("WHILE")
                 Keys keys { "cond" };

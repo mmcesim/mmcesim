@@ -58,6 +58,9 @@ sounding: | # Alg test here
   WHILE i != 100 && result == false # no quote is needed because there will be only one param
     COMMENT "Do something in the while loop."
   END
+  FOREVER # takes no param
+    BREAK # Wow, nothing is done when I just break here [Lol]
+  END
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
