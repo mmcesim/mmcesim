@@ -20,33 +20,40 @@ Alg_Line::Alg_Line(const std::string& str) {
     // Now we need to tell whether this is assign '=' or parameter '='.
     bool eq_is_assign = false;
     std::string buf;
-    if (eq_index != s.size()) {
-        bool surely_not_assign = false;
-        if (eq_index != 0 && (s[eq_index - 1] == '=' || s[eq_index - 1] == '!' || s[eq_index - 1] == '>' || s[eq_index - 1] == '<')) {
-            surely_not_assign = true;
-        } else {
-            if (eq_index + 1 != s.size()) {
-                if (isspace(s[eq_index + 1])) {
-                    // Since parameter '=' should be strictly between key and val,
-                    // like 'key=val', the space after '=' means that it should be the assign '='.
-                    // If this does not satisfy, we cannot conclude it is parameter '='.
-                    eq_is_assign = true;
+    if ((str.length() >= 3 && (str.substr(0, 3) == "FOR" || str.substr(0, 3) == "END")) ||
+        (str.length() >= 4 && str.substr(0, 4) == "LOOP" ) ||
+        (str.length() >= 5 && str.substr(0, 5) == "WHILE" ) ||
+        (str.length() >= 7 && str.substr(0, 7) == "FOREVER" )) {
+        eq_is_assign = false;
+    } else {
+        if (eq_index != s.size()) {
+            bool surely_not_assign = false;
+            if (eq_index != 0 && (s[eq_index - 1] == '=' || s[eq_index - 1] == '!' || s[eq_index - 1] == '>' || s[eq_index - 1] == '<')) {
+                surely_not_assign = true;
+            } else {
+                if (eq_index + 1 != s.size()) {
+                    if (isspace(s[eq_index + 1])) {
+                        // Since parameter '=' should be strictly between key and val,
+                        // like 'key=val', the space after '=' means that it should be the assign '='.
+                        // If this does not satisfy, we cannot conclude it is parameter '='.
+                        eq_is_assign = true;
+                    }
+                } else {
+                    throw std::runtime_error("Trailing '='.");
                 }
-            } else {
-                throw std::runtime_error("Trailing '='.");
             }
-        }
-        if (!surely_not_assign && !eq_is_assign) {
-            // Now that we have not concluded whether '=' is the assign '=',
-            // we try to see the next word of '='.
-            // If it is a function name (which should be in all capital),
-            // we can conclude it is an assign '=' instead of parameter '='.
-            std::stringstream ss(s.substr(eq_index + 1));
-            if (ss >> buf) {
-                if (isFunc(buf)) eq_is_assign = true;
-                else eq_is_assign = false;
-            } else {
-                throw std::runtime_error("Trailing '='.");
+            if (!surely_not_assign && !eq_is_assign) {
+                // Now that we have not concluded whether '=' is the assign '=',
+                // we try to see the next word of '='.
+                // If it is a function name (which should be in all capital),
+                // we can conclude it is an assign '=' instead of parameter '='.
+                std::stringstream ss(s.substr(eq_index + 1));
+                if (ss >> buf) {
+                    if (isFunc(buf)) eq_is_assign = true;
+                    else eq_is_assign = false;
+                } else {
+                    throw std::runtime_error("Trailing '='.");
+                }
             }
         }
     }

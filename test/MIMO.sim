@@ -61,6 +61,15 @@ sounding: | # Alg test here
   FOREVER # takes no param
     BREAK # Wow, nothing is done when I just break here [Lol]
   END
+  LOOP 0 10 # implicit counter name as 'i'
+    COMMENT 0, 1, 2, ..., 9
+    j = LOOP from=10 to=0 step=-1
+      COMMENT 10, 9, 8, ..., 0
+    END
+    k::u0 = LOOP begin=0 end=10 step=2 # specify counter type
+      COMMENT 0, 2, 4, 6, 8
+    END
+  END
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare

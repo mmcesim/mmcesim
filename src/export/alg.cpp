@@ -262,6 +262,54 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 END_LANG
             CASE ("IF")
             CASE ("LOOP")
+                Keys keys { "begin", "end", "step", "from", "to" };
+                APPLY_KEYS("LOOP");
+                LANG_CPP
+                    std::string var_name = "i";
+                    f << "for (";
+                    if (!line.returns().empty()) {
+                        if (auto&& s = line.returns(0).type; !s.empty()) {
+                            Type iter_type = s;
+                            f << iter_type.string() << ' ';
+                        } else {
+                            f << "auto ";
+                        }
+                        var_name = line.returns(0).name;
+                        f << var_name;
+                    } else {
+                        f << "auto i";
+                    }
+                    f << "=";
+                    std::string step;
+                    if (line.hasKey("step")) {
+                        step = line["step"];
+                    } else step = "1";
+                    auto operFromStep = [](const std::string& step) -> std::string {
+                        if (!step.empty() && step[0] == '-') return ">";
+                        else return "<";
+                    };
+                    if (line.hasKey("begin")) {
+                        f << line["begin"] << ';';
+                        if (line.hasKey("end")) {
+                            f << var_name << operFromStep(step) << line["end"] << ";";
+                        } else {
+                            std::cerr << "LOOP no end for begin" << std::endl;
+                            // TODO: error handling
+                        }
+                    } else if (line.hasKey("from")) {
+                        f << line["from"] << ';';
+                        if (line.hasKey("to")) {
+                            f << var_name << operFromStep(step) << "=" << line["to"] << ";";
+                        } else {
+                            std::cerr << "LOOP no end for begin" << std::endl;
+                            // TODO: error handling
+                        }
+                    }
+                    if (step == "1") f << "++" << var_name;
+                    else if (step == "-1") f << "--" << var_name;
+                    else f << var_name << "+=" << step;
+                    f << ") {";
+                END_LANG
             CASE ("WHILE")
                 Keys keys { "cond" };
                 APPLY_KEYS("WHILE");
