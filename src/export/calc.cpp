@@ -83,6 +83,8 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addArma(str, "inv");
         _addArma(str, "conj");
         _addArma(str, "pinv");
+        _addArma(str, "accu");
+        _addArma(str, "sum");
         _addArma(str, "sign");
         boost::replace_all(str, "\\sgn", "arma::sign");
     END_LANG

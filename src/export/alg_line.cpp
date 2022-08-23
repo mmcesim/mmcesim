@@ -20,8 +20,9 @@ Alg_Line::Alg_Line(const std::string& str) {
     // Now we need to tell whether this is assign '=' or parameter '='.
     bool eq_is_assign = false;
     std::string buf;
-    if ((str.length() >= 3 && (str.substr(0, 3) == "FOR" || str.substr(0, 3) == "END")) ||
-        (str.length() >= 4 && str.substr(0, 4) == "LOOP" ) ||
+    if ((str.length() >= 2 && str.substr(0, 2) == "IF") ||
+        (str.length() >= 3 && (str.substr(0, 3) == "FOR" || str.substr(0, 3) == "END" || str.substr(0, 3) == "CPP")) ||
+        (str.length() >= 4 && (str.substr(0, 4) == "LOOP" || str.substr(0, 4) == "ELIF")) ||
         (str.length() >= 5 && str.substr(0, 5) == "WHILE" ) ||
         (str.length() >= 7 && str.substr(0, 7) == "FOREVER" )) {
         eq_is_assign = false;
@@ -180,13 +181,24 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         _func = "CALC";
         start_i = 0;
     }
-    if (_func == "CALC" || _func == "WHILE") {
+    if (_func == "CALC") {
         // do no more parsing for CALC
+        // check if it starts with "cond="
         Param_Type p;
         for (auto i = start_i; i != v.size(); ++i) {
             p.value += v[i];
         }
         std::cout << "CALC content: " << p.value << '\n';
+        _params.push_back(p);
+        return;
+    } else if (_func == "WHILE" || _func == "CPP" || _func == "IF" || _func == "ELIF") {
+        Param_Type p;
+        for (auto i = start_i; i != v.size(); ++i) {
+            p.value += v[i];
+        }
+        if (p.value.length() > 5 && p.value.substr(0, 5) == "cond=") {
+            p.value = removeQuote(p.value.substr(5));
+        }
         _params.push_back(p);
         return;
     }

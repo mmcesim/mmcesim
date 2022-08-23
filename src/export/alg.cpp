@@ -124,6 +124,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 _wComment(f, lang, INDENT) << removeQuote(comment) << '\n';
             CASE ("CPP")
                 LANG_CPP
+                    std::string cpp_content;
+                    if (!line.params().empty()) {
+                        cpp_content = line.params(0).value;
+                        f << cpp_content;
+                    }
+                    if (!cpp_content.empty() && *(cpp_content.cend() - 1) != ';' && _add_semicolon) {
+                        f << ';';
+                    }
                 END_LANG
             CASE ("INIT")
                 std::cout << "I am in INIT" << std::endl;
@@ -233,6 +241,23 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             CASE ("OCTAVE")
             CASE ("PRINT")
             // function needs end
+            CASE ("ELSE")
+                LANG_CPP
+                    f << "} else {";
+                END_LANG
+            CASE ("ELIF")
+                Keys keys { "cond" };
+                APPLY_KEYS("ELIF");
+                LANG_CPP
+                    f << "} else if (";
+                    if (line.hasKey("cond")) {
+                        Alg cond(removeQuote(line["cond"]), false, false, false);
+                        cond.write(f, "cpp");
+                    } else {
+                        // TODO: handle error when no contents specified
+                    }
+                    f << ") {";
+                END_LANG
             CASE ("FOR")
                 Keys keys { "init", "cond", "oper" };
                 APPLY_KEYS("FOR");
@@ -261,6 +286,19 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << "while(1) {";
                 END_LANG
             CASE ("IF")
+                Keys keys { "cond" };
+                APPLY_KEYS("IF");
+                LANG_CPP
+                    f << "if (";
+                    if (line.hasKey("cond")) {
+                        Alg cond(removeQuote(line["cond"]), false, false, false);
+                        cond.write(f, "cpp");
+                    } else {
+                        // TODO: handle error when no contents specified
+                    }
+                    f << ") {";
+                END_LANG
+                ++indent_cnt;
             CASE ("LOOP")
                 Keys keys { "begin", "end", "step", "from", "to" };
                 APPLY_KEYS("LOOP");

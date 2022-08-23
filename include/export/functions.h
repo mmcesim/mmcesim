@@ -29,6 +29,8 @@ static std::array functions_no_end = {
 };
 
 static std::array functions_needs_end = {
+    std::string("ELSE"),
+    std::string("ELIF"),
     std::string("FOR"),
     std::string("FOREVER"),
     std::string("IF"),
