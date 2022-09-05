@@ -21,26 +21,36 @@ physics:
 nodes:
   - id: BS # this should be unique
     role: receiver
-    gains:
-      mode: normal
-      mean: 0
-      variance: 1
     num: 1 # this is the default value
     size: [8, 4] # UPA with size 8x4
     beam: [4, 2]
     grid: same # the same as physics size
+    beamforming:
+      variable: "W"
+      scheme: random
   - id: UE # user
     role: transmitter
     num: 1 # a single-user model
     size: [8] # ULA with size 8
     beam: [2]
     grid: 16
+    beamforming:
+      variable: "F"
+      scheme: random
 channels:
   - id: H
     from: BS
     to: UE # 'from -> to' specifies the channel direction
     sparsity: 5
-sounding: | # Alg test here
+    gains:
+      mode: normal
+      mean: 0
+      variance: 1
+sounding:
+  variables:
+    received: "Y" # received signal matrices
+    channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
+estimation: | # Alg test here
   COMMENT Hello, this is a comment!
   a = INIT 4 3 fill=ones scale=4 dtype=c # a matrix
   b::r = INIT 10 scale="-1+i" # row vector (viewed as a matrix)
@@ -80,7 +90,7 @@ sounding: | # Alg test here
       b = -b
     END
   ELSE
-    IF cond="c == d"
+    IF cond="c == d" # use key value style if you insist
       A = A * 0.1
     END
   END

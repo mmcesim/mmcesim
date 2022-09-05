@@ -122,7 +122,7 @@ Type::Suffix Type::_getSuffix(char c) const noexcept {
 
 std::string Type::_getString(const std::string& elem_type) const noexcept {
     if (_dim == 0) return elem_type;
-    if (_dim == 1) return std::string("Vec<") + elem_type + ">";
+    if (_dim == 1) return std::string("Col<") + elem_type + ">";
     if (_dim == 2) return std::string("Mat<") + elem_type + ">";
     if (_dim == 3) return std::string("Cube<") + elem_type + ">";
     else return ""; // though it should not come here

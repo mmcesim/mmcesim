@@ -253,9 +253,46 @@ void Export::_generateChannels() {
     }
     channel_content.erase(channel_content.end() - 1); // last read character is invalid, erase it
     _f() << channel_content << '\n';
+    if (!_preCheck(_config["nodes"], DType::SEQ)) {
+        std::cerr << "No channel node defined!\n";
+        // TODO: error handling here
+    }
+    if (_config["channels"].size() != 1) {
+        std::cerr << "So far, no RIS is allowed.\n";
+        // TODO: for cascaded channel
+    }
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
-        _f() << "// This part is being developed.\nreturn true;\n";
+        std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
+        auto&& t_node = _config["nodes"][_transmitters[0]];
+        auto&& r_node = _config["nodes"][_receivers[0]];
+        auto&& r_size = r_node["size"];
+        std::cout << r_size << std::endl;
+        // std::cout << t_size["size"][0] << '\n';
+        // TODO: YAML check here
+        // std::string M_str = r_size.as<std::string>();
+        Value_Vec<size_t> M_value_vec(r_size, false, 1);
+        size_t Mx = M_value_vec[0];
+        size_t My = M_value_vec[1];
+        size_t GMx;
+        size_t GMy;
+        auto&& r_grid = r_node["grid"];
+        // std::string GM_str = r_grid.as<std::string>();
+        try {
+            std::string GM_str = r_grid.as<std::string>();
+            if (boost::algorithm::to_lower_copy(GM_str) == "same") {
+                GMx = Mx;
+                GMy = My;
+            } else {
+                Value_Vec<size_t> GM_value_vec(r_grid, false, 1);
+                GMx = GM_value_vec[0];
+                GMy = GM_value_vec[1];
+            }
+        } catch (...) {
+            Value_Vec<size_t> GM_value_vec(r_grid, false, 1);
+            GMx = GM_value_vec[0];
+            GMy = GM_value_vec[1];
+        }
         _f() << "}}\n\n";
     }
     // TODO: Generate channels.
@@ -277,11 +314,11 @@ void Export::_sounding() {
 
 void Export::_estimation() {
     std::string sounding_str;
-    if (!_preCheck(_config["sounding"], DType::STRING)) {
+    if (!_preCheck(_config["estimation"], DType::STRING)) {
         // maybe add a message on the console
         sounding_str = "auto";
     } else {
-        sounding_str = _asStr(_config["sounding"]);
+        sounding_str = _asStr(_config["estimation"]);
     }
     trim(sounding_str);
     std::cout << sounding_str << "\n";

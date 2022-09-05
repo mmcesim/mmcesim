@@ -17,6 +17,7 @@
 #include <string>
 #include <random>
 #include <vector>
+#include <sstream>
 #ifndef __linux__
 #include <boost/dll/runtime_symbol_info.hpp>
 #else
@@ -63,6 +64,14 @@ static inline std::string rtrim_copy(std::string s) {
 static inline std::string trim_copy(std::string s) {
     trim(s);
     return s;
+}
+
+template <typename T>
+T strAs(const std::string& s) {
+    std::stringstream ss(s);
+    T t;
+    ss >> t;
+    return t;
 }
 
 // If the string is quoted with a character
