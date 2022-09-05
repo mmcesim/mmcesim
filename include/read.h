@@ -12,13 +12,11 @@
 #ifndef _READ_H_
 #define _READ_H_
 
-#define YAML_CPP_STATIC_DEFINE
-
 #include <string>
 #include <tuple>
 #include <vector>
 #include <iostream>
-#include <yaml-cpp/yaml.h>
+#include "yaml.h"
 #include "error_code.h"
 #include "meta.h"
 

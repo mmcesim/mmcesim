@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <boost/tokenizer.hpp>
-#include <yaml-cpp/yaml.h>
+#include "yaml.h"
 #include "utils.h"
 
 template<typename T>
@@ -113,9 +113,8 @@ T Value_Vec<T>::operator[](size_t index) const {
         if (_error_out_of_bound) {
             // TODO: needs an elegant way of raising error.
             assert("Out of bound for a value_vec!");
-        } else {
-            return _out_of_bound_val;
         }
+        return _out_of_bound_val;
     }
 }
 
