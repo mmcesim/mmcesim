@@ -190,6 +190,26 @@ void Export::_setLang() {
     _info("Set simulation backend as " + _langName() + ".");
 }
 
+std::tuple<bool, std::string, std::string> Export::_setChannelGains(const YAML::Node& n) {
+    if (auto gains = n["gains"]; _preCheck(gains, DType::MAP)) {
+        if (auto mode = boost::algorithm::to_lower_copy(_asStr(gains["mode"])); mode == "normal") {
+            std::string mean = _asStr(gains["mean"]);
+            std::string variance = _asStr(gains["variance"]);
+            return { true, mean, variance };
+        } else if (mode == "uniform") {
+            std::string min = _asStr(gains["min"]);
+            std::string max = _asStr(gains["max"]);
+            return { false, min, max };
+        }
+    } else if (_preCheck(n["node"], DType::UNDEF)) {
+        // default value if not specified
+        return { true, "0", "1" };
+    } else {
+        throw("Channel gains not correctly set!");
+    }
+    return { true, "0", "1" };
+}
+
 void Export::_topComment() {
     // TODO: ipynb settings
     std::string title;
@@ -261,13 +281,27 @@ void Export::_generateChannels() {
         std::cerr << "So far, no RIS is allowed.\n";
         // TODO: for cascaded channel
     }
+    bool gain_normal;
+    std::string gain_param1, gain_param2;
+    try {
+        std::tie(gain_normal, gain_param1, gain_param2) = _setChannelGains(_config["channels"][0]);
+    } catch (...) {
+        // TODO: error handling
+    }
+    bool off_grid = true;
+    if (_preCheck(_config["physics"]["off_grid"], DType::BOOL, false) &&
+        !_config["physics"]["off_grid"].as<bool>()) {
+        off_grid = false;
+    }
+    std::string sparsity = _asStr(_config["channels"][0]["sparsity"]);
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
         std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
         auto&& t_node = _config["nodes"][_transmitters[0]];
         auto&& r_node = _config["nodes"][_receivers[0]];
+        auto&& t_size = t_node["size"];
         auto&& r_size = r_node["size"];
-        std::cout << r_size << std::endl;
+        // std::cout << r_size << std::endl;
         // std::cout << t_size["size"][0] << '\n';
         // TODO: YAML check here
         // std::string M_str = r_size.as<std::string>();
@@ -275,7 +309,7 @@ void Export::_generateChannels() {
         size_t Mx = M_value_vec[0];
         size_t My = M_value_vec[1];
         size_t GMx;
-        size_t GMy;
+        size_t GMy = 1;
         auto&& r_grid = r_node["grid"];
         // std::string GM_str = r_grid.as<std::string>();
         try {
@@ -293,6 +327,37 @@ void Export::_generateChannels() {
             GMx = GM_value_vec[0];
             GMy = GM_value_vec[1];
         }
+        Value_Vec<size_t> N_value_vec(t_size, false, 1);
+        size_t Nx = N_value_vec[0];
+        size_t Ny = N_value_vec[1];
+        size_t GNx;
+        size_t GNy = 1;
+        auto&& t_grid = t_node["grid"];
+        // std::string GM_str = r_grid.as<std::string>();
+        try {
+            std::string GN_str = t_grid.as<std::string>();
+            if (boost::algorithm::to_lower_copy(GN_str) == "same") {
+                GNx = Nx;
+                GNy = Ny;
+            } else {
+                Value_Vec<size_t> GN_value_vec(t_grid, false, 1);
+                GNx = GN_value_vec[0];
+                GNy = GN_value_vec[1];
+            }
+        } catch (...) {
+            Value_Vec<size_t> GN_value_vec(t_grid, false, 1);
+            GNx = GN_value_vec[0];
+            GNy = GN_value_vec[1];
+        }
+        _f() << "mmce::channel("
+             << Mx << "," << My << ","
+             << Nx << "," << Ny << ","
+             << GMx << "," << GMy << ","
+             << GNx << "," << GNy << ","
+             << sparsity << ","
+             << gain_normal << "," << gain_param1 << "," << gain_param2 << ","
+             << off_grid
+             << ");";
         _f() << "}}\n\n";
     }
     // TODO: Generate channels.

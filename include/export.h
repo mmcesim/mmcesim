@@ -18,6 +18,7 @@
 #include <type_traits>
 #include <ctime>
 #include <vector>
+#include <tuple>
 #include <boost/algorithm/string.hpp>
 #include "export/keywords.h"
 #include "export/alg.h"
@@ -96,6 +97,8 @@ private:
     void _setLang();
 
     bool _isKeyword(const std::string& str) const;
+
+    std::tuple<bool, std::string, std::string> _setChannelGains(const YAML::Node& n);
 
     std::string _asVarName(const std::string& str) const;
 

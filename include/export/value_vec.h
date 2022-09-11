@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <boost/tokenizer.hpp>
+#include <iostream>
 #include "yaml.h"
 #include "utils.h"
 
@@ -43,9 +44,14 @@ Value_Vec<T>::Value_Vec(const std::string& str, bool error_out_of_bound, T out_o
 }
 
 template<typename T>
-Value_Vec<T>::Value_Vec(const YAML::Node& node, bool error_out_of_bound, T out_of_bound_val) {
-    for (auto&& token : node) {
-        parseToken(token.as<std::string>());
+Value_Vec<T>::Value_Vec(const YAML::Node& node, bool error_out_of_bound, T out_of_bound_val)
+    : _error_out_of_bound(error_out_of_bound), _out_of_bound_val(out_of_bound_val) {
+    if (node.IsScalar()) {
+        parseToken(node.as<std::string>());
+    } else {
+        for (auto&& token : node) {
+            parseToken(token.as<std::string>());
+        }
     }
 }
 
@@ -107,13 +113,15 @@ void Value_Vec<T>::parseToken(const std::string& s) {
 
 template<typename T>
 T Value_Vec<T>::operator[](size_t index) const {
+    std::cout << "Value Vec Data Size: " << _data.size() << std::endl;
     if (index < _data.size()) {
         return _data[index];
     } else {
         if (_error_out_of_bound) {
             // TODO: needs an elegant way of raising error.
-            assert("Out of bound for a value_vec!");
+            assert(false && "Out of bound for a value_vec!");
         }
+        std::cout << "out of bound" << _out_of_bound_val << "\n";
         return _out_of_bound_val;
     }
 }
