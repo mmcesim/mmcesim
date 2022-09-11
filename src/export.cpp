@@ -69,10 +69,11 @@ YAML_Errors Export::exportCode() {
     _beginning();
     _setTransmitterReceiver();
     _setMaxTestNum();
+    _setVarNames();
     _generateChannels();
     _algorithms();
     _sounding();
-    _estimation();
+    // _estimation();
     _reporting();
     _ending();
     _f().close();
@@ -301,57 +302,14 @@ void Export::_generateChannels() {
         std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
         auto&& t_node = _config["nodes"][_transmitters[0]];
         auto&& r_node = _config["nodes"][_receivers[0]];
-        auto&& t_size = t_node["size"];
-        auto&& r_size = r_node["size"];
-        // std::cout << r_size << std::endl;
-        // std::cout << t_size["size"][0] << '\n';
-        // TODO: YAML check here
-        // std::string M_str = r_size.as<std::string>();
-        Value_Vec<size_t> M_value_vec(r_size, false, 1);
-        size_t Mx = M_value_vec[0];
-        size_t My = M_value_vec[1];
-        size_t GMx;
-        size_t GMy = 1;
-        auto&& r_grid = r_node["grid"];
-        // std::string GM_str = r_grid.as<std::string>();
-        try {
-            std::string GM_str = r_grid.as<std::string>();
-            if (boost::algorithm::to_lower_copy(GM_str) == "same") {
-                GMx = Mx;
-                GMy = My;
-            } else {
-                Value_Vec<size_t> GM_value_vec(r_grid, false, 1);
-                GMx = GM_value_vec[0];
-                GMy = GM_value_vec[1];
-            }
-        } catch (...) {
-            Value_Vec<size_t> GM_value_vec(r_grid, false, 1);
-            GMx = GM_value_vec[0];
-            GMy = GM_value_vec[1];
-        }
-        Value_Vec<size_t> N_value_vec(t_size, false, 1);
-        size_t Nx = N_value_vec[0];
-        size_t Ny = N_value_vec[1];
-        size_t GNx;
-        size_t GNy = 1;
-        auto&& t_grid = t_node["grid"];
-        // std::string GM_str = r_grid.as<std::string>();
-        try {
-            std::string GN_str = t_grid.as<std::string>();
-            if (boost::algorithm::to_lower_copy(GN_str) == "same") {
-                GNx = Nx;
-                GNy = Ny;
-            } else {
-                Value_Vec<size_t> GN_value_vec(t_grid, false, 1);
-                GNx = GN_value_vec[0];
-                GNy = GN_value_vec[1];
-            }
-        } catch (...) {
-            Value_Vec<size_t> GN_value_vec(t_grid, false, 1);
-            GNx = GN_value_vec[0];
-            GNy = GN_value_vec[1];
-        }
-        _f() << "for (unsigned i = 0; i != " << max_test_num << "; ++i) {"
+        // size_t Mx, My, GMx, GMy, BMx, BMy, Nx, Ny, GNx, GNy, BNx, BNy;
+        auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
+        auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
+        _f() << "cx_mat " << _noise
+             << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
+             << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n"
+             << _noise << ".save(\"_data/" << _noise << ".bin\");\n"
+             << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n"
              << "cx_mat " << channel_name << " = mmce::channel("
              << Mx << "," << My << ","
              << Nx << "," << Ny << ","
@@ -373,12 +331,37 @@ void Export::_algorithms() {
 }
 
 void Export::_sounding() {
+    auto&& t_node = _config["nodes"][_transmitters[0]];
+    auto&& r_node = _config["nodes"][_receivers[0]];
+    // size_t Mx, My, GMx, GMy, BMx, BMy, Nx, Ny, GNx, GNy, BNx, BNy;
+    auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
+    auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
     if (lang == Lang::CPP) {
         _f() << "int main(int argc, char* argv[]) {\n"
              << "arma_rng::set_seed_random();\n"
-             << "mmce::generateChannels();\n";
+             << "mmce::generateChannels();\n"
+             << "cx_mat " << _beamforming_W << " = "
+             << "randn<mat>(" << Nx * Ny << ", " << BNx * BNy
+             << ") + 1i * randn<mat>(" << Nx * Ny << ", " << BNx * BNy << ");\n"
+             << _beamforming_W << " = normalise(" << _beamforming_W << ",2,0);\n"
+             << "cx_mat " << _beamforming_F << " = "
+             << "randn<mat>(" << Mx * My << ", " << BMx * BMy
+             << ") + 1i * randn<mat>(" << Mx * My << ", " << BMx * BMy << ");\n"
+             << _beamforming_F << " = normalise(" << _beamforming_F << ",2,0);\n";
+        auto&& jobs = _config["simulation"]["jobs"];
+        unsigned job_cnt = 0;
+        for (auto&& job : jobs) {
+            unsigned test_num = _getTestNum(job);
+            _f() << "double NMSE" << job_cnt << " = 0;";
+            _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
+            // Load matrices
+            _f() << "cx_vec " << _received_signal << " = arma::kron("
+                 << _beamforming_F << ".st()," << _beamforming_W << ".t())"
+                 << "*" << _cascaded_channel << ".as_col();\n";
+            _f() << "}\n";
+            ++job_cnt;
+        }
     }
-    // so far, the test of Alg implementation will be here.
 }
 
 void Export::_estimation() {
@@ -445,9 +428,84 @@ bool Export::_setMaxTestNum() {
     for (auto&& job : jobs) {
         if (_preCheck(job["test_num"], DType::INT, false)) {
             unsigned test_num = job["test_num"].as<unsigned>();
-            if (test_num > max_test_num) max_test_num = test_num;
+            if (test_num > _max_test_num) _max_test_num = test_num;
+        } else {
+            if (500 > _max_test_num) _max_test_num = 500;
         }
     }
-    if (max_test_num == 0) max_test_num = 500; // default as 500.
+    if (_max_test_num == 0) _max_test_num = 500; // default as 500.
     return true;
+}
+
+bool Export::_setVarNames() {
+    try {
+        _cascaded_channel = _asStr(_config["sounding"]["variables"]["channel"]);
+    } catch (...) {
+        _cascaded_channel = "H_cascaded";
+    }
+    try {
+        _received_signal = _asStr(_config["sounding"]["variables"]["received"]);
+    } catch (...) {
+        _received_signal = "y";
+    }
+    try {
+        _noise = _asStr(_config["sounding"]["variables"]["noise"]);
+    } catch (...) {
+        _noise = "n";
+    }
+    try {
+        _beamforming_F = _asStr(_config["nodes"][_transmitters[0]]["beamforming"]["variable"]);
+    } catch (...) {
+        _beamforming_F = "F";
+    }
+    try {
+        _beamforming_W = _asStr(_config["nodes"][_receivers[0]]["beamforming"]["variable"]);
+    } catch (...) {
+        _beamforming_W = "W";
+    }
+    return true;
+}
+
+std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> Export::_getSize(const YAML::Node& n) {
+    auto&& size_n = n["size"];
+    Value_Vec<size_t> value_vec(size_n, false, 1);
+    size_t Mx = value_vec[0];
+    size_t My = value_vec[1];
+    size_t GMx;
+    size_t GMy = 1;
+    size_t BMx;
+    size_t BMy = 1;
+    auto&& grid_n = n["grid"];
+    try {
+        std::string GM_str = grid_n.as<std::string>();
+        if (boost::algorithm::to_lower_copy(GM_str) == "same") {
+            GMx = Mx;
+            GMy = My;
+        } else {
+            Value_Vec<size_t> GM_value_vec(grid_n, false, 1);
+            GMx = GM_value_vec[0];
+            GMy = GM_value_vec[1];
+        }
+    } catch (...) {
+        Value_Vec<size_t> GM_value_vec(grid_n, false, 1);
+        GMx = GM_value_vec[0];
+        GMy = GM_value_vec[1];
+    }
+    auto&& beam_n = n["beam"];
+    try {
+        std::string BM_str = beam_n.as<std::string>();
+        if (boost::algorithm::to_lower_copy(BM_str) == "same") {
+            BMx = Mx;
+            BMy = My;
+        } else {
+            Value_Vec<size_t> BM_value_vec(beam_n, false, 1);
+            BMx = BM_value_vec[0];
+            BMy = BM_value_vec[1];
+        }
+    } catch (...) {
+        Value_Vec<size_t> BM_value_vec(beam_n, false, 1);
+        BMx = BM_value_vec[0];
+        BMy = BM_value_vec[1];
+    }
+    return { Mx, My, GMx, GMy, BMx, BMy };
 }

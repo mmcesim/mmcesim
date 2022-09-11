@@ -124,6 +124,12 @@ private:
 
     bool _setMaxTestNum();
 
+    bool _setVarNames();
+
+    unsigned _getTestNum(const YAML::Node& n);
+
+    std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> _getSize(const YAML::Node& n);
+
     CLI_Options& _opt;
     YAML::Node _config;
     YAML_Errors _errors;
@@ -131,7 +137,11 @@ private:
     std::ofstream* _f_ptr = nullptr;
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
-    unsigned max_test_num = 0;
+    unsigned _max_test_num = 0;
+    std::string _cascaded_channel;
+    std::string _received_signal;
+    std::string _noise;
+    std::string _beamforming_W, _beamforming_F;
 
     const int _MAX_TX = 1;
     const int _MAX_RX = 1;
@@ -230,6 +240,7 @@ inline bool Export::_isKeyword(const std::string& str) const {
     else return false; // though impossible here
 }
 
+// TODO: use this function in the future 
 inline std::string Export::_asVarName(const std::string& str) const {
     if (_isKeyword(str)) return str + "_";
     else return str;
@@ -238,6 +249,12 @@ inline std::string Export::_asVarName(const std::string& str) const {
 inline std::ofstream& Export::_wComment() {
     _f() << _langCommentSymbol() << ' ';
     return _f();
+}
+
+inline unsigned Export::_getTestNum(const YAML::Node& n) {
+    if (auto&& num = n["test_num"]; _preCheck(num, DType::INT, false)) {
+        return num.as<unsigned>();
+    } else return 500; // default value
 }
 
 #endif

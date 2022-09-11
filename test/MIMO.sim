@@ -48,7 +48,8 @@ channels:
       variance: 1
 sounding:
   variables:
-    received: "Y" # received signal matrices
+    received: "y" # received signal vector
+    noise: "noise" # received noise vector
     channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
 estimation: | # Alg test here
   COMMENT Hello, this is a comment!
