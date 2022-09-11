@@ -54,7 +54,7 @@ sounding:
 estimation: | # Alg test here
   COMMENT Hello, this is a comment!
   a = INIT 4 3 fill=ones scale=4 dtype=c # a matrix
-  b::r = INIT 10 scale="-1+i" # row vector (viewed as a matrix)
+  b::r = INIT $\pow(5*2, 2)$ scale="-1+1i" # row vector (viewed as a matrix)
   pi::f0c = INIT 3.1415926 # a const float
   random_number = INIT fill=randn scale=-2
   a = CALC b + 2 # explicit CALC function
@@ -109,6 +109,7 @@ simulation:
         - alg: OMP
           max_iter: auto
           label: OMP # used in report
+          estimated_channel: H_hat_OMP # variable name for the estimated channel
         - alg: SBL
           max_iter: 100
           stop_thr: 0.001

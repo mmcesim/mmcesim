@@ -153,11 +153,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     std::string("c")) + dim;
                         }
                     };
-                    auto cppScaleFill = [&line, &f] (const Type& t) -> std::string {
+                    auto cppScaleFill = [this, &line, &f] (const Type& t) -> std::string {
                         f << t.string() << " " << line.returns(0).name << " = ";
                         if (t.dim() > 0) {
                             if (line.hasKey("scale")) {
-                                f << '(' << removeQuote(line["scale"]) << ") * ";
+                                f << '(' << inlineCalc(removeQuote(line["scale"]), "cpp") << ") * ";
                             }
                             std::string fill = "zeros";
                             if (line.hasKey("fill")) {
@@ -171,10 +171,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 if (s == "zeros") {
                                     fill = "0";
                                 } else if (s == "ones") {
-                                    if (line.hasKey("scale")) fill = removeQuote(line["scale"]);
+                                    if (line.hasKey("scale")) fill = inlineCalc(removeQuote(line["scale"]), "cpp");
                                     else fill = "1";
                                 } else {
-                                    f << '(' << removeQuote(line["scale"]) << ") * ";
+                                    f << '(' << inlineCalc(removeQuote(line["scale"]), "cpp") << ") * ";
                                     fill = std::string("arma::") + line["fill"];
                                     // TODO: check if it is randn or randi
                                 }
@@ -192,15 +192,17 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 Type type = getReturnType('3');
                                 LANG_CPP
                                     auto fill = cppScaleFill(type);
-                                    f << "arma::" << fill << '(' << line["dim1"] << ", "
-                                        << line["dim2"] << ", " << line["dim3"] << ")";
+                                    f << "arma::" << fill << '(' << inlineCalc(line["dim1"], "cpp") << ", "
+                                        << inlineCalc(line["dim2"], "cpp") << ", "
+                                        << inlineCalc(line["dim3"], "cpp") << ")";
                                 END_LANG
                             } else {
                                 // dim: 2 (a matrix)
                                 Type type = getReturnType('2');
                                 LANG_CPP
                                     auto fill = cppScaleFill(type);
-                                    f << "arma::" << fill << '(' << line["dim1"] << ", " << line["dim2"] << ")";
+                                    f << "arma::" << fill << '(' << inlineCalc(line["dim1"], "cpp")
+                                    << ", " << inlineCalc(line["dim2"], "cpp") << ")";
                                 END_LANG
                             }
                         } else {
@@ -212,16 +214,17 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     // If it is a row vector,
                                     // the user may only specify one dimension.
                                     // But it should be understood as a matrix now.
-                                    f << "arma::" << fill << "(1, " << line["dim1"] << ")";
+                                    f << "arma::" << fill << "(1, " << inlineCalc(line["dim1"], "cpp") << ")";
                                 } else if (Type type = s; type.dim() == 0) {
                                     // scalar assigning can just use the 
                                     if (line.hasKey("scale")) {
-                                        f << removeQuote(line["scale"]) << "";
+                                        f << inlineCalc(removeQuote(line["scale"]), "cpp") << "";
                                     } else {
-                                        f << removeQuote(line["dim1"]) << "";
+                                        f << inlineCalc(removeQuote(line["dim1"]), "cpp") << "";
                                     }
                                 } else {
-                                    f << "arma::" << fill << '(' << line["dim1"] << ")";
+                                    f << "arma::" << fill << '('
+                                      << inlineCalc(removeQuote(line["dim1"]), "cpp") << ")";
                                 }
                             END_LANG
                         }
@@ -395,6 +398,15 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
 #undef WARNING
 #undef INDENT
 #undef APPLY_KEYS
+
+std::string Alg::inlineCalc(const std::string& s, const std::string& lang) {
+    // TODO: error handling here
+    if (s.size() > 2 && s[0] == '$' && *(s.end() - 1) == '$') {
+        return Calc::as(s.substr(1, s.size() - 2), lang);
+    } else {
+        return s;
+    }
+}
 
 std::ofstream& Alg::_wComment(std::ofstream& f, const std::string& lang, const std::string& before) {
     f << before 

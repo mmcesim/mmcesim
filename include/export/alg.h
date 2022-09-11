@@ -70,6 +70,8 @@ public:
 
     bool write(std::ofstream& f, const std::string& lang);
 
+    std::string inlineCalc(const std::string& s, const std::string& lang);
+
     void setIndent(bool use_space = true, unsigned indent_size = 4);
 
 private:
