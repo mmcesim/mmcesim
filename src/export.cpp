@@ -305,7 +305,8 @@ void Export::_generateChannels() {
         // size_t Mx, My, GMx, GMy, BMx, BMy, Nx, Ny, GNx, GNy, BNx, BNy;
         auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
         auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
-        _f() << "cx_mat " << _noise
+        _f() << "std::filesystem::create_directory(\"_data\");\n"
+             << "cx_mat " << _noise
              << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
              << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n"
              << _noise << ".save(\"_data/" << _noise << ".bin\");\n"
@@ -347,18 +348,79 @@ void Export::_sounding() {
              << "cx_mat " << _beamforming_F << " = "
              << "randn<mat>(" << Mx * My << ", " << BMx * BMy
              << ") + 1i * randn<mat>(" << Mx * My << ", " << BMx * BMy << ");\n"
-             << _beamforming_F << " = normalise(" << _beamforming_F << ",2,0);\n";
+             << _beamforming_F << " = normalise(" << _beamforming_F << ",2,0);\n\n"
+             << "cx_mat " << _noise << ";\n"
+             << "if (!" << _noise << ".load(\"_data/" << _noise << ".bin\", arma::arma_binary)) {\n"
+             << "std::cerr << \"ERROR: Failed to load '" << _noise
+             << ".bin' from '_data'.\" << std::endl; return 1;}\n";
         auto&& jobs = _config["simulation"]["jobs"];
         unsigned job_cnt = 0;
         for (auto&& job : jobs) {
             unsigned test_num = _getTestNum(job);
-            _f() << "double NMSE" << job_cnt << " = 0;";
+            auto&& SNR = job["SNR"];
+            std::string SNR_mode;
+            try {
+                SNR_mode = boost::algorithm::to_lower_copy(_asStr(job["SNR_mode"], false));
+            } catch (...) {
+                SNR_mode = "db";
+            }
+            auto&& pilot = job["pilot"];
+            Value_Vec<double> SNR_vec(SNR, true);
+            Value_Vec<unsigned> pilot_vec(pilot, true);
+            bool has_loop = true;
+            if (SNR_vec.size() > 1) {
+                _f() << "\ndouble NMSE" << job_cnt << "[" << SNR_vec.size() << "] = {};";
+                if (SNR_mode == "linear") {
+                    _f() << "vec SNR_linear = { " << SNR_vec.asStr() << " };\n";
+                } else {
+                    // default as dB
+                    _f() << "vec SNR_dB = { " << SNR_vec.asStr() << " };\n"
+                         << "vec SNR_linear = arma::exp10(SNR_dB / 10.0);\n";
+                }
+                _f() << "unsigned pilot = " << pilot_vec[0] << ";\n"
+                     << "vec sigma2_all = arma::ones<vec>(SNR_dB.n_elem) / SNR_linear;\n"
+                     << "for (uword ii = 0; ii != SNR_dB.n_elem; ++ii) {\n"
+                     << "double sigma2 = sigma2_all[ii];\n";
+            } else if (pilot_vec.size() > 1) {
+                _f() << "\ndouble NMSE" << job_cnt << "[" << pilot_vec.size() << "] = {};";
+                if (SNR_mode == "linear") {
+                    _f() << "double SNR_linear = " << SNR_vec[0] << ";\n";
+                } else {
+                    // default as dB
+                    _f() << "double SNR_dB = " << SNR_vec[0] << ";\n"
+                         << "double SNR_linear = std::exp10(SNR_dB / 10.0);\n";
+                }
+                _f() << "double sigma2 = 1.0 / SNR_linear;\n"
+                     << "uvec pilots = { " << pilot_vec.asStr() << " };\n"
+                     << "for (uword ii = 0; ii != pilots.n_elem; ++ii) {\n"
+                     << "double pilot = pilots[ii];\n";
+            } else {
+                has_loop = false;
+                _f() << "\ndouble NMSE" << job_cnt << " = 0;";
+            }
             _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
-            // Load matrices
-            _f() << "cx_vec " << _received_signal << " = arma::kron("
+            for (auto&& channel : _config["channels"]) {
+                // Load channel matrices.
+                std::string ch = channel["id"].as<std::string>();
+                _f() << "cx_mat " << ch << ";\n"
+                     << "if (!" << ch << ".load(\"_data/" << ch
+                     << "\" + std::to_string(test_n) + \".bin\", arma::arma_binary)) {\n"
+                     << "std::cerr << \"ERROR: Failed to load '" << ch << "\" + std::to_string(test_n) + \""
+                     << ".bin' from '_data'.\" << std::endl; return 1;}\n";
+            }
+            // TODO: The cascaded channel is the only channel is valid only for a simple MIMO system.
+            _f() << "cx_mat " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>()
+                 << ";\ncx_vec " << _received_signal << " = arma::kron("
                  << _beamforming_F << ".st()," << _beamforming_W << ".t())"
-                 << "*" << _cascaded_channel << ".as_col();\n";
+                 << "*" << _cascaded_channel << ".as_col();\n"
+                 << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
+                 << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
+                 << "double raw_signal_power = arma::accu(arma::pow(arma::abs("
+                 << _received_signal << "), 2));\n"
+                 << _received_signal << " += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n";
+            _estimation();
             _f() << "}\n";
+            if (has_loop) _f() << "}\n";
             ++job_cnt;
         }
     }

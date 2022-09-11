@@ -17,6 +17,8 @@ public:
 
     std::string asStr() const;
 
+    size_t size() const noexcept;
+
 private:
     std::string removeBracket(const std::string& str);
 
@@ -48,7 +50,7 @@ template<typename T>
 Value_Vec<T>::Value_Vec(const YAML::Node& node, bool error_out_of_bound, T out_of_bound_val)
     : _error_out_of_bound(error_out_of_bound), _out_of_bound_val(out_of_bound_val) {
     if (node.IsScalar()) {
-        parseToken(node.as<std::string>());
+        Value_Vec(node.as<std::string>(), error_out_of_bound, out_of_bound_val);
     } else {
         for (auto&& token : node) {
             parseToken(token.as<std::string>());
@@ -136,6 +138,11 @@ std::string Value_Vec<T>::asStr() const {
     }
     s += std::to_string(*(_data.end() - 1));
     return s;
+}
+
+template<typename T>
+inline size_t Value_Vec<T>::size() const noexcept {
+    return _data.size();
 }
 
 #endif
