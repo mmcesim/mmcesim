@@ -2,8 +2,7 @@
 #define _EXPORT_VALUE_VEC_H_
 
 #include <vector>
-#include <boost/tokenizer.hpp>
-#include <iostream>
+#include <string>
 #include "yaml.h"
 #include "utils.h"
 
@@ -15,6 +14,8 @@ public:
     Value_Vec(const YAML::Node& node, bool error_out_of_bound = false, T out_of_bound_val = 0);
 
     T operator[](size_t index) const;
+
+    std::string asStr() const;
 
 private:
     std::string removeBracket(const std::string& str);
@@ -113,7 +114,7 @@ void Value_Vec<T>::parseToken(const std::string& s) {
 
 template<typename T>
 T Value_Vec<T>::operator[](size_t index) const {
-    std::cout << "Value Vec Data Size: " << _data.size() << std::endl;
+    // std::cout << "Value Vec Data Size: " << _data.size() << std::endl;
     if (index < _data.size()) {
         return _data[index];
     } else {
@@ -121,9 +122,20 @@ T Value_Vec<T>::operator[](size_t index) const {
             // TODO: needs an elegant way of raising error.
             assert(false && "Out of bound for a value_vec!");
         }
-        std::cout << "out of bound" << _out_of_bound_val << "\n";
+        // std::cout << "out of bound" << _out_of_bound_val << "\n";
         return _out_of_bound_val;
     }
+}
+
+template<typename T>
+std::string Value_Vec<T>::asStr() const {
+    if (_data.size() == 0) return "";
+    std::string s;
+    for (auto i = _data.cbegin(); i + 1 != _data.end(); ++i) {
+        s += std::to_string(*i) + ", ";
+    }
+    s += std::to_string(*(_data.end() - 1));
+    return s;
 }
 
 #endif

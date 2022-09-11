@@ -2,6 +2,7 @@
 *.mmcesim-py linguist-detectable
 *.mmcesim-m linguist-detectable
 
+*.h linguist-language=C++
 *.sim linguist-language=YAML
 *.alg linguist-language=YAML
 *.mmcesim-cpp linguist-language=C++

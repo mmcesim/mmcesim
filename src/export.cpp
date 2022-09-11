@@ -68,6 +68,7 @@ YAML_Errors Export::exportCode() {
     _topComment();
     _beginning();
     _setTransmitterReceiver();
+    _setMaxTestNum();
     _generateChannels();
     _algorithms();
     _sounding();
@@ -294,6 +295,7 @@ void Export::_generateChannels() {
         off_grid = false;
     }
     std::string sparsity = _asStr(_config["channels"][0]["sparsity"]);
+    std::string channel_name = _asStr(_config["channels"][0]["id"]);
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
         std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
@@ -349,7 +351,8 @@ void Export::_generateChannels() {
             GNx = GN_value_vec[0];
             GNy = GN_value_vec[1];
         }
-        _f() << "mmce::channel("
+        _f() << "for (unsigned i = 0; i != " << max_test_num << "; ++i) {"
+             << "cx_mat " << channel_name << " = mmce::channel("
              << Mx << "," << My << ","
              << Nx << "," << Ny << ","
              << GMx << "," << GMy << ","
@@ -357,7 +360,8 @@ void Export::_generateChannels() {
              << sparsity << ","
              << gain_normal << "," << gain_param1 << "," << gain_param2 << ","
              << off_grid
-             << ");";
+             << ");"
+             << channel_name << ".save(\"_data/" << channel_name << "\" + std::to_string(i) + \".bin\");}";
         _f() << "}}\n\n";
     }
     // TODO: Generate channels.
@@ -409,7 +413,7 @@ void Export::_ending() {
 
 bool Export::_setTransmitterReceiver() {
     if (!_preCheck(_config["nodes"], DType::SEQ)) return false;
-    auto nodes = _config["nodes"];
+    auto&& nodes = _config["nodes"];
     for (int i = 0; i != nodes.size(); ++i) {
         auto node = nodes[i]["role"];
         if (!_preCheck(node, DType::STRING | DType::UNDEF)) return false;
@@ -432,5 +436,18 @@ bool Export::_setTransmitterReceiver() {
             " there can be at most " + std::to_string(_MAX_RX) + " receivers.", Err::TOO_MANY_RX);
         return false;
     }
+    return true;
+}
+
+bool Export::_setMaxTestNum() {
+    if (!_preCheck(_config["simulation"]["jobs"], DType::SEQ)) return false;
+    auto&& jobs = _config["simulation"]["jobs"];
+    for (auto&& job : jobs) {
+        if (_preCheck(job["test_num"], DType::INT, false)) {
+            unsigned test_num = job["test_num"].as<unsigned>();
+            if (test_num > max_test_num) max_test_num = test_num;
+        }
+    }
+    if (max_test_num == 0) max_test_num = 500; // default as 500.
     return true;
 }

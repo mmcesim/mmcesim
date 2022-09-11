@@ -99,6 +99,7 @@ simulation:
   metric: [NMSE] # used for compare
   jobs:
     - name: NMSE v.s. SNR
+      test_num: 500
       SNR: [0:2:20]
       SNR_mode: dB # dB (default) | linear
       pilot: 0.25
@@ -113,6 +114,7 @@ simulation:
           know_variance: true
           label: SBL-EM
     - name: NMSE v.s. pilot
+      test_num: 200
       SNR: 0
       pilot: [100:50:400]
       algorithms: # compare different languages

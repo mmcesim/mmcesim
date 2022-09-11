@@ -122,6 +122,8 @@ private:
 
     bool _setTransmitterReceiver();
 
+    bool _setMaxTestNum();
+
     CLI_Options& _opt;
     YAML::Node _config;
     YAML_Errors _errors;
@@ -129,6 +131,7 @@ private:
     std::ofstream* _f_ptr = nullptr;
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
+    unsigned max_test_num = 0;
 
     const int _MAX_TX = 1;
     const int _MAX_RX = 1;
