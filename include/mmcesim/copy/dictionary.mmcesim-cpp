@@ -1,0 +1,17 @@
+// Generate dictionaries.
+namespace mmce {
+    cx_mat dictionary(uword Mx, uword My, uword GMx, uword GMy) {
+        double d = 0.5; // antenna spacing
+        if (My == 1 && GMy == 1) { // ULA
+            cx_mat F = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) *
+                d * 2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t());
+            return F;
+        } else { // UPA
+            cx_mat Fx = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) *
+                d * 2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t());
+            cx_mat Fy = std::sqrt(1.0 / My) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(My - 1), My) *
+                d * 2.0 / GMy * arma::linspace(0, double(GMy - 1), GMy).t());
+            return arma::kron(Fx, Fy);
+        }
+    }
+}

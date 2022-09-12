@@ -115,6 +115,8 @@
         "variant": "cpp",
         "vector": "cpp",
         "*.ipp": "cpp",
-        "*.mmcesim-cpp": "cpp"
+        "*.mmcesim-cpp": "cpp",
+        "__memory": "cpp",
+        "filesystem": "cpp"
     }
 }

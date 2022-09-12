@@ -133,6 +133,22 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         f << ';';
                     }
                 END_LANG
+            CASE ("DICTIONARY")
+                if (line.returns().size() > 1) ERROR("Return variable more than 1 in 'DICTIONARY'.");
+                else if (line.returns().empty()) WARNING("Unused 'DICTIONARY', i.e. no return variable.");
+                else {
+                    Keys keys { "Mx", "My", "GMx", "GMy" };
+                    APPLY_KEYS("DICTIONARY");
+                    LANG_CPP
+                        std::string Mx = line.hasKey("Mx") ? inlineCalc(removeQuote(line["Mx"]), "cpp") : "1";
+                        std::string My = line.hasKey("My") ? inlineCalc(removeQuote(line["Mx"]), "cpp") : "1";
+                        std::string GMx = line.hasKey("GMx") ? inlineCalc(removeQuote(line["GMx"]), "cpp") : "1";
+                        std::string GMy = line.hasKey("GMy") ? inlineCalc(removeQuote(line["GMx"]), "cpp") : "1";
+                        f << "const cx_mat " << line.returns(0).name << " = mmce::dictionary("
+                          << Mx << "," << My << "," << GMx << "," << GMy << ");";
+                    END_LANG
+                }
+            CASE ("ESTIMATE")
             CASE ("INIT")
                 std::cout << "I am in INIT" << std::endl;
                 for (auto&& param : line.params()) {
