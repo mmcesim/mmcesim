@@ -142,9 +142,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     APPLY_KEYS("DICTIONARY");
                     LANG_CPP
                         std::string Mx = line.hasKey("Mx") ? inlineCalc(removeQuote(line["Mx"]), "cpp") : "1";
-                        std::string My = line.hasKey("My") ? inlineCalc(removeQuote(line["Mx"]), "cpp") : "1";
+                        std::string My = line.hasKey("My") ? inlineCalc(removeQuote(line["My"]), "cpp") : "1";
                         std::string GMx = line.hasKey("GMx") ? inlineCalc(removeQuote(line["GMx"]), "cpp") : "1";
-                        std::string GMy = line.hasKey("GMy") ? inlineCalc(removeQuote(line["GMx"]), "cpp") : "1";
+                        std::string GMy = line.hasKey("GMy") ? inlineCalc(removeQuote(line["GMy"]), "cpp") : "1";
                         f << "const cx_mat " << line.returns(0).name << " = mmce::dictionary("
                           << Mx << "," << My << "," << GMx << "," << GMy << ");";
                     END_LANG
@@ -312,6 +312,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << "while(1) {";
                 END_LANG
             CASE ("FUNCTION")
+                Keys keys { "name", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9" };
+                APPLY_KEYS("FUNCTION");
+                LANG_CPP
+                END_LANG
             CASE ("IF")
                 Keys keys { "cond" };
                 APPLY_KEYS("IF");

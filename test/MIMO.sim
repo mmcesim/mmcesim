@@ -52,7 +52,7 @@ sounding:
     noise: "noise" # received noise vector
     channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
 estimation: | # Alg test here
-  D = DICTIONARY 4 2 3 1
+  D = DICTIONARY 16 8 16 16 # Antenna size: 16x6, Grid size: 16x16
   COMMENT Hello, this is a comment!
   a = INIT 4 3 fill=ones scale=4 dtype=c # a matrix
   b::r = INIT $\pow(5*2, 2)$ scale="-1+1i" # row vector (viewed as a matrix)
