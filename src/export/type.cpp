@@ -89,6 +89,7 @@ std::string Type::string() const noexcept {
     } else {
         return "";
     }
+    if (_suffix == Suffix::REFERENCE_) type += "&";
     return type;
 }
 
@@ -114,6 +115,7 @@ std::tuple<Type::Data, Type::Dim> Type::_getData(char c) const noexcept {
 Type::Suffix Type::_getSuffix(char c) const noexcept {
     switch (tolower(c)) {
     case 'c': return Suffix::CONST_;
+    case 'r': return Suffix::REFERENCE_;
 /*  case 'v': return Suffix::VOLATILE_; */
     case 0:   return Suffix::NONE;
     default:  return Suffix::UNKNOWN;

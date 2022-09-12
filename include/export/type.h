@@ -45,10 +45,11 @@ class Type {
      * These are additional attributes of the type
      */
     enum class Suffix {
-        NONE,      /**< (none) */
-        CONST_,    /**< c */
-        VOLATILE_, /**< v (not implemented yet) */
-        UNKNOWN,   /** (unknown) */
+        NONE,       /**< (none) */
+        CONST_,     /**< c */
+        REFERENCE_, /**< r */
+        VOLATILE_,  /**< v (not implemented yet) */
+        UNKNOWN,    /** (unknown) */
     };
 
     using Dim = int8_t;

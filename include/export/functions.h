@@ -19,6 +19,7 @@
 static std::array functions_no_end = {
     std::string("BREAK"),
     std::string("CALC"),
+    std::string("CALL"),
     std::string("COMMENT"),
     std::string("CPP"),
     std::string("DICTIONARY"),

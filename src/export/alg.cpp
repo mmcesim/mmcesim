@@ -111,6 +111,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_PY
                 LANG_M
                 END_LANG
+            CASE ("CALL")
             CASE ("COMMENT")
                 std::string comment;
                 if (line.params().size() > 1) {
@@ -149,6 +150,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     END_LANG
                 }
             CASE ("ESTIMATE")
+                if (!line.returns().empty()) WARNING("No return value should be used in 'ESTIMATE'.");
+                else {
+                    Keys keys { "Q", "y" };
+                    APPLY_KEYS("ESTIMATE");
+                    // iterate through all algorithms to call its corresponding functions
+                }
             CASE ("INIT")
                 std::cout << "I am in INIT" << std::endl;
                 for (auto&& param : line.params()) {
@@ -304,6 +311,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "while(1) {";
                 END_LANG
+            CASE ("FUNCTION")
             CASE ("IF")
                 Keys keys { "cond" };
                 APPLY_KEYS("IF");
