@@ -15,6 +15,7 @@
 Alg_Line::Alg_Line(const std::string& str) {
     std::string s = str;
     _removeComment(s);
+    if (s.empty()) return; // empty contents or all comments
     auto eq_index = _findChar(s, '=');
     std::cout << s << " eq_index: " << eq_index << "\n";
     // Now we need to tell whether this is assign '=' or parameter '='.

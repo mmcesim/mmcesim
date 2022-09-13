@@ -51,6 +51,10 @@ sounding:
     received: "y" # received signal vector
     noise: "noise" # received noise vector
     channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
+preamble: |
+  # preamble
+  COMMENT Here begins the preamble part.
+  a = INIT 8
 estimation: | # Alg test here
   D::mc = NEW \dictionary(16, 8, 16, 16) # Antenna size: 16x6, Grid size: 16x16
   COMMENT Hello, this is a comment!

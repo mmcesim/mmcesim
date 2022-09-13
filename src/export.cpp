@@ -257,6 +257,7 @@ void Export::_topComment() {
 }
 
 void Export::_beginning() {
+    // load header
     std::ifstream header_file(appDir() + "/../include/mmcesim/copy/header." + _langMmcesimExtension());
     std::string header_content = "";
     while (!header_file.eof()) {
@@ -264,6 +265,14 @@ void Export::_beginning() {
     }
     header_content.erase(header_content.end() - 1); // last read character is invalid, erase it
     _f() << header_content << '\n';
+    // load preamble
+    if (_preCheck(_config["preamble"], DType::STRING, false)) {
+        std::string preamble_str = _asStr(_config["preamble"]);
+        trim(preamble_str);
+        std::cout << "Preamble Text:\n" << preamble_str << "\n";
+        Alg alg(preamble_str);
+        alg.write(_f(), _langStr());
+    }
 }
 
 void Export::_generateChannels() {
