@@ -18,11 +18,12 @@
 #include "utils.h"
 
 struct Macro {
-    unsigned alg_num = 0;
-    std::vector<std::string> alg_names; // ALG names separated by comma (,)
-    std::vector<std::string> alg_params;
+    unsigned job_num = 0;
+    std::vector<unsigned> alg_num;
+    std::vector<std::vector<std::string>> alg_names; // ALG names separated by comma (,)
+    std::vector<std::vector<std::string>> alg_params;
 
-    std::string replaceMacro(const std::string& s, int cnt) const;
+    std::string replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const;
 };
 
 static const Macro macro_none;

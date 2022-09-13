@@ -11,14 +11,18 @@
 
 #include "export/macro.h"
 
-std::string Macro::replaceMacro(const std::string& s, int cnt) const {
+std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const {
+    std::regex job_num_re("`JOB_NUM`");
     std::regex alg_num_re("`ALG_NUM`");
     std::regex alg_name_re("`ALG_NAME`");
     std::regex alg_params_re("`ALG_PARAMS`");
-    std::string r = std::regex_replace(s, alg_num_re, std::to_string(this->alg_num));
-    if (cnt >= 0) {
-        r = std::regex_replace(r, alg_name_re, this->alg_names[cnt]);
-        r = std::regex_replace(r, alg_params_re, this->alg_params[cnt]);
+    std::string r = std::regex_replace(s, job_num_re, std::to_string(this->job_num));
+    if (job_cnt >= 0) {
+        r = std::regex_replace(s, alg_num_re, std::to_string(this->alg_num[job_cnt]));
+        if (alg_cnt >= 0) {
+            r = std::regex_replace(r, alg_name_re, this->alg_names[job_cnt][alg_cnt]);
+            r = std::regex_replace(r, alg_params_re, this->alg_params[job_cnt][alg_cnt]);
+        }
     }
     return r;
 }

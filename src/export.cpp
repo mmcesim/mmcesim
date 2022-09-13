@@ -444,21 +444,39 @@ void Export::_sounding() {
 }
 
 void Export::_estimation() {
-    std::string sounding_str;
+    Macro macro;
+    auto&& jobs = _config["simulation"]["jobs"];
+    if (_preCheck(jobs, DType::SEQ)) {
+        macro.job_num = jobs.size();
+        for (size_t i = 0; i != macro.job_num; ++i) {
+            auto&& job_algs = jobs[i]["algorithms"];
+            macro.alg_num.push_back(job_algs.size());
+            std::vector<std::string> alg_names;
+            std::vector<std::string> alg_params;
+            for (auto&& alg : job_algs) {
+                alg_names.push_back(_asStr(alg["alg"]));
+                // TODO: macro parameters
+                alg_params.push_back("");
+            }
+            macro.alg_names.push_back(alg_names);
+            macro.alg_params.push_back(alg_params);
+        }
+    }
+    std::string estimation_str;
     if (!_preCheck(_config["estimation"], DType::STRING)) {
         // maybe add a message on the console
-        sounding_str = "auto";
+        estimation_str = "auto";
     } else {
-        sounding_str = _asStr(_config["estimation"]);
+        estimation_str = _asStr(_config["estimation"]);
     }
-    trim(sounding_str);
-    std::cout << sounding_str << "\n";
-    if (sounding_str.length() == 4 && boost::algorithm::to_lower_copy(sounding_str) == "auto") {
+    trim(estimation_str);
+    std::cout << estimation_str << "\n";
+    if (estimation_str.length() == 4 && boost::algorithm::to_lower_copy(estimation_str) == "auto") {
         // TODO: use tasked-oriented algorithm
         // just do nothing right now
-        std::cout << "Use auto sounding." << std::endl;
+        std::cout << "Use auto estimation." << std::endl;
     } else {
-        Alg alg(sounding_str);
+        Alg alg(estimation_str, macro);
         alg.write(_f(), _langStr());
     }
 }

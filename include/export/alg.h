@@ -54,7 +54,7 @@ public:
 public:
     Alg() = default;
 
-    Alg(const std::string& str, const Macro& macro = macro_none, int macro_cnt = -1,
+    Alg(const std::string& str, const Macro& macro = macro_none, int job_cnt = -1, int alg_cnt = -1,
         bool fail_fast = false, bool add_comment = true, bool add_semicolon = true);
 
     const Alg_Lines& lines() const;

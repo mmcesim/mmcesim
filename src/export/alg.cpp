@@ -11,10 +11,10 @@
 
 #include "export/alg.h"
 
-Alg::Alg(const std::string& str, const Macro& macro, int macro_cnt,
+Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
     bool fail_fast, bool add_comment, bool add_semicolon)
     : _failed(false), _add_semicolon(add_semicolon), _add_comment(add_comment) {
-    std::string str_replaced_macro = macro.replaceMacro(str, macro_cnt);
+    std::string str_replaced_macro = macro.replaceMacro(str, job_cnt, alg_cnt);
     std::stringstream ss(str_replaced_macro);
     std::string line;
     std::string unterminated_line = "";
@@ -335,7 +335,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "} else if (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, false, false, false);
+                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -350,15 +350,15 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << "for (";
                     std::cout << "line[init] = " << line["init"] << '\n';
                     if (line.hasKey("init")) {
-                        Alg init(removeQuote(line["init"]), macro_none, -1, false, false, true);
+                        Alg init(removeQuote(line["init"]), macro_none, -1, -1, false, false, true);
                         init.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, false, false, true);
+                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, true);
                         cond.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("oper")) {
-                        Alg oper(removeQuote(line["oper"]), macro_none, -1, false, false, false);
+                        Alg oper(removeQuote(line["oper"]), macro_none, -1, -1, false, false, false);
                         oper.write(f, "cpp");
                         std::cout << "has oper!\n";
                     }
@@ -420,7 +420,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "if (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, false, false, false);
+                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -486,7 +486,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "while (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, false, false, false);
+                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
