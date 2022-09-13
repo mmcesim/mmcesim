@@ -87,6 +87,7 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addArma(str, "sum");
         _addArma(str, "sign");
         boost::replace_all(str, "\\sgn", "arma::sign");
+        _addMmce(str, "dictionary");
     END_LANG
     return true;
 }

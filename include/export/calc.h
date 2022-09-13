@@ -47,6 +47,8 @@ private:
 
     void _addArma(std::string& str, const std::string& func) const;
 
+    void _addMmce(std::string& str, const std::string& func) const;
+
     std::string _str;
 };
 
@@ -61,6 +63,10 @@ inline void Calc::_msg(std::string* msg, const std::string& content) const {
 
 inline void Calc::_addArma(std::string& str, const std::string& func) const {
     boost::replace_all(str, std::string("\\") + func, "arma::" + func);
+}
+
+inline void Calc::_addMmce(std::string& str, const std::string& func) const {
+    boost::replace_all(str, std::string("\\") + func, "mmce::" + func);
 }
 
 #endif

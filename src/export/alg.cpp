@@ -134,21 +134,6 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         f << ';';
                     }
                 END_LANG
-            CASE ("DICTIONARY")
-                if (line.returns().size() > 1) ERROR("Return variable more than 1 in 'DICTIONARY'.");
-                else if (line.returns().empty()) WARNING("Unused 'DICTIONARY', i.e. no return variable.");
-                else {
-                    Keys keys { "Mx", "My", "GMx", "GMy" };
-                    APPLY_KEYS("DICTIONARY");
-                    LANG_CPP
-                        std::string Mx = line.hasKey("Mx") ? inlineCalc(removeQuote(line["Mx"]), "cpp") : "1";
-                        std::string My = line.hasKey("My") ? inlineCalc(removeQuote(line["My"]), "cpp") : "1";
-                        std::string GMx = line.hasKey("GMx") ? inlineCalc(removeQuote(line["GMx"]), "cpp") : "1";
-                        std::string GMy = line.hasKey("GMy") ? inlineCalc(removeQuote(line["GMy"]), "cpp") : "1";
-                        f << "const cx_mat " << line.returns(0).name << " = mmce::dictionary("
-                          << Mx << "," << My << "," << GMx << "," << GMy << ");";
-                    END_LANG
-                }
             CASE ("ESTIMATE")
                 if (!line.returns().empty()) WARNING("No return value should be used in 'ESTIMATE'.");
                 else {
@@ -264,6 +249,35 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     END_LANG
                 }
             CASE ("MATLAB")
+            CASE ("NEW")
+                std::string msg;
+                std::string out;
+                LANG_CPP
+                    if (line.params().size() == 0) {
+                        if (_add_semicolon) f << ";";
+                    } else {
+                        out = Calc::as(line.params(0).value, "cpp", &msg);
+                        if (msg.empty()) {
+                            if (size_t s = line.returns().size(); s != 0) {
+                                if (s == 1) {
+                                    auto&& type = line.returns(0).type;
+                                    f << (type.empty() ? "auto " : static_cast<Type>(type).string() + " ")
+                                      << line.returns(0).name;
+                                } else {
+                                    // TODO: multiple return values
+                                }
+                                f << "=";
+                            }
+                            f << out;
+                            if (_add_semicolon) f << ";";
+                        } else {
+                            std::cerr << msg << "\n";
+                            // TODO: handle error here
+                        }
+                    }
+                LANG_PY
+                LANG_M
+                END_LANG
             CASE ("OCTAVE")
             CASE ("PRINT")
             // function needs end

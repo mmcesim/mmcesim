@@ -17,15 +17,16 @@
 #include "utils.h"
 
 static std::array functions_no_end = {
+    std::string("BRANCH"),
     std::string("BREAK"),
     std::string("CALC"),
     std::string("CALL"),
     std::string("COMMENT"),
     std::string("CPP"),
-    std::string("DICTIONARY"),
     std::string("ESTIMATE"),
     std::string("INIT"),
     std::string("MATLAB"),
+    std::string("NEW"),
     std::string("OCTAVE"),
     std::string("PRINT"),
     std::string("PYTHON"),

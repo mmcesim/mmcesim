@@ -181,14 +181,13 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         _func = "CALC";
         start_i = 0;
     }
-    if (_func == "CALC") {
-        // do no more parsing for CALC
-        // check if it starts with "cond="
+    if (_func == "CALC" || _func == "NEW") {
+        // do no more parsing for CALC or NEW
         Param_Type p;
         for (auto i = start_i; i != v.size(); ++i) {
             p.value += v[i];
         }
-        std::cout << "CALC content: " << p.value << '\n';
+        std::cout << "CALC/NEW content: " << p.value << '\n';
         _params.push_back(p);
         return;
     } else if (_func == "WHILE" || _func == "CPP" || _func == "IF" || _func == "ELIF") {
