@@ -82,7 +82,7 @@ estimation: | # Alg test here
       COMMENT 0, 2, 4, 6, 8
     END
   END
-  CPP std::cout << "Stantard C++ Language!" << std::endl;
+  CPP std::cout << "Standard C++ Language!" << std::endl;
   IF \accu(\pow(\abs(A), 2)) > 0.1 * threshold
     IF b < 0
       b = 0

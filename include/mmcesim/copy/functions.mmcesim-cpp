@@ -14,4 +14,12 @@ namespace mmce {
             return arma::kron(Fx, Fy);
         }
     }
+
+    template<typename T>
+    uword size(const T& a, uword dim) {
+        if constexpr (dim == 0) return a.n_rows;
+        else if constexpr (dim == 1) return a.n_cols;
+        else if constexpr (dim == 2) return a..n_slices;
+        else return 0;
+    }
 }

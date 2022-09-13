@@ -275,14 +275,14 @@ void Export::_generateChannels() {
     }
     channel_content.erase(channel_content.end() - 1); // last read character is invalid, erase it
     _f() << channel_content << '\n';
-    std::ifstream dictionary_file(appDir() + "/../include/mmcesim/copy/dictionary." + _langMmcesimExtension());
-    std::string dictionary_content = "";
-    if (!dictionary_file.is_open()) errorExit(Err::CANNOT_COPY_FROM_INCLUDE);
-    while (!dictionary_file.eof()) {
-        dictionary_content += dictionary_file.get();
+    std::ifstream functions_file(appDir() + "/../include/mmcesim/copy/functions." + _langMmcesimExtension());
+    std::string functions_content = "";
+    if (!functions_file.is_open()) errorExit(Err::CANNOT_COPY_FROM_INCLUDE);
+    while (!functions_file.eof()) {
+        functions_content += functions_file.get();
     }
-    dictionary_content.erase(dictionary_content.end() - 1); // last read character is invalid, erase it
-    _f() << dictionary_content << '\n';
+    functions_content.erase(functions_content.end() - 1); // last read character is invalid, erase it
+    _f() << functions_content << '\n';
     if (!_preCheck(_config["nodes"], DType::SEQ)) {
         std::cerr << "No channel node defined!\n";
         // TODO: error handling here

@@ -16,6 +16,7 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include "utils.h"
+#include "export/macro.h"
 #include "export/type.h"
 #include "export/alg_line.h"
 #include "export/calc.h"
@@ -52,7 +53,8 @@ public:
 public:
     Alg() = default;
 
-    Alg(const std::string& str, bool fail_fast = false, bool add_comment = true, bool add_semicolon = true);
+    Alg(const std::string& str, const Macro& macro = macro_none, int macro_cnt = -1,
+        bool fail_fast = false, bool add_comment = true, bool add_semicolon = true);
 
     const Alg_Lines& lines() const;
 
