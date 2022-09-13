@@ -115,6 +115,47 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_M
                 END_LANG
             CASE ("CALL")
+                Keys keys { "name", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "init" };
+                APPLY_KEYS("CALL");
+                LANG_CPP
+                    std::string return_type;
+                    // auto paramType = [] (const Type& type) -> std::string {
+                    //     if (type.dim() > 0) {
+                    //         return std::string(type.isConst() ? "" : "const ") +
+                    //             type.string() + (type.isReference() ? "" : "&");
+                    //     } else {
+                    //         return type.string();
+                    //     }
+                    // };
+                    if (line.returns().size() > 0) {
+                        if (line.hasKey("init") && line["init"] != "false" && line["init"] != "0") {
+                            if (size_t s = line.returns().size(); s == 0) {
+                                return_type = "";
+                            } else if (s == 1) {
+                                auto&& type = line.returns(0).type;
+                                return_type = type.empty() ? "auto " : static_cast<Type>(type).string() + " ";
+                            } else {
+                                // TODO: multiple return values
+                            }
+                            f << return_type;
+                        }
+                        f <<  line.returns(0).name <<  "=";
+                    }
+                    f << line.params(0).value << "(";
+                    unsigned p = 10; // the number of parameters
+                    while (--p != 0) {
+                        if (line.hasKey(std::string("p" + std::to_string(p)))) break;
+                    }
+                    if (p > 0) {
+                        for (unsigned i = 1; i != p; ++i) {
+                            // TODO: check type if specified
+                            f << line.params(i).value << ",";
+                        }
+                        f << line.params(p).value;
+                    }
+                    f << ")";
+                    if (_add_semicolon) f << ";";
+                END_LANG
             CASE ("COMMENT")
                 std::string comment;
                 if (line.params().size() > 1) {
