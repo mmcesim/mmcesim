@@ -54,7 +54,9 @@ sounding:
 preamble: |
   # preamble
   COMMENT Here begins the preamble part.
-  a = INIT 8
+  a::d = FUNCTION NMSE H::m H_hat::m
+    a = \accu(\pow(\abs(H_Hat - H), 2)) / \accu(\pow(\abs(H), 2))
+  END
 estimation: | # Alg test here
   D::mc = NEW \dictionary(16, 8, 16, 16) # Antenna size: 16x6, Grid size: 16x16
   COMMENT Hello, this is a comment!

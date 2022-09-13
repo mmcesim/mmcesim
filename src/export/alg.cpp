@@ -81,6 +81,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         std::cout << "func: '" << func << "'\n";
         SWITCH_FUNC
             // function no end
+            CASE ("BRANCH")
             CASE ("BREAK")
                 f << "break";
                 LANG_CPP
@@ -323,15 +324,55 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << ") {";
                 END_LANG
                 ++indent_cnt;
+                _contents_at_end.push("");
             CASE ("FOREVER")
                 LANG_CPP
                     f << "while(1) {";
                 END_LANG
+                ++indent_cnt;
+                _contents_at_end.push("");
             CASE ("FUNCTION")
+                // It is worth noting that FUNCTION should only exist in preamble
+                // because in C++ there is no nested function (should use lambda expression instead).
                 Keys keys { "name", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9" };
                 APPLY_KEYS("FUNCTION");
                 LANG_CPP
+                    std::string return_type;
+                    auto paramType = [] (const Type& type) -> std::string {
+                        if (type.dim() > 0) {
+                            return std::string(type.isConst() ? "" : "const ") +
+                                type.string() + (type.isReference() ? "" : "&");
+                        } else {
+                            return type.string();
+                        }
+                    };
+                    size_t s = line.returns().size();
+                    if (s == 0) {
+                        return_type = "void ";
+                    } else if (s == 1) {
+                        auto&& type = line.returns(0).type;
+                        return_type = type.empty() ? "auto " : static_cast<Type>(type).string() + " ";
+                    } else {
+                        // TODO: multiple return values
+                    }
+                    f << return_type << line.params(0).value << "(";
+                    unsigned p = 10; // the number of parameters
+                    while (--p != 0) {
+                        if (line.hasKey(std::string("p" + std::to_string(p)))) break;
+                    }
+                    if (p > 0) {
+                        for (unsigned i = 1; i != p; ++i) {
+                            // TODO: check type if specified
+                            f << paramType(line.params(i).type) << " " << line.params(i).value << ",";
+                        }
+                        f << paramType(line.params(p).type) << " " << line.params(p).value;
+                    }
+                    if (s > 0) {
+                        f << ") {\n" << return_type << line.returns(0).name << ";\n";
+                    }
+                    _contents_at_end.push("return " + line.returns(0).name + ";");
                 END_LANG
+                ++indent_cnt;
             CASE ("IF")
                 Keys keys { "cond" };
                 APPLY_KEYS("IF");
@@ -346,6 +387,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << ") {";
                 END_LANG
                 ++indent_cnt;
+                _contents_at_end.push("");
             CASE ("LOOP")
                 Keys keys { "begin", "end", "step", "from", "to" };
                 APPLY_KEYS("LOOP");
@@ -395,6 +437,8 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     else f << var_name << "+=" << step;
                     f << ") {";
                 END_LANG
+                ++indent_cnt;
+                _contents_at_end.push("");
             CASE ("WHILE")
                 Keys keys { "cond" };
                 APPLY_KEYS("WHILE");
@@ -409,6 +453,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << ") {";
                 END_LANG
                 ++indent_cnt;
+                _contents_at_end.push("");
             // function is end
             CASE ("END")
                 if (line.params().size() != 0) {
@@ -418,6 +463,8 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     ERROR("More 'END' than should.");
                     continue;
                 }
+                f << _contents_at_end.front();
+                _contents_at_end.pop();
                 --indent_cnt;
                 LANG_CPP f << "}";
                 LANG_PY

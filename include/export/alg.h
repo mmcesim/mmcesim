@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
+#include <queue>
 #include "utils.h"
 #include "export/macro.h"
 #include "export/type.h"
@@ -95,6 +96,7 @@ private:
     bool _add_semicolon = true;
     bool _add_comment = true;
     unsigned _indent_size = 4;
+    std::queue<std::string> _contents_at_end;
 };
 
 inline const Alg::Alg_Lines& Alg::lines() const {

@@ -72,6 +72,10 @@ public:
 
     bool isUnknown() const noexcept;
 
+    bool isConst() const noexcept;
+
+    bool isReference() const noexcept;
+
     static std::string string(const std::string&) noexcept;
 
 private:
@@ -97,6 +101,14 @@ inline Type::Dim Type::dim() const noexcept {
 
 inline bool Type::isUnknown() const noexcept {
     return (_data == Data::UNKNOWN || _dim == -1 || _suffix == Suffix::UNKNOWN);
+}
+
+inline bool Type::isConst() const noexcept {
+    return _suffix == Suffix::CONST_;
+}
+
+inline bool Type::isReference() const noexcept {
+    return _suffix == Suffix::REFERENCE_;
 }
 
 inline std::string Type::string(const std::string& str) noexcept {
