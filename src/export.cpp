@@ -435,7 +435,7 @@ void Export::_sounding() {
                  << "double raw_signal_power = arma::accu(arma::pow(arma::abs("
                  << _received_signal << "), 2));\n"
                  << _received_signal << " += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n";
-            _estimation();
+            _estimation(job_cnt);
             _f() << "}\n";
             if (has_loop) _f() << "}\n";
             ++job_cnt;
@@ -443,7 +443,7 @@ void Export::_sounding() {
     }
 }
 
-void Export::_estimation() {
+void Export::_estimation(int job_cnt) {
     Macro macro;
     auto&& jobs = _config["simulation"]["jobs"];
     if (_preCheck(jobs, DType::SEQ)) {
@@ -476,7 +476,7 @@ void Export::_estimation() {
         // just do nothing right now
         std::cout << "Use auto estimation." << std::endl;
     } else {
-        Alg alg(estimation_str, macro);
+        Alg alg(estimation_str, macro, job_cnt);
         alg.write(_f(), _langStr());
     }
 }

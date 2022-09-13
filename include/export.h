@@ -114,7 +114,7 @@ private:
 
     void _sounding();
 
-    void _estimation();
+    void _estimation(int job_cnt = -1);
 
     void _reporting();
 

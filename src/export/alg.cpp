@@ -82,6 +82,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         SWITCH_FUNC
             // function no end
             CASE ("BRANCH")
+                _branched = true;
+                LANG_CPP
+                    // TODO: BRANCH starts the for loop for alg
+                END_LANG
             CASE ("BREAK")
                 f << "break";
                 LANG_CPP
@@ -179,6 +183,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                 END_LANG
             CASE ("ESTIMATE")
+                if (!_branched) {
+                    Alg to_branch("BRANCH");
+                    to_branch.write(f, lang);
+                    _branched = true;
+                }
                 if (!line.returns().empty()) WARNING("No return value should be used in 'ESTIMATE'.");
                 else {
                     Keys keys { "Q", "y" };

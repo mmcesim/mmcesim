@@ -97,6 +97,7 @@ private:
     bool _add_comment = true;
     unsigned _indent_size = 4;
     std::queue<std::string> _contents_at_end;
+    bool _branched = false;
 };
 
 inline const Alg::Alg_Lines& Alg::lines() const {
