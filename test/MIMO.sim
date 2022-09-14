@@ -90,6 +90,7 @@ estimation: | # Alg test here
       COMMENT 0, 2, 4, 6, 8
     END
   END
+  BRANCH
   CPP std::cout << "Standard C++ Language!" << std::endl;
   IF \accu(\pow(\abs(A), 2)) > 0.1 * threshold
     IF b < 0
@@ -104,6 +105,7 @@ estimation: | # Alg test here
       A = A * 0.1
     END
   END
+  MERGE
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare

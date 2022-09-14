@@ -22,7 +22,12 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
         if (alg_cnt >= 0) {
             r = std::regex_replace(r, alg_name_re, this->alg_names[job_cnt][alg_cnt]);
             r = std::regex_replace(r, alg_params_re, this->alg_params[job_cnt][alg_cnt]);
-        }
+        } // else {
+        //     if (lang == "cpp") {
+        //         r = std::regex_replace(r, alg_name_re, "_macro_alg_names[" + std::to_string(alg_cnt) + "]");
+        //         r = std::regex_replace(r, alg_params_re, "_macro_alg_params[" + std::to_string(alg_cnt) + "]");
+        //     }
+        // }
     }
     return r;
 }

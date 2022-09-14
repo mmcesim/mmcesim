@@ -97,7 +97,12 @@ private:
     bool _add_comment = true;
     unsigned _indent_size = 4;
     std::queue<std::string> _contents_at_end;
-    bool _branched = false;
+    Macro _macro;
+    int _alg_cnt = 0;
+    int _job_cnt = 0;
+    unsigned _branch_line = Alg::max_length;
+
+    const static unsigned max_length = 100000U;
 };
 
 inline const Alg::Alg_Lines& Alg::lines() const {

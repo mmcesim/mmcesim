@@ -13,7 +13,7 @@
 
 Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
     bool fail_fast, bool add_comment, bool add_semicolon)
-    : _failed(false), _add_semicolon(add_semicolon), _add_comment(add_comment) {
+    : _macro(macro), _failed(false), _job_cnt(job_cnt), _add_semicolon(add_semicolon), _add_comment(add_comment) {
     std::string str_replaced_macro = macro.replaceMacro(str, job_cnt, alg_cnt);
     std::stringstream ss(str_replaced_macro);
     std::string line;
@@ -82,10 +82,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         SWITCH_FUNC
             // function no end
             CASE ("BRANCH")
-                _branched = true;
-                LANG_CPP
-                    // TODO: BRANCH starts the for loop for alg
-                END_LANG
+                _wComment(f, lang, INDENT) << "Start evaluation for different algorithms.";
+                // _wComment(f, lang, INDENT) << "[" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt]
+                //     << "] Algorithm: " << _macro.alg_names[_job_cnt][_alg_cnt];
+                _branch_line = i;
             CASE ("BREAK")
                 f << "break";
                 LANG_CPP
@@ -183,11 +183,6 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                 END_LANG
             CASE ("ESTIMATE")
-                if (!_branched) {
-                    Alg to_branch("BRANCH");
-                    to_branch.write(f, lang);
-                    _branched = true;
-                }
                 if (!line.returns().empty()) WARNING("No return value should be used in 'ESTIMATE'.");
                 else {
                     Keys keys { "Q", "y" };
@@ -302,6 +297,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     END_LANG
                 }
             CASE ("MATLAB")
+            CASE ("MERGE")
+                ++_alg_cnt;
+                if (_branch_line != Alg::max_length && _alg_cnt < _macro.alg_num[_job_cnt]) {
+                    // meaning the last while BRANCH is not closed
+                    i = _branch_line + 1;
+                } else if (_alg_cnt == _macro.alg_num[_job_cnt]) {
+                    _branch_line = Alg::max_length;
+                }
             CASE ("NEW")
                 std::string msg;
                 std::string out;
@@ -523,6 +526,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         END_SWITCH
         if (_add_comment) {
             if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
+        }
+        if (i + 1 == _lines.size() && _branch_line != Alg::max_length && _alg_cnt + 1 < _macro.alg_num[_job_cnt]) {
+            // meaning the last while BRANCH is not closed
+            ++_alg_cnt;
+            i = _branch_line + 1;
         }
     }
     return true;

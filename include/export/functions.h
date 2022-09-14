@@ -26,10 +26,12 @@ static std::array functions_no_end = {
     std::string("ESTIMATE"),
     std::string("INIT"),
     std::string("MATLAB"),
+    std::string("MERGE"),
     std::string("NEW"),
     std::string("OCTAVE"),
     std::string("PRINT"),
     std::string("PYTHON"),
+    std::string("RECOVERED"),
 };
 
 static std::array functions_needs_end = {
