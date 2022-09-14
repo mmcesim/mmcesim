@@ -63,6 +63,9 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
 #define ERROR(msg) _errors.push_back({msg, _raw_strings[i], _line_nos[i]})
 #define WARNING(msg) _warnings.push_back({msg, _raw_strings[i], _line_nos[i]})
 #define INDENT _indent(_indent_size)
+#define _m(_str__) _macro.replaceMacro(_str__, _job_cnt, _alg_cnt)
+#define _mi(_i__) _m(line.params(_i__).value)
+#define _ms(_s__) _m(line[_s__])
 
 // Apply keys and check repeated/unknown keys.
 #define APPLY_KEYS(_func_name__) \
@@ -98,7 +101,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (line.params().size() == 0) {
                         if (_add_semicolon) f << ";";
                     } else {
-                        out = Calc::as(line.params(0).value, "cpp", &msg);
+                        out = Calc::as(_mi(0), "cpp", &msg);
                         if (msg.empty()) {
                             if (size_t s = line.returns().size(); s != 0) {
                                 if (s == 1) {
@@ -132,7 +135,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     //     }
                     // };
                     if (line.returns().size() > 0) {
-                        if (line.hasKey("init") && line["init"] != "false" && line["init"] != "0") {
+                        if (line.hasKey("init") && _ms("init") != "false" && _ms("init") != "0") {
                             if (size_t s = line.returns().size(); s == 0) {
                                 return_type = "";
                             } else if (s == 1) {
@@ -145,7 +148,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         }
                         f <<  line.returns(0).name <<  "=";
                     }
-                    f << line.params(0).value << "(";
+                    f << _mi(0) << "(";
                     unsigned p = 10; // the number of parameters
                     while (--p != 0) {
                         if (line.hasKey(std::string("p" + std::to_string(p)))) break;
@@ -153,9 +156,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (p > 0) {
                         for (unsigned i = 1; i != p; ++i) {
                             // TODO: check type if specified
-                            f << line.params(i).value << ",";
+                            f << _mi(i) << ",";
                         }
-                        f << line.params(p).value;
+                        f << _mi(p);
                     }
                     f << ")";
                     if (_add_semicolon) f << ";";
@@ -163,7 +166,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             CASE ("COMMENT")
                 std::string comment;
                 if (line.params().size() > 1) {
-                    for (auto&& s : line.params()) comment += s.value + ' ';
+                    for (auto&& s : line.params()) comment += _m(s.value) + ' ';
                 } else if (line.params().empty()) WARNING("Empty comment content.");
                 else comment = line.params(0).value;
                 trim(comment);
@@ -175,7 +178,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     std::string cpp_content;
                     if (!line.params().empty()) {
-                        cpp_content = line.params(0).value;
+                        cpp_content = _mi(0);
                         f << cpp_content;
                     }
                     if (!cpp_content.empty() && *(cpp_content.cend() - 1) != ';' && _add_semicolon) {
@@ -213,7 +216,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         f << t.string() << " " << line.returns(0).name << " = ";
                         if (t.dim() > 0) {
                             if (line.hasKey("scale")) {
-                                f << '(' << inlineCalc(removeQuote(line["scale"]), "cpp") << ") * ";
+                                f << '(' << inlineCalc(removeQuote(_ms("scale")), "cpp") << ") * ";
                             }
                             std::string fill = "zeros";
                             if (line.hasKey("fill")) {
@@ -227,10 +230,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 if (s == "zeros") {
                                     fill = "0";
                                 } else if (s == "ones") {
-                                    if (line.hasKey("scale")) fill = inlineCalc(removeQuote(line["scale"]), "cpp");
+                                    if (line.hasKey("scale")) fill = inlineCalc(removeQuote(_ms("scale")), "cpp");
                                     else fill = "1";
                                 } else {
-                                    f << '(' << inlineCalc(removeQuote(line["scale"]), "cpp") << ") * ";
+                                    f << '(' << inlineCalc(removeQuote(_ms("scale")), "cpp") << ") * ";
                                     fill = std::string("arma::") + line["fill"];
                                     // TODO: check if it is randn or randi
                                 }
@@ -248,17 +251,17 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 Type type = getReturnType('3');
                                 LANG_CPP
                                     auto fill = cppScaleFill(type);
-                                    f << "arma::" << fill << '(' << inlineCalc(line["dim1"], "cpp") << ", "
-                                        << inlineCalc(line["dim2"], "cpp") << ", "
-                                        << inlineCalc(line["dim3"], "cpp") << ")";
+                                    f << "arma::" << fill << '(' << inlineCalc(_ms("dim1"), "cpp") << ", "
+                                        << inlineCalc(_ms("dim2"), "cpp") << ", "
+                                        << inlineCalc(_ms("dim3"), "cpp") << ")";
                                 END_LANG
                             } else {
                                 // dim: 2 (a matrix)
                                 Type type = getReturnType('2');
                                 LANG_CPP
                                     auto fill = cppScaleFill(type);
-                                    f << "arma::" << fill << '(' << inlineCalc(line["dim1"], "cpp")
-                                    << ", " << inlineCalc(line["dim2"], "cpp") << ")";
+                                    f << "arma::" << fill << '(' << inlineCalc(_ms("dim1"), "cpp")
+                                    << ", " << inlineCalc(_ms("dim2"), "cpp") << ")";
                                 END_LANG
                             }
                         } else {
@@ -270,17 +273,17 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     // If it is a row vector,
                                     // the user may only specify one dimension.
                                     // But it should be understood as a matrix now.
-                                    f << "arma::" << fill << "(1, " << inlineCalc(line["dim1"], "cpp") << ")";
+                                    f << "arma::" << fill << "(1, " << inlineCalc(_ms("dim1"), "cpp") << ")";
                                 } else if (Type type = s; type.dim() == 0) {
                                     // scalar assigning can just use the 
                                     if (line.hasKey("scale")) {
                                         f << inlineCalc(removeQuote(line["scale"]), "cpp") << "";
                                     } else {
-                                        f << inlineCalc(removeQuote(line["dim1"]), "cpp") << "";
+                                        f << inlineCalc(removeQuote(_ms("dim1")), "cpp") << "";
                                     }
                                 } else {
                                     f << "arma::" << fill << '('
-                                      << inlineCalc(removeQuote(line["dim1"]), "cpp") << ")";
+                                      << inlineCalc(removeQuote(_ms("dim1")), "cpp") << ")";
                                 }
                             END_LANG
                         }
@@ -312,7 +315,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (line.params().size() == 0) {
                         if (_add_semicolon) f << ";";
                     } else {
-                        out = Calc::as(line.params(0).value, "cpp", &msg);
+                        out = Calc::as(_mi(0), "cpp", &msg);
                         if (msg.empty()) {
                             if (size_t s = line.returns().size(); s != 0) {
                                 if (s == 1) {
@@ -347,7 +350,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "} else if (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, false);
+                        Alg cond(removeQuote(_ms("cond")), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -360,17 +363,17 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 // init call INIT/CALC function
                 LANG_CPP
                     f << "for (";
-                    std::cout << "line[init] = " << line["init"] << '\n';
+                    std::cout << "line[init] = " << _ms("init") << '\n';
                     if (line.hasKey("init")) {
-                        Alg init(removeQuote(line["init"]), macro_none, -1, -1, false, false, true);
+                        Alg init(removeQuote(_ms("init")), macro_none, -1, -1, false, false, true);
                         init.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, true);
+                        Alg cond(removeQuote(_ms("init")), macro_none, -1, -1, false, false, true);
                         cond.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("oper")) {
-                        Alg oper(removeQuote(line["oper"]), macro_none, -1, -1, false, false, false);
+                        Alg oper(removeQuote(_ms("init")), macro_none, -1, -1, false, false, false);
                         oper.write(f, "cpp");
                         std::cout << "has oper!\n";
                     }
@@ -408,7 +411,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     } else {
                         // TODO: multiple return values
                     }
-                    f << return_type << line.params(0).value << "(";
+                    f << return_type << _mi(0) << "(";
                     unsigned p = 10; // the number of parameters
                     while (--p != 0) {
                         if (line.hasKey(std::string("p" + std::to_string(p)))) break;
@@ -416,9 +419,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (p > 0) {
                         for (unsigned i = 1; i != p; ++i) {
                             // TODO: check type if specified
-                            f << paramType(line.params(i).type) << " " << line.params(i).value << ",";
+                            f << paramType(line.params(i).type) << " " << _mi(i) << ",";
                         }
-                        f << paramType(line.params(p).type) << " " << line.params(p).value;
+                        f << paramType(line.params(p).type) << " " << _mi(p);
                     }
                     if (s > 0) {
                         f << ") {\n" << return_type << line.returns(0).name << ";\n";
@@ -432,7 +435,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "if (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, false);
+                        Alg cond(removeQuote(_mi("cond")), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -462,24 +465,24 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << "=";
                     std::string step;
                     if (line.hasKey("step")) {
-                        step = line["step"];
+                        step = _ms("step");
                     } else step = "1";
                     auto operFromStep = [](const std::string& step) -> std::string {
                         if (!step.empty() && step[0] == '-') return ">";
                         else return "<";
                     };
                     if (line.hasKey("begin")) {
-                        f << line["begin"] << ';';
+                        f << _ms("begin") << ';';
                         if (line.hasKey("end")) {
-                            f << var_name << operFromStep(step) << line["end"] << ";";
+                            f << var_name << operFromStep(step) << _ms("end") << ";";
                         } else {
                             std::cerr << "LOOP no end for begin" << std::endl;
                             // TODO: error handling
                         }
                     } else if (line.hasKey("from")) {
-                        f << line["from"] << ';';
+                        f << _ms("from") << ';';
                         if (line.hasKey("to")) {
-                            f << var_name << operFromStep(step) << "=" << line["to"] << ";";
+                            f << var_name << operFromStep(step) << "=" << _ms("to") << ";";
                         } else {
                             std::cerr << "LOOP no end for begin" << std::endl;
                             // TODO: error handling
@@ -498,7 +501,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "while (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(line["cond"]), macro_none, -1, -1, false, false, false);
+                        Alg cond(removeQuote(_ms("cond")), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -546,6 +549,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
 #undef ERROR
 #undef WARNING
 #undef INDENT
+#undef _m
+#undef _mi
+#undef _ms
 #undef APPLY_KEYS
 
 std::string Alg::inlineCalc(const std::string& s, const std::string& lang) {
