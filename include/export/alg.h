@@ -100,9 +100,9 @@ private:
     Macro _macro;
     int _alg_cnt = 0;
     int _job_cnt = 0;
-    unsigned _branch_line = Alg::max_length;
+    int _branch_line = Alg::max_length;
 
-    const static unsigned max_length = 100000U;
+    const static int max_length = 100000;
 };
 
 inline const Alg::Alg_Lines& Alg::lines() const {

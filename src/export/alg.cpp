@@ -78,17 +78,22 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
 
 bool Alg::write(std::ofstream& f, const std::string& lang) {
     size_t indent_cnt = 0; // used for Python and MATLAB.
-    for (decltype(_lines.size()) i = 0; i != _lines.size(); ++i) {
+    for (int i = 0; i < _lines.size(); ++i) { // use i because sometimes it will be -1 before adding 1.
         Alg_Line line = _lines[i];
         const std::string& func = line.func();
         std::cout << "func: '" << func << "'\n";
         SWITCH_FUNC
             // function no end
             CASE ("BRANCH")
-                _wComment(f, lang, INDENT) << "Start evaluation for different algorithms.";
-                // _wComment(f, lang, INDENT) << "[" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt]
-                //     << "] Algorithm: " << _macro.alg_names[_job_cnt][_alg_cnt];
+                _wComment(f, lang, INDENT) << "[" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt]
+                    << "] Algorithm: " << _macro.alg_names[_job_cnt][_alg_cnt] << '\n';
                 _branch_line = i;
+                // TODO: Consider the 'metric' field,
+                // so far we only consider it as NMSE
+                LANG_CPP
+                    f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
+                    f << "{";
+                END_LANG
             CASE ("BREAK")
                 f << "break";
                 LANG_CPP
@@ -304,10 +309,13 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 ++_alg_cnt;
                 if (_branch_line != Alg::max_length && _alg_cnt < _macro.alg_num[_job_cnt]) {
                     // meaning the last while BRANCH is not closed
-                    i = _branch_line + 1;
+                    i = _branch_line - 1;
                 } else if (_alg_cnt == _macro.alg_num[_job_cnt]) {
                     _branch_line = Alg::max_length;
                 }
+                LANG_CPP
+                    f << "}";
+                END_LANG
             CASE ("NEW")
                 std::string msg;
                 std::string out;
@@ -530,10 +538,15 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         if (_add_comment) {
             if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
         }
-        if (i + 1 == _lines.size() && _branch_line != Alg::max_length && _alg_cnt + 1 < _macro.alg_num[_job_cnt]) {
+        if (i + 1 == _lines.size() && _branch_line != Alg::max_length && _alg_cnt < _macro.alg_num[_job_cnt]) {
             // meaning the last while BRANCH is not closed
-            ++_alg_cnt;
-            i = _branch_line + 1;
+            if (_alg_cnt + 1 < _macro.alg_num[_job_cnt]) {
+                ++_alg_cnt;
+                i = _branch_line - 1;
+            }
+            LANG_CPP
+                f << "}";
+            END_LANG
         }
     }
     return true;
