@@ -103,7 +103,9 @@ bool Calc::_changeSuperScript(std::string& str, std::string lang, std::string* m
         boost::replace_all(str, "^H", ".t()"); // conjugate transpose for a complex matrix
         boost::replace_all(str, "^{H}", ".t()"); // conjugate transpose for a complex matrix
         boost::replace_all(str, "^i", ".i()"); // inverse of a complex matrix
+        boost::replace_all(str, "^{i}", ".i()"); // inverse of a complex matrix
         boost::replace_all(str, "^I", ".i()"); // inverse of a complex matrix
+        boost::replace_all(str, "^{I}", ".i()"); // inverse of a complex matrix
         boost::replace_all(str, "^{-1}", ".i()"); // inverse of a complex matrix
         boost::replace_all(str, "^*", ".t().h()"); // conjugate of a complex matrix
         boost::replace_all(str, "^{*}", ".t().h()"); // conjugate of a complex matrix
