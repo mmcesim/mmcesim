@@ -89,6 +89,7 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         boost::replace_all(str, "\\sgn", "arma::sign");
         _addMmce(str, "dictionary");
         _addMmce(str, "size");
+        _addMmce(str, "nmse");
     END_LANG
     return true;
 }

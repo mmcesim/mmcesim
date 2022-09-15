@@ -448,6 +448,7 @@ void Export::_estimation(int job_cnt) {
     auto&& jobs = _config["simulation"]["jobs"];
     if (_preCheck(jobs, DType::SEQ)) {
         macro.job_num = jobs.size();
+        macro._cascaded_channel = _cascaded_channel;
         for (size_t i = 0; i != macro.job_num; ++i) {
             auto&& job_algs = jobs[i]["algorithms"];
             macro.alg_num.push_back(job_algs.size());

@@ -22,6 +22,7 @@ struct Macro {
     std::vector<unsigned> alg_num;
     std::vector<std::vector<std::string>> alg_names; // ALG names separated by comma (,)
     std::vector<std::vector<std::string>> alg_params;
+    std::string _cascaded_channel;
 
     std::string replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const;
 };

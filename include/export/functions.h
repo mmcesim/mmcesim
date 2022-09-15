@@ -31,7 +31,7 @@ static std::array functions_no_end = {
     std::string("OCTAVE"),
     std::string("PRINT"),
     std::string("PYTHON"),
-    std::string("RECOVERED"),
+    std::string("RECOVER"),
 };
 
 static std::array functions_needs_end = {

@@ -110,7 +110,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         if (msg.empty()) {
                             if (size_t s = line.returns().size(); s != 0) {
                                 if (s == 1) {
-                                    f << line.returns(0).name;
+                                    f << inlineCalc(line.returns(0).name, "cpp");
                                 } else {
                                     // TODO: multiple return values
                                 }
@@ -191,11 +191,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                 END_LANG
             CASE ("ESTIMATE")
-                if (line.returns().empty()) WARNING("No return value should be used in 'ESTIMATE'.");
+                if (line.returns().empty()) WARNING("No return value given!.");
                 else {
                     Keys keys { "Q", "y", "init" };
                     APPLY_KEYS("ESTIMATE");
-                    // iterate through all algorithms to call its corresponding functions
                     std::string estimate_str = line.returns(0).name + "::";
                     if (auto&& type = line.returns(0).type; type.empty()) estimate_str += "v";
                     else estimate_str += type;
@@ -355,6 +354,16 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 END_LANG
             CASE ("OCTAVE")
             CASE ("PRINT")
+            CASE ("RECOVER")
+                if (!line.returns().empty()) WARNING("No return value is needed in function 'RECOVER'!.");
+                else {
+                    Keys keys { "H" };
+                    APPLY_KEYS("RECOVER");
+                    std::string recover_str = "$sim_NMSE_{" + std::to_string(_alg_cnt) + "}$ = \\nmse(" +
+                                              line["H"] + ", " + _macro._cascaded_channel + ")";
+                    Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
+                    recover_alg.write(f, lang);
+                }
             // function needs end
             CASE ("ELSE")
                 LANG_CPP
