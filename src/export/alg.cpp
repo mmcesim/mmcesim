@@ -354,6 +354,16 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 END_LANG
             CASE ("OCTAVE")
             CASE ("PRINT")
+                // TODO: set stream type and return file
+                LANG_CPP
+                    f << "std::cout";
+                    for (size_t j = 0; j != line.params().size(); ++j) {
+                        f << " << " << line.params(j).value;
+                    }
+                    if (_add_semicolon) f << ";";
+                LANG_PY
+                LANG_M
+                END_LANG
             CASE ("RECOVER")
                 if (!line.returns().empty()) WARNING("No return value is needed in function 'RECOVER'!.");
                 else {
