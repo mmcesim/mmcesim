@@ -106,6 +106,7 @@ estimation: | # Alg test here
     END
   END
   COMMENT `ALG_NUM` `ALG_NAME`?`ALG_PARAMS`||`JOB_NUM`, `ALG_NUM` emm
+  h = ESTIMATE Q y init=true
   MERGE
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
