@@ -228,7 +228,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         f << t.string() << " " << line.returns(0).name << " = ";
                         if (t.dim() > 0) {
                             if (line.hasKey("scale")) {
-                                f << '(' << inlineCalc(removeQuote(_ms("scale")), "cpp") << ") * ";
+                                f << '(' << inlineCalc(_ms("scale"), "cpp") << ") * ";
                             }
                             std::string fill = "zeros";
                             if (line.hasKey("fill")) {
@@ -242,10 +242,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 if (s == "zeros") {
                                     fill = "0";
                                 } else if (s == "ones") {
-                                    if (line.hasKey("scale")) fill = inlineCalc(removeQuote(_ms("scale")), "cpp");
+                                    if (line.hasKey("scale")) fill = inlineCalc(_ms("scale"), "cpp");
                                     else fill = "1";
                                 } else {
-                                    f << '(' << inlineCalc(removeQuote(_ms("scale")), "cpp") << ") * ";
+                                    f << '(' << inlineCalc(_ms("scale"), "cpp") << ") * ";
                                     fill = std::string("arma::") + line["fill"];
                                     // TODO: check if it is randn or randi
                                 }
@@ -289,13 +289,13 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 } else if (Type type = s; type.dim() == 0) {
                                     // scalar assigning can just use the 
                                     if (line.hasKey("scale")) {
-                                        f << inlineCalc(removeQuote(line["scale"]), "cpp") << "";
+                                        f << inlineCalc(_ms("scale"), "cpp") << "";
                                     } else {
-                                        f << inlineCalc(removeQuote(_ms("dim1")), "cpp") << "";
+                                        f << inlineCalc(_ms("dim1"), "cpp") << "";
                                     }
                                 } else {
                                     f << "arma::" << fill << '('
-                                      << inlineCalc(removeQuote(_ms("dim1")), "cpp") << ")";
+                                      << inlineCalc(_ms("dim1"), "cpp") << ")";
                                 }
                             END_LANG
                         }
@@ -385,7 +385,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "} else if (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(_ms("cond")), macro_none, -1, -1, false, false, false);
+                        Alg cond(_ms("cond"), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -404,11 +404,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         init.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(_ms("init")), macro_none, -1, -1, false, false, true);
+                        Alg cond(removeQuote(_ms("cond")), macro_none, -1, -1, false, false, true);
                         cond.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("oper")) {
-                        Alg oper(removeQuote(_ms("init")), macro_none, -1, -1, false, false, false);
+                        Alg oper(removeQuote(_ms("oper")), macro_none, -1, -1, false, false, false);
                         oper.write(f, "cpp");
                         std::cout << "has oper!\n";
                     }
@@ -598,8 +598,10 @@ std::string Alg::inlineCalc(const std::string& s, const std::string& lang) {
     // TODO: error handling here
     if (s.size() > 2 && s[0] == '$' && *(s.end() - 1) == '$') {
         return Calc::as(s.substr(1, s.size() - 2), lang);
+    } else if (s.size() > 2 && s[0] == '"' && *(s.end() - 1) == '"') {
+        return s.substr(1, s.size() - 2);
     } else {
-        return s;
+        return Calc::as(s, lang);
     }
 }
 

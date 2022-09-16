@@ -160,6 +160,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                     std::string dims[3];
                     bool starts_from_1[3] = { false, false, false };
                     int dim = 0;
+                    int l_bracket = 0;
                     while (i < str.size()) {
                         char ch = str[i];
                         if (ch == ',') {
@@ -177,32 +178,42 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                                 }
                             }
                         } else if (ch == '}') {
-                            break;
+                            if (l_bracket == 0) break;
+                            else --l_bracket;
                         } else {
                             dims[dim] += ch;
+                            if (ch == '{') ++l_bracket;
                         }
                         ++i;
                         std::cout << "Iter " << i << '\n';
                     }
                     for (int j = 0; j <= dim; ++j) {
                         size_t colon_pos = dims[j].find(':');
+                        size_t bracket_pos = dims[j].find('{');
                         bool has_colon = colon_pos != std::string::npos;
+                        bool has_bracket = bracket_pos != std::string::npos;
                         // size_t question_pos = dims[j].find('?');
                         // bool has_question = question_pos != std::string::npos;
-                        if (has_colon) {
-                            if (dims[j] == ":") {
-                                LANG_CPP
-                                    subs += "arma::span::all";
-                                LANG_PY
-                                LANG_M
-                                    subs += ":";
-                                END_LANG
-                            } else {
-                                subs += "arma::span(" + dims[j].substr(0, colon_pos) + "," +
-                                        dims[j].substr(colon_pos + 1) + ")";
-                            }
+                        if (has_bracket) {
+                            std::string dim_with_sub = dims[j];
+                            _changeSubScript(dim_with_sub, lang, msg);
+                            subs += dim_with_sub;
                         } else {
-                            subs += dims[j];
+                            if (has_colon) {
+                                if (dims[j] == ":") {
+                                    LANG_CPP
+                                        subs += "arma::span::all";
+                                    LANG_PY
+                                    LANG_M
+                                        subs += ":";
+                                    END_LANG
+                                } else {
+                                    subs += "arma::span(" + dims[j].substr(0, colon_pos) + "," +
+                                            dims[j].substr(colon_pos + 1) + ")";
+                                }
+                            } else {
+                                subs += dims[j];
+                            }
                         }
                         if (j != dim) subs += ',';
                         else subs += ')';
@@ -211,7 +222,6 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                     std::cout << str << std::endl;
                     str.replace(start_i, i - start_i + 1, subs);
                     std::cout << "alive\n";
-
                 } // otherwise it might just be part of variable name
             }
         }

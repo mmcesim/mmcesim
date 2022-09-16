@@ -13,7 +13,7 @@
 h::v = FUNCTION OMP Q::m y::v L::u
   COMMENT Start of OMP algorithm!
   h = \zeros(\size(Q, 1)) # initialize as zeros
-  Q_H = NEW Q^H # the conjucate transpose of Q
+  Q_H = NEW Q^H # the conjugate transpose of Q
   r = NEW y # residual
   r_last = NEW r * 2 # the residual in last iteration
   support = INIT \length(y) dtype=u # over-length support array
