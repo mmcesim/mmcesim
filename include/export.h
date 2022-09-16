@@ -19,6 +19,8 @@
 #include <ctime>
 #include <vector>
 #include <tuple>
+#include <algorithm>
+#include <sstream>
 #include <boost/algorithm/string.hpp>
 #include "export/keywords.h"
 #include "export/alg.h"
@@ -119,6 +121,8 @@ private:
     void _reporting();
 
     void _ending();
+
+    bool _loadALG();
 
     bool _setTransmitterReceiver();
 

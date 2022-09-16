@@ -265,14 +265,6 @@ void Export::_beginning() {
     }
     header_content.erase(header_content.end() - 1); // last read character is invalid, erase it
     _f() << header_content << '\n';
-    // load preamble
-    if (_preCheck(_config["preamble"], DType::STRING, false)) {
-        std::string preamble_str = _asStr(_config["preamble"]);
-        trim(preamble_str);
-        std::cout << "Preamble Text:\n" << preamble_str << "\n";
-        Alg alg(preamble_str);
-        alg.write(_f(), _langStr());
-    }
 }
 
 void Export::_generateChannels() {
@@ -344,8 +336,15 @@ void Export::_generateChannels() {
 }
 
 void Export::_algorithms() {
-    // search through all used algorithms,
-    // and generate them here as a function.
+    _loadALG();
+    // load preamble
+    if (_preCheck(_config["preamble"], DType::STRING, false)) {
+        std::string preamble_str = _asStr(_config["preamble"]);
+        trim(preamble_str);
+        std::cout << "Preamble Text:\n" << preamble_str << "\n";
+        Alg alg(preamble_str);
+        alg.write(_f(), _langStr());
+    }
 }
 
 void Export::_sounding() {
@@ -455,9 +454,21 @@ void Export::_estimation(int job_cnt) {
             std::vector<std::string> alg_names;
             std::vector<std::string> alg_params;
             for (auto&& alg : job_algs) {
-                alg_names.push_back(_asStr(alg["alg"]));
+                auto alg_name = _asStr(alg["alg"]);
+                alg_names.push_back(alg_name);
                 // TODO: macro parameters
-                alg_params.push_back("");
+                if (alg_name == "OMP") {
+                    if (_preCheck(alg["max_iter"], DType::INT, false)) {
+                        alg_params.push_back(_asStr(alg["max_iter"]));
+                    } else if (_preCheck(alg["sparsity"], DType::INT, false)) {
+                        alg_params.push_back(_asStr(alg["sparsity"]));
+                    } else {
+                        // TODO: the default iteration of OMP
+                        alg_params.push_back("100");
+                    }
+                } else {
+                    alg_params.push_back("");
+                }
             }
             macro.alg_names.push_back(alg_names);
             macro.alg_params.push_back(alg_params);
@@ -490,6 +501,34 @@ void Export::_ending() {
     if (lang == Lang::CPP) {
         _f() << "return 0;\n}\n";
     }
+}
+
+bool Export::_loadALG() {
+    if (auto&& jobs = _config["simulation"]["jobs"]; !_preCheck(jobs, DType::SEQ)) return false;
+    else {
+        std::vector<std::string> algs;
+        for (auto&& job : jobs) {
+            auto&& job_algs = job["algorithms"];
+            if (!_preCheck(job_algs, DType::SEQ)) return false;
+            for (auto&& job_alg : job_algs) {
+                algs.push_back(_asStr(job_alg["alg"]));
+            }
+        }
+        std::sort(algs.begin(), algs.end());
+        algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
+        for (auto&& alg : algs) {
+            if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
+                std::ifstream f(f_name);
+                std::stringstream buf;
+                buf << f.rdbuf();
+                Alg a(buf.str());
+                a.write(_f(), _langStr());
+            } else {
+                // TODO: If the algorithm cannot be found in official library.
+            }
+        }
+    }
+    return true;
 }
 
 bool Export::_setTransmitterReceiver() {
