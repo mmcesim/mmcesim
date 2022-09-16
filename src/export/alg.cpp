@@ -500,7 +500,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     f << "=";
                     std::string step;
                     if (line.hasKey("step")) {
-                        step = _ms("step");
+                        step = inlineCalc(_ms("step"), lang);
                     } else step = "1";
                     auto operFromStep = [](const std::string& step) -> std::string {
                         if (!step.empty() && step[0] == '-') return ">";
@@ -509,15 +509,15 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (line.hasKey("begin")) {
                         f << _ms("begin") << ';';
                         if (line.hasKey("end")) {
-                            f << var_name << operFromStep(step) << _ms("end") << ";";
+                            f << var_name << operFromStep(step) << inlineCalc(_ms("end"), lang) << ";";
                         } else {
                             std::cerr << "LOOP no end for begin" << std::endl;
                             // TODO: error handling
                         }
                     } else if (line.hasKey("from")) {
-                        f << _ms("from") << ';';
+                        f << inlineCalc(_ms("from"), lang) << ';';
                         if (line.hasKey("to")) {
-                            f << var_name << operFromStep(step) << "=" << _ms("to") << ";";
+                            f << var_name << operFromStep(step) << "=" << inlineCalc(_ms("to"), lang) << ";";
                         } else {
                             std::cerr << "LOOP no end for begin" << std::endl;
                             // TODO: error handling
@@ -536,7 +536,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "while (";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(_ms("cond")), macro_none, -1, -1, false, false, false);
+                        Alg cond(inlineCalc(_ms("cond"), lang), macro_none, -1, -1, false, false, false);
                         cond.write(f, "cpp");
                     } else {
                         // TODO: handle error when no contents specified
@@ -554,7 +554,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     ERROR("More 'END' than should.");
                     continue;
                 }
-                f << _contents_at_end.front();
+                f << _contents_at_end.top();
                 _contents_at_end.pop();
                 --indent_cnt;
                 LANG_CPP f << "}";

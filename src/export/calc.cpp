@@ -46,6 +46,7 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
     // but the logic is right in replacing what you need
     // and should be safer.
     LANG_CPP
+        // arithmetic
         _addArma(str, "expm1");
         _addArma(str, "exp10");
         _addArma(str, "exp2");
@@ -87,9 +88,20 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addArma(str, "sum");
         _addArma(str, "sign");
         boost::replace_all(str, "\\sgn", "arma::sign");
+        // operations
+        _addArma(str, "min");
+        _addArma(str, "max");
+        _addArma(str, "index_min");
+        _addArma(str, "index_max");
+        // matrix initialization
+        _addArma(str, "zeros");
+        _addArma(str, "ones");
+        // mmCEsim defined functions
         _addMmce(str, "dictionary");
         _addMmce(str, "size");
+        _addMmce(str, "length");
         _addMmce(str, "nmse");
+        _addMmce(str, "ismember");
     END_LANG
     return true;
 }

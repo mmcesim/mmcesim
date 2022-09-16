@@ -17,10 +17,10 @@ h::v = FUNCTION OMP Q::m y::v L::u
   r = NEW y # residual
   r_last = NEW r * 2 # the residual in last iteration
   support = INIT \length(y) dtype=u # over-length support array
-  term = INIT \size(Q_H, 0) dtype=f # float number array
-  j::u0 FOR 0 \length(y)
+  term = INIT $\size(Q_H, 0)$ dtype=f # float number array
+  j::u0 = LOOP 0 \length(y)
     term = \abs(Q_H @ r)
-    index::u0 = \max_index(term)
+    index::u0 = NEW \index_max(term)
     IF \ismember(index, support)
       BREAK # end of the LOOP
     END

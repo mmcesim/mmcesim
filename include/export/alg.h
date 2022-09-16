@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
-#include <queue>
+#include <stack>
 #include "utils.h"
 #include "export/macro.h"
 #include "export/type.h"
@@ -96,7 +96,7 @@ private:
     bool _add_semicolon = true;
     bool _add_comment = true;
     unsigned _indent_size = 4;
-    std::queue<std::string> _contents_at_end;
+    std::stack<std::string> _contents_at_end;
     Macro _macro;
     int _alg_cnt = 0;
     int _job_cnt = 0;

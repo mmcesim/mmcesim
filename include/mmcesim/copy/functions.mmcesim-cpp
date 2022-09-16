@@ -16,10 +16,28 @@ namespace mmce {
     }
 
     template<typename T>
-    uword size(const T& a, uword dim) {
+    inline uword size(const T& a, uword dim) {
         if constexpr (dim == 0) return a.n_rows;
         else if constexpr (dim == 1) return a.n_cols;
-        else if constexpr (dim == 2) return a..n_slices;
+        else if constexpr (dim == 2) return a.n_slices;
         else return 0;
+    }
+
+    template<typename T>
+    inline uword length(const T& a) {
+        return a.n_elem;
+    }
+
+    template<typename T1, typename T2>
+    inline bool ismember(const T1& elem, const T2& container) {
+        for (auto&& container_elem : container) {
+            if (elem == container_elem) return true;
+        }
+        return false;
+    }
+
+    template<typename T>
+    inline double nmse(const T& H_hat, const T& H) {
+        return arma::accu(arma::pow(arma::abs(H_Hat - H), 2)) / arma::accu(arma::pow(arma::abs(H), 2));
     }
 }
