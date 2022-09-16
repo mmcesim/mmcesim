@@ -50,7 +50,17 @@ template<typename T>
 Value_Vec<T>::Value_Vec(const YAML::Node& node, bool error_out_of_bound, T out_of_bound_val)
     : _error_out_of_bound(error_out_of_bound), _out_of_bound_val(out_of_bound_val) {
     if (node.IsScalar()) {
-        Value_Vec(node.as<std::string>(), error_out_of_bound, out_of_bound_val);
+        std::vector<std::string> tokens;
+        std::stringstream ss(removeBracket(node.as<std::string>()));
+        std::string buf;
+        // split by ','
+        while (ss.good()) {
+            std::getline(ss, buf, ',');
+            tokens.push_back(buf);
+        }
+        for (auto&& token : tokens) {
+            parseToken(token);
+        }
     } else {
         for (auto&& token : node) {
             parseToken(token.as<std::string>());

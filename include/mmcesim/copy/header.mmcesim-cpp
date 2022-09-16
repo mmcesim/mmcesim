@@ -3,6 +3,7 @@
 #include <complex>
 #include <cmath>
 #include <cassert>
+#include <type_traits>
 #include <armadillo>
 
 /*** Check filesystem or experimental::filesystem ***/
@@ -80,3 +81,5 @@ namespace std {
 
 using namespace arma;
 using std::operator""i;
+
+const double _2pi = 2 * 3.141592653587932384625;

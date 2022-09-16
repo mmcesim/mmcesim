@@ -17,12 +17,24 @@
 #include <regex>
 #include "utils.h"
 
+struct XY_Size {
+    unsigned Tx = 0;
+    unsigned Ty = 0;
+    unsigned Rx = 0;
+    unsigned Ry = 0;
+
+    unsigned t() const { return Tx * Ty; }
+    unsigned r() const { return Rx * Ry; }
+    unsigned _() const { return t() * r(); }
+};
+
 struct Macro {
     unsigned job_num = 0;
     std::vector<unsigned> alg_num;
     std::vector<std::vector<std::string>> alg_names; // ALG names separated by comma (,)
     std::vector<std::vector<std::string>> alg_params;
     std::string _cascaded_channel;
+    XY_Size _N, _B, _G;
 
     std::string replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const;
 };

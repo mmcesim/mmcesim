@@ -55,6 +55,7 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
 
 #define SWITCH_FUNC if (false) {
 #define CASE(_func_name__) } else if (func == _func_name__) {
+#define DEFAULT } else {
 #define END_SWITCH }
 #define LANG_CPP if (lang == "cpp") {
 #define LANG_PY } else if (lang == "py") {
@@ -91,7 +92,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 // TODO: Consider the 'metric' field,
                 // so far we only consider it as NMSE
                 LANG_CPP
-                    f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
+                    // f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
                     f << "{";
                 END_LANG
             CASE ("BREAK")
@@ -303,8 +304,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         // dim: 0 (a scalar)
                         Type type = getReturnType('0');
                         LANG_CPP
-                            auto fill = cppScaleFill(type);
-                            f << fill << "()"; // this may not be correct since it is such a long time
+                            f << type.string() << " " << line.returns(0).name;
                         END_LANG
                     }
                     LANG_CPP
@@ -358,7 +358,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "std::cout";
                     for (size_t j = 0; j != line.params().size(); ++j) {
-                        f << " << " << line.params(j).value;
+                        f << " << " << inlineCalc(_mi(j), lang);
                     }
                     if (_add_semicolon) f << ";";
                 LANG_PY
@@ -369,7 +369,8 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 else {
                     Keys keys { "H" };
                     APPLY_KEYS("RECOVER");
-                    std::string recover_str = "$sim_NMSE_{" + std::to_string(_alg_cnt) + "}$ = \\nmse(" +
+                    std::string recover_str = "= NMSE" + std::to_string(_job_cnt) + "_{ii," +
+                                              std::to_string(_alg_cnt) + "} += \\nmse(" +
                                               line["H"] + ", " + _macro._cascaded_channel + ")";
                     Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
                     recover_alg.write(f, lang);
@@ -398,17 +399,21 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 // init call INIT/CALC function
                 LANG_CPP
                     f << "for (";
-                    std::cout << "line[init] = " << _ms("init") << '\n';
+                    std::cout << "line[init] = " << line["init"] << '\n';
                     if (line.hasKey("init")) {
-                        Alg init(removeQuote(_ms("init")), macro_none, -1, -1, false, false, true);
-                        init.write(f, "cpp");
+                        if (inlineCalc(_ms("init"), lang) == "") {
+                            f << ";";
+                        } else {
+                            Alg init(inlineCalc(_ms("init"), lang), macro_none, -1, -1, false, false, true);
+                            init.write(f, "cpp");
+                        }
                     } else f << ";";
                     if (line.hasKey("cond")) {
-                        Alg cond(removeQuote(_ms("cond")), macro_none, -1, -1, false, false, true);
+                        Alg cond(inlineCalc(_ms("cond"), lang), macro_none, -1, -1, false, false, true);
                         cond.write(f, "cpp");
                     } else f << ";";
                     if (line.hasKey("oper")) {
-                        Alg oper(removeQuote(_ms("oper")), macro_none, -1, -1, false, false, false);
+                        Alg oper(inlineCalc(_ms("oper"), lang), macro_none, -1, -1, false, false, false);
                         oper.write(f, "cpp");
                         std::cout << "has oper!\n";
                     }
@@ -561,6 +566,8 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_PY
                 LANG_M f << INDENT << "end";
                 END_LANG
+            DEFAULT
+                // if (_add_semicolon) f << ";";
         END_SWITCH
         if (_add_comment) {
             if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
@@ -596,9 +603,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
 
 std::string Alg::inlineCalc(const std::string& s, const std::string& lang) {
     // TODO: error handling here
-    if (s.size() > 2 && s[0] == '$' && *(s.end() - 1) == '$') {
+    if (s.size() >= 2 && s[0] == '$' && *(s.end() - 1) == '$') {
         return Calc::as(s.substr(1, s.size() - 2), lang);
-    } else if (s.size() > 2 && s[0] == '"' && *(s.end() - 1) == '"') {
+    } else if (s.size() >= 2 && s[0] == '"' && *(s.end() - 1) == '"') {
         return s.substr(1, s.size() - 2);
     } else {
         return Calc::as(s, lang);

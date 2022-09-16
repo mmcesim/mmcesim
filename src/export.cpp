@@ -330,7 +330,7 @@ void Export::_generateChannels() {
              << off_grid
              << ");"
              << channel_name << ".save(\"_data/" << channel_name << "\" + std::to_string(i) + \".bin\");}";
-        _f() << "}}\n\n";
+        _f() << "return true;}}\n\n";
     }
     // TODO: Generate channels.
 }
@@ -357,14 +357,6 @@ void Export::_sounding() {
         _f() << "int main(int argc, char* argv[]) {\n"
              << "arma_rng::set_seed_random();\n"
              << "mmce::generateChannels();\n"
-             << "cx_mat " << _beamforming_W << " = "
-             << "randn<mat>(" << Nx * Ny << ", " << BNx * BNy
-             << ") + 1i * randn<mat>(" << Nx * Ny << ", " << BNx * BNy << ");\n"
-             << _beamforming_W << " = normalise(" << _beamforming_W << ",2,0);\n"
-             << "cx_mat " << _beamforming_F << " = "
-             << "randn<mat>(" << Mx * My << ", " << BMx * BMy
-             << ") + 1i * randn<mat>(" << Mx * My << ", " << BMx * BMy << ");\n"
-             << _beamforming_F << " = normalise(" << _beamforming_F << ",2,0);\n\n"
              << "cx_mat " << _noise << ";\n"
              << "if (!" << _noise << ".load(\"_data/" << _noise << ".bin\", arma::arma_binary)) {\n"
              << "std::cerr << \"ERROR: Failed to load '" << _noise
@@ -385,7 +377,8 @@ void Export::_sounding() {
             Value_Vec<unsigned> pilot_vec(pilot, true);
             bool has_loop = true;
             if (SNR_vec.size() > 1) {
-                _f() << "\ndouble NMSE" << job_cnt << "[" << SNR_vec.size() << "] = {};";
+                _f() << "\nmat NMSE" << job_cnt << " = arma::zeros("
+                     << SNR_vec.size() << ", " << job["algorithms"].size() << ");";
                 if (SNR_mode == "linear") {
                     _f() << "vec SNR_linear = { " << SNR_vec.asStr() << " };\n";
                 } else {
@@ -414,6 +407,16 @@ void Export::_sounding() {
                 has_loop = false;
                 _f() << "\ndouble NMSE" << job_cnt << " = 0;";
             }
+            _f() << "cx_cube " << _beamforming_W << " = "
+                 << "randn<cube>(" << Nx * Ny << ", " << BNx * BNy << ", pilot / " << BNx * BNy
+                 << ") + 1i * randn<cube>(" << Nx * Ny << ", " << BNx * BNy
+                 << ", pilot / " << BNx * BNy << ");\n"
+                 << _beamforming_W << ".each_slice([](cx_mat& X){return normalise(X,2,0);});\n"
+                 << "cx_cube " << _beamforming_F << " = "
+                 << "randn<cube>(" << Mx * My << ", " << BMx * BMy << ", pilot / " << BNx * BNy
+                 << ") + 1i * randn<cube>(" << Mx * My << ", " << BMx * BMy
+                 << ", pilot / " << BNx * BNy << ");\n"
+                 << _beamforming_F << ".each_slice([](cx_mat& X){return normalise(X,2,0);});\n\n";
             _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
             for (auto&& channel : _config["channels"]) {
                 // Load channel matrices.
@@ -425,55 +428,64 @@ void Export::_sounding() {
                      << ".bin' from '_data'.\" << std::endl; return 1;}\n";
             }
             // TODO: The cascaded channel is the only channel is valid only for a simple MIMO system.
-            _f() << "cx_mat " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>()
-                 << ";\ncx_vec " << _received_signal << " = arma::kron("
-                 << _beamforming_F << ".st()," << _beamforming_W << ".t())"
-                 << "*" << _cascaded_channel << ".as_col();\n"
+            // TODO: transmit pilots!
+            _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
+                 << "cx_mat " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>() << ";"
+                 << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                 << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
+                 << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
+                 << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
                  << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
                  << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
-                 << "double raw_signal_power = arma::accu(arma::pow(arma::abs("
-                 << _received_signal << "), 2));\n"
-                 << _received_signal << " += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n";
-            _estimation(job_cnt);
+                 << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
+                 << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
+                 << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy 
+                 << ",(t+1)*" << BNx * BNy * BMx * BMy <<  "-1)) = _y;}\n";
+            Macro macro;
+            macro._cascaded_channel = _cascaded_channel;
+            macro.job_num = jobs.size();
+            macro._N = { Nx, Ny, Mx, My };
+            macro._B = { BNx, BNy, BMx, BMy };
+            macro._G = { GNx, GNy, GMx, GMy };
+            for (size_t i = 0; i != macro.job_num; ++i) {
+                auto&& job_algs = jobs[i]["algorithms"];
+                macro.alg_num.push_back(job_algs.size());
+                std::vector<std::string> alg_names;
+                std::vector<std::string> alg_params;
+                for (auto&& alg : job_algs) {
+                    auto alg_name = _asStr(alg["alg"]);
+                    alg_names.push_back(alg_name);
+                    // TODO: macro parameters
+                    if (alg_name == "OMP") {
+                        if (_preCheck(alg["max_iter"], DType::INT, false)) {
+                            alg_params.push_back(_asStr(alg["max_iter"]));
+                        } else if (_preCheck(alg["sparsity"], DType::INT, false)) {
+                            alg_params.push_back(_asStr(alg["sparsity"]));
+                        } else {
+                            // TODO: the default iteration of OMP
+                            alg_params.push_back("100");
+                        }
+                    } else {
+                        alg_params.push_back("");
+                    }
+                }
+                macro.alg_names.push_back(alg_names);
+                macro.alg_params.push_back(alg_params);
+            }
+            _estimation(macro, job_cnt);
             _f() << "}\n";
             if (has_loop) _f() << "}\n";
+            _f() << "NMSE" << job_cnt << "/=" << test_num << ";";
+            if (_preCheck(_config["conclusion"], DType::STRING, false)) {
+                Alg a(_asStr(_config["conclusion"]), macro, job_cnt, -1);
+                a.write(_f(), _langStr());
+            }
             ++job_cnt;
         }
     }
 }
 
-void Export::_estimation(int job_cnt) {
-    Macro macro;
-    auto&& jobs = _config["simulation"]["jobs"];
-    if (_preCheck(jobs, DType::SEQ)) {
-        macro.job_num = jobs.size();
-        macro._cascaded_channel = _cascaded_channel;
-        for (size_t i = 0; i != macro.job_num; ++i) {
-            auto&& job_algs = jobs[i]["algorithms"];
-            macro.alg_num.push_back(job_algs.size());
-            std::vector<std::string> alg_names;
-            std::vector<std::string> alg_params;
-            for (auto&& alg : job_algs) {
-                auto alg_name = _asStr(alg["alg"]);
-                alg_names.push_back(alg_name);
-                // TODO: macro parameters
-                if (alg_name == "OMP") {
-                    if (_preCheck(alg["max_iter"], DType::INT, false)) {
-                        alg_params.push_back(_asStr(alg["max_iter"]));
-                    } else if (_preCheck(alg["sparsity"], DType::INT, false)) {
-                        alg_params.push_back(_asStr(alg["sparsity"]));
-                    } else {
-                        // TODO: the default iteration of OMP
-                        alg_params.push_back("100");
-                    }
-                } else {
-                    alg_params.push_back("");
-                }
-            }
-            macro.alg_names.push_back(alg_names);
-            macro.alg_params.push_back(alg_params);
-        }
-    }
+void Export::_estimation(const Macro& macro, int job_cnt) {
     std::string estimation_str;
     if (!_preCheck(_config["estimation"], DType::STRING)) {
         // maybe add a message on the console

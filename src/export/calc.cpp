@@ -93,15 +93,18 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addArma(str, "max");
         _addArma(str, "index_min");
         _addArma(str, "index_max");
+        _addArma(str, "reshape");
+        _addArma(str, "kron");
         // matrix initialization
-        _addArma(str, "zeros");
-        _addArma(str, "ones");
+        _addMmce(str, "zeros");
+        _addMmce(str, "ones");
         // mmCEsim defined functions
         _addMmce(str, "dictionary");
         _addMmce(str, "size");
         _addMmce(str, "length");
         _addMmce(str, "nmse");
         _addMmce(str, "ismember");
+        boost::replace_all(str, "\\str", "std::string");
     END_LANG
     return true;
 }
@@ -119,12 +122,12 @@ bool Calc::_changeSuperScript(std::string& str, std::string lang, std::string* m
         boost::replace_all(str, "^I", ".i()"); // inverse of a complex matrix
         boost::replace_all(str, "^{I}", ".i()"); // inverse of a complex matrix
         boost::replace_all(str, "^{-1}", ".i()"); // inverse of a complex matrix
-        boost::replace_all(str, "^*", ".t().h()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^{*}", ".t().h()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^\\star", ".t().h()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^{\\star}", ".t().h()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^\\ast", ".t().h()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^{\\ast}", ".t().h()"); // conjugate of a complex matrix
+        boost::replace_all(str, "^*", ".t().st()"); // conjugate of a complex matrix
+        boost::replace_all(str, "^{*}", ".t().st()"); // conjugate of a complex matrix
+        boost::replace_all(str, "^\\star", ".t().st()"); // conjugate of a complex matrix
+        boost::replace_all(str, "^{\\star}", ".t().st()"); // conjugate of a complex matrix
+        boost::replace_all(str, "^\\ast", ".t().st()"); // conjugate of a complex matrix
+        boost::replace_all(str, "^{\\ast}", ".t().st()"); // conjugate of a complex matrix
     LANG_PY
     LANG_M
     END_LANG
@@ -153,7 +156,6 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
     for (size_t i = 0; i < str.size(); ++i) {
         if (str[i] == '_') {
             size_t start_i = i;
-            std::string subs = "(";
             if (i + 1 == str.size()) {
                 // Since we are using '_' as subscript,
                 // we do not allow variable names end with '_'.
@@ -199,7 +201,8 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                         ++i;
                         std::cout << "Iter " << i << '\n';
                     }
-                    for (int j = 0; j <= dim; ++j) {
+                    std::string subs;
+                    auto parseDim = [&] (int j, bool after = true) {
                         size_t colon_pos = dims[j].find(':');
                         size_t bracket_pos = dims[j].find('{');
                         bool has_colon = colon_pos != std::string::npos;
@@ -227,8 +230,28 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                                 subs += dims[j];
                             }
                         }
-                        if (j != dim) subs += ',';
-                        else subs += ')';
+                        if (after) {
+                            if (j != dim) subs += ',';
+                            else subs += ')';
+                        }
+                    };
+                    if (dim == 1 && dims[0] == ":") {
+                        subs = ".cols(_as_uvec(";
+                        parseDim(1);
+                        subs += ")";
+                    } else if (dim == 1 && dims[1] == ":") {
+                        subs = ".rows(_as_uvec(";
+                        parseDim(0, false);
+                        subs += "))";
+                    } else if (dim == 2 && dims[0] == ":" && dims[1] == ":") {
+                        subs = ".slices(_as_uvec(";
+                        parseDim(2);
+                        subs += ")";
+                    } else {
+                        subs = "(";
+                        for (int j = 0; j <= dim; ++j) {
+                            parseDim(j);
+                        }
                     }
                     std::cout << start_i << ' ' << i << ' ' << subs << '\n';
                     std::cout << str << std::endl;

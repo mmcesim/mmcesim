@@ -13,12 +13,14 @@
 h::v = FUNCTION OMP Q::m y::v L::u
   COMMENT Start of OMP algorithm!
   h = \zeros(\size(Q, 1)) # initialize as zeros
-  Q_H = NEW Q^H # the conjugate transpose of Q
+  Q_H::m = NEW Q^H # the conjugate transpose of Q
   r = NEW y # residual
-  r_last = NEW r * 2 # the residual in last iteration
+  r_last::v = NEW r * 2 # the residual in last iteration
   support = INIT \length(y) dtype=u # over-length support array
   term = INIT $\size(Q_H, 0)$ dtype=f # float number array
-  j::u0 = LOOP 0 \length(y)
+  j::u0 = NEW 0
+  a::v = INIT
+  FOR "" $j != \length(y)$ $j = j + 1$
     term = \abs(Q_H @ r)
     index::u0 = NEW \index_max(term)
     IF \ismember(index, support)
@@ -26,7 +28,7 @@ h::v = FUNCTION OMP Q::m y::v L::u
     END
     support_{j} = index
     columns::m = NEW Q_{:, support_{0:j}}
-    a::v = NEW \pinv(columns) @ y
+    a = \pinv(columns) @ y
     r = y - columns @ a
     IF \sum(\abs(r - r_last)) / \sum(\abs(r_last)) < 0.0001 || j >= L
       j = j + 1

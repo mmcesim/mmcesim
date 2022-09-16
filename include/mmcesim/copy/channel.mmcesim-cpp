@@ -26,7 +26,7 @@ namespace mmce {
             rowvec u(M, arma::fill::randu);
             return 2 * u - 1;
         } else {
-            rowvec u = linespace(0, double(M - 1), M).t();
+            rowvec u = arma::linspace(0, double(M - 1), M).t();
             return 2 * u - 1;
         }
     }
@@ -65,7 +65,6 @@ namespace mmce {
         const vec _0_My = linspace(0, double(My - 1), My) / My;
         const vec _0_Nx = linspace(0, double(Nx - 1), Nx) / Nx;
         const vec _0_Ny = linspace(0, double(Ny - 1), Ny) / Ny;
-        const double _2pi = 2 * 3.141592653587932384625;
         cx_mat H(M, N, arma::fill::zeros);
 
         uvec index1 = randperm_s(GMx, L);
@@ -83,7 +82,7 @@ namespace mmce {
         }
 
         for (uword l = 0; l != L; ++l) {
-            const cx_vec a;
+            cx_vec a;
             if (My == 1) { // ULA
                 a = std::sqrt(1.0 / Mx) * exp(-1i * _2pi * _0_Mx * steering_Mx[index1[l]]);
             } else { // UPA
@@ -91,7 +90,7 @@ namespace mmce {
                 const cx_vec a2 = std::sqrt(1.0 / My) * exp(-1i * _2pi * _0_My * steering_My[index2[l]]);
                 a = kron(a1, a2);
             }
-            const cx_vec b;
+            cx_vec b;
             if (Ny == 1) { // ULA
                 b = std::sqrt(1.0 / Nx) * exp(-1i * _2pi * _0_Nx * steering_Nx[index3[l]]);
             } else { // UPA

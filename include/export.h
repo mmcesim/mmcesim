@@ -116,7 +116,7 @@ private:
 
     void _sounding();
 
-    void _estimation(int job_cnt = -1);
+    void _estimation(const Macro& macro, int job_cnt = -1);
 
     void _reporting();
 

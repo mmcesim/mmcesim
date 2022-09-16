@@ -4,23 +4,35 @@ namespace mmce {
         double d = 0.5; // antenna spacing
         if (My == 1 && GMy == 1) { // ULA
             cx_mat F = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) *
-                d * 2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t());
+                d * (2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t() - 1.0));
             return F;
         } else { // UPA
             cx_mat Fx = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) *
-                d * 2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t());
+                d * (2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t() - 1.0));
             cx_mat Fy = std::sqrt(1.0 / My) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(My - 1), My) *
-                d * 2.0 / GMy * arma::linspace(0, double(GMy - 1), GMy).t());
+                d * (2.0 / GMy * arma::linspace(0, double(GMy - 1), GMy).t() -1.0));
             return arma::kron(Fx, Fy);
         }
     }
 
     template<typename T>
-    inline uword size(const T& a, uword dim) {
-        if constexpr (dim == 0) return a.n_rows;
-        else if constexpr (dim == 1) return a.n_cols;
-        else if constexpr (dim == 2) return a.n_slices;
+    inline uword size(const arma::Cube<T>& a, uword dim) {
+        if (dim == 0) return a.n_rows;
+        else if (dim == 1) return a.n_cols;
+        else if (dim == 2) return a.n_slices;
         else return 0;
+    }
+
+    template<typename T>
+    inline uword size(const arma::Mat<T>& a, uword dim) {
+        if (dim == 0) return a.n_rows;
+        else if (dim == 1) return a.n_cols;
+        else return 0;
+    }
+
+    template<typename T>
+    inline uword size(const arma::Col<T>& a, uword dim) {
+        return a.n_rows;
     }
 
     template<typename T>
@@ -36,8 +48,28 @@ namespace mmce {
         return false;
     }
 
-    template<typename T>
-    inline double nmse(const T& H_hat, const T& H) {
-        return arma::accu(arma::pow(arma::abs(H_Hat - H), 2)) / arma::accu(arma::pow(arma::abs(H), 2));
+    template<typename T1, typename T2>
+    inline double nmse(const T1& H_hat, const T2& H) {
+        return arma::accu(arma::pow(arma::abs(H_hat - H), 2)) / arma::accu(arma::pow(arma::abs(H), 2));
     }
+
+    inline cx_vec zeros(uword d1) {
+        return arma::zeros<cx_vec>(d1);
+    }
+
+    inline cx_mat zeros(uword d1, uword d2) {
+        return arma::zeros<cx_mat>(d1, d2);
+    }
+
+    inline cx_cube zeros(uword d1, uword d2, uword d3) {
+        return arma::zeros<cx_cube>(d1, d2, d3);
+    }
+}
+
+template<typename T>
+inline auto _as_uvec(const T& x) {
+    if constexpr (std::is_arithmetic_v<std::remove_cv_t<std::remove_reference_t<T>>>) {
+        arma::uvec v = { x };
+        return v;
+    } else return x;
 }
