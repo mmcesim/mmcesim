@@ -378,7 +378,8 @@ void Export::_sounding() {
             bool has_loop = true;
             if (SNR_vec.size() > 1) {
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros("
-                     << SNR_vec.size() << ", " << job["algorithms"].size() << ");";
+                     << SNR_vec.size() << ", " << job["algorithms"].size() << ");"
+                     << "{"; //  Start a group
                 if (SNR_mode == "linear") {
                     _f() << "vec SNR_linear = { " << SNR_vec.asStr() << " };\n";
                 } else {
@@ -391,13 +392,15 @@ void Export::_sounding() {
                      << "for (uword ii = 0; ii != SNR_dB.n_elem; ++ii) {\n"
                      << "double sigma2 = sigma2_all[ii];\n";
             } else if (pilot_vec.size() > 1) {
-                _f() << "\ndouble NMSE" << job_cnt << "[" << pilot_vec.size() << "] = {};";
+                _f() << "\nmat NMSE" << job_cnt << " = arma::zeros("
+                     << pilot_vec.size() << ", " << job["algorithms"].size() << ");"
+                     << "{"; //  Start a group
                 if (SNR_mode == "linear") {
                     _f() << "double SNR_linear = " << SNR_vec[0] << ";\n";
                 } else {
                     // default as dB
                     _f() << "double SNR_dB = " << SNR_vec[0] << ";\n"
-                         << "double SNR_linear = std::exp10(SNR_dB / 10.0);\n";
+                         << "double SNR_linear = std::pow(10.0, SNR_dB / 10.0);\n";
                 }
                 _f() << "double sigma2 = 1.0 / SNR_linear;\n"
                      << "uvec pilots = { " << pilot_vec.asStr() << " };\n"
@@ -405,7 +408,14 @@ void Export::_sounding() {
                      << "double pilot = pilots[ii];\n";
             } else {
                 has_loop = false;
-                _f() << "\ndouble NMSE" << job_cnt << " = 0;";
+                _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(1, "
+                     << job["algorithms"].size() << ");"
+                     << "{"; // Start a group
+                _f() << "double SNR_dB = " << SNR_vec[0] << ";\n"
+                     << "double SNR_linear = std::pow(10.0, SNR_dB / 10.0);\n"
+                     << "double sigma2 = 1.0 / SNR_linear;\n";
+                _f() << "unsigned pilot = " << pilot_vec[0] << ";\n";
+                _f() << "uword ii = 0;\n";
             }
             _f() << "cx_cube " << _beamforming_W << " = "
                  << "randn<cube>(" << Nx * Ny << ", " << BNx * BNy << ", pilot / " << BNx * BNy
@@ -480,6 +490,7 @@ void Export::_sounding() {
                 Alg a(_asStr(_config["conclusion"]), macro, job_cnt, -1);
                 a.write(_f(), _langStr());
             }
+            _f() << "}\n"; // End the job group.
             ++job_cnt;
         }
     }

@@ -71,6 +71,7 @@ conclusion: |
   i::u0 = LOOP 0 \length(`NMSE`)
     PRINT `NMSE`_{i} '\n'
   END
+  PRINT '\n'
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
@@ -86,6 +87,40 @@ simulation:
           max_iter: 5
           label: OMP # used in report
           estimated_channel: H_hat_OMP # variable name for the estimated channel
+    - name: NMSE v.s. pilot
+      test_num: 20
+      SNR: 0
+      pilot: [16:8:64]
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 5
+          label: OMP # used in report
+    - name: OMP NMSE v.s. Iter
+      test_num: 20
+      SNR: 0
+      pilot: 32
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 2
+          label: OMP Iter 2
+        - alg: OMP
+          max_iter: 3
+          label: OMP Iter 3
+        - alg: OMP
+          max_iter: 4
+          label: OMP Iter 4
+        - alg: OMP
+          max_iter: 5
+          label: OMP Iter 5
+        - alg: OMP
+          max_iter: 6
+          label: OMP Iter 6
+        - alg: OMP
+          max_iter: 8
+          label: OMP Iter 8
+        - alg: OMP
+          max_iter: 10
+          label: OMP Iter 10 # used in report
   report:
     format: [pdf, latex] # both compiled PDF and tex files
     plot: true # plot data
