@@ -7,8 +7,7 @@ version: 0.1.0 # the targeted mmCEsim version
 meta: # document meta data
   title: mmWave MIMO model
   description:
-    This is a test document with extension '.sim'
-    for a mmWave MIMO model simulation configuration.
+    Simple Functional Test with OMP
   author: Wuqiong Zhao
   email: contact@mmcesim.org
   website: https://mmcesim.org
