@@ -381,7 +381,8 @@ void Export::_sounding() {
                      << SNR_vec.size() << ", " << job["algorithms"].size() << ");"
                      << "{"; //  Start a group
                 if (SNR_mode == "linear") {
-                    _f() << "vec SNR_linear = { " << SNR_vec.asStr() << " };\n";
+                    _f() << "vec SNR_linear = { " << SNR_vec.asStr() << " };\n"
+                         << "vec SNR_dB = 10 * arma::log10(SNR_linear / 10.0);\n";
                 } else {
                     // default as dB
                     _f() << "vec SNR_dB = { " << SNR_vec.asStr() << " };\n"
@@ -517,7 +518,58 @@ void Export::_estimation(const Macro& macro, int job_cnt) {
 }
 
 void Export::_reporting() {
-
+    auto&& report_format = _config["simulation"]["report"]["form"];
+    // TODO: check report format field to decide report type
+    auto&& report_name = _config["simulation"]["report"]["name"];
+    std::string report_file = "report.rpt";
+    if (_preCheck(report_name, DType::STRING, false)) {
+        report_file = _asStr(report_name) + ".rpt";
+    }
+    _f() << "std::ofstream report_file(\"" << report_file << "\");"
+         << "if (report_file.is_open()) {";
+    auto&& jobs = _config["simulation"]["jobs"];
+    for (unsigned job_cnt = 0; job_cnt != jobs.size(); ++job_cnt) {
+        auto&& job = jobs[job_cnt];
+        auto&& algs = job["algorithms"];
+        unsigned alg_num = algs.size();
+        std::vector<std::string> labels(alg_num);
+        for (unsigned alg_cnt = 0; alg_cnt != alg_num; ++alg_cnt) {
+            auto&& alg = algs[alg_cnt];
+            if (alg["label"].IsDefined())
+                labels[alg_cnt] = "\"" + _asStr(alg["label"]) + "\"";
+            else labels[alg_cnt] = "\"" + _asStr(alg["alg"]) + "\"";
+        }
+        std::string col1_name;
+        unsigned test_num = _getTestNum(job);
+        auto&& SNR = job["SNR"];
+        std::string SNR_mode;
+        try {
+            SNR_mode = boost::algorithm::to_lower_copy(_asStr(job["SNR_mode"], false));
+        } catch (...) {
+            SNR_mode = "db";
+        }
+        auto&& pilot = job["pilot"];
+        Value_Vec<double> SNR_vec(SNR, true);
+        Value_Vec<unsigned> pilot_vec(pilot, true);
+        std::string col1;
+        if (SNR_vec.size() > 1) {
+            col1_name = "SNR";
+            if (SNR_mode != "linear") col1_name += " [dB]";
+            col1 = SNR_vec.asStr(true);
+        } else if (pilot_vec.size() > 1) {
+            col1_name = "Pilot";
+            col1 = pilot_vec.asStr(true);
+        } else {
+            col1_name = "Algorithm";
+            col1 = "\"NMSE [dB]\"";
+        }
+        _f() << "{std::string col1label = \"" << col1_name << "\";\n"
+             << "std::vector<std::string> labels = {" << stringVecAsString(labels, ", ") << "};\n"
+             << "std::vector<std::string> col1 = {" << col1 << "};\n"
+             << "mmce::reportTable(report_file, col1label, labels, col1, 10 * arma::log10(NMSE" << job_cnt << "));}\n";
+    }
+    _f() << "} else { std::cerr << \"Cannot write report!\\n\"; }"
+         << "report_file.close();";
 }
 
 void Export::_ending() {

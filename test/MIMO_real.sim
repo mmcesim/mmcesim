@@ -122,6 +122,7 @@ simulation:
           max_iter: 10
           label: OMP Iter 10 # used in report
   report:
+    name: MIMO_OMP_Report
     format: [pdf, latex] # both compiled PDF and tex files
     plot: true # plot data
     table: false # do not print table

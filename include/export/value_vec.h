@@ -15,7 +15,7 @@ public:
 
     T operator[](size_t index) const;
 
-    std::string asStr() const;
+    std::string asStr(bool quoted = false) const;
 
     size_t size() const noexcept;
 
@@ -140,13 +140,15 @@ T Value_Vec<T>::operator[](size_t index) const {
 }
 
 template<typename T>
-std::string Value_Vec<T>::asStr() const {
+std::string Value_Vec<T>::asStr(bool quoted) const {
     if (_data.size() == 0) return "";
     std::string s;
     for (auto i = _data.cbegin(); i + 1 != _data.end(); ++i) {
-        s += std::to_string(*i) + ", ";
+        if (quoted) s += "\"" + mmce::to_string(*i) + "\", ";
+        else s += mmce::to_string(*i) + ", ";
     }
-    s += std::to_string(*(_data.end() - 1));
+    if (quoted) s += "\"" + mmce::to_string(*(_data.end() - 1)) + "\"";
+    else s += mmce::to_string(*(_data.end() - 1));
     return s;
 }
 

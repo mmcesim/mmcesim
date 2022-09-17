@@ -114,7 +114,7 @@ static std::string stringVecAsString(const std::vector<std::string>& l, std::str
     for (auto iter = l.cbegin(); iter != l.cend() - 1; ++iter) {
         str += *iter + div;
     }
-    return str + *(div.cend() - 1);
+    return str + *(l.cend() - 1);
 }
 
 // check if STL container contains a value
@@ -154,6 +154,15 @@ static std::string randomString(std::string::size_type length) {
         s += chrs[pick(rg)];
     }
     return s;
+}
+
+namespace mmce {
+    template<typename T>
+    static inline std::string to_string(const T& x) {
+        std::ostringstream str;
+        str << x;
+        return str.str();
+    }
 }
 
 #endif

@@ -1,9 +1,12 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <complex>
 #include <cmath>
 #include <cassert>
 #include <type_traits>
+#include <iomanip>
 #include <armadillo>
 
 /*** Check filesystem or experimental::filesystem ***/
