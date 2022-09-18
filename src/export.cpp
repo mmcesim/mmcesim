@@ -522,11 +522,15 @@ void Export::_reporting() {
     // TODO: check report format field to decide report type
     auto&& report_name = _config["simulation"]["report"]["name"];
     std::string report_file = "report.rpt";
+    std::string tex_file = "_tex_report/report.tex";
     if (_preCheck(report_name, DType::STRING, false)) {
         report_file = _asStr(report_name) + ".rpt";
+        tex_file = "_tex_report/" + _asStr(report_name) + ".tex";
     }
+    _f() << "std::filesystem::create_directory(\"_tex_report\");\n";
     _f() << "std::ofstream report_file(\"" << report_file << "\");"
          << "if (report_file.is_open()) {";
+    _f() << "std::ofstream tex_file(\"" << tex_file << "\");";
     auto&& jobs = _config["simulation"]["jobs"];
     std::string sim_title = "mmCEsim Simulation Report";
     if (_preCheck(_config["meta"]["title"], DType::STRING, false)) {
@@ -544,6 +548,13 @@ void Export::_reporting() {
     std::tm     curr_tm   = *std::localtime(&curr_time);
     const char* time_format = "%F %T (UTC %z)";
 
+    _f() << "tex_file << \"\\\\documentclass[mmcesim]{simreport}\\n\";"
+         << "tex_file << \"\\\\begin{document}\\n\";"
+         << "tex_file << \"\\\\title{" << sim_title << "}\\n\";"
+         << "tex_file << \"\\\\author{" << sim_author << "}\\n\";"
+         << "tex_file << \"\\\\date{" << std::put_time(&curr_tm, "%F") << "}\\n\";"
+         << "tex_file << \"\\\\rtime{" << std::put_time(&curr_tm, "%T") << "}\\n\";"
+         << "tex_file << \"\\\\maketitle\\n" << sim_description << "\\n\";";
     _f() << "report_file << \"#" << std::string(78, '-') << "\\n\";"
          << "report_file << \"# Title      : " << sim_title << "\\n\";"
          << "report_file << \"# Description: " << sim_description << "\\n\";"
@@ -590,20 +601,29 @@ void Export::_reporting() {
             col1_name = "Algorithm";
             col1 = "\"NMSE [dB]\"";
         }
+        std::string raw_title;
         std::string title = "Job " + std::to_string(job_cnt + 1);
         if (_preCheck(job["name"], DType::STRING, false)) {
-            title += ": " + _asStr(job["name"]);
+            raw_title = _asStr(job["name"]);
+            title += ": " + raw_title;
         }
         _f() << "{\n"
+             << "std::ofstream data_file(\"_tex_report/d" << job_cnt << ".dat\");\n"
+             << "tex_file << \"\\\\section{" << raw_title << "}\\n\";"
+             << "tex_file << \"\\\\pgfplotstabletypeset{d" << job_cnt << ".dat}\\n\";\n"
              << "report_file << \"# " << title << "\\n\\n\";"
              << "std::string col1label = \"" << col1_name << "\";\n"
              << "std::vector<std::string> labels = {" << stringVecAsString(labels, ", ") << "};\n"
              << "std::vector<std::string> col1 = {" << col1 << "};\n"
              << "mmce::reportTable(report_file, col1label, labels, col1, 10 * arma::log10(NMSE"
              << job_cnt << "));\n"
-             << "report_file << \"\\n\";}";
+             << "mmce::reportData(data_file, col1label, labels, col1, 10 * arma::log10(NMSE"
+             << job_cnt << "));\n"
+             << "report_file << \"\\n\";data_file.close();}";
     }
-    _f() << "} else { std::cerr << \"Cannot write report!\\n\"; }"
+    _f() << "tex_file << \"\\\\end{document}\\n\";"
+         << "tex_file.close();"
+         << "} else { std::cerr << \"Cannot write report!\\n\"; }"
          << "report_file.close();";
 }
 

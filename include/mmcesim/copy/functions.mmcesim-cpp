@@ -128,6 +128,24 @@ namespace mmce {
             f << "\n";
         }
     }
+
+    void reportData(std::ofstream& f, const std::string& col1label,
+        const std::vector<std::string>& labels, const std::vector<std::string>& col1,
+        const mat& m) {
+        unsigned alg_num = labels.size();
+        f << "{" << col1label << "}";
+        for (uword i = 0; i != alg_num; ++i) {
+            f << "\t{" << labels[i] << "}";
+        }
+        f << "\n";
+        for (uword i = 0; i != m.n_rows; ++i) {
+            f << "{" << col1[i] << "}";
+            for (uword j = 0; j != alg_num; ++j) {
+                f << "\t" << m(i, j);
+            }
+            f << "\n";
+        }
+    }
 }
 
 template<typename T>
