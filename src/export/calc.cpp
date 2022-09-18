@@ -95,6 +95,7 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addArma(str, "index_max");
         _addArma(str, "reshape");
         _addArma(str, "kron");
+        _addArma(str, "find");
         // matrix initialization
         _addMmce(str, "zeros");
         _addMmce(str, "ones");

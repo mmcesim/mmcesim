@@ -10,7 +10,7 @@
 #   - L: Sparsity
 # Output:
 #   - h: The estimated sparse signal
-h::v = FUNCTION OMP Q::m y::v L::u
+h::v = FUNCTION OMP Q::m y::v L::u0
   COMMENT Start of OMP algorithm!
   h = \zeros(\size(Q, 1)) # initialize as zeros
   Q_H::m = NEW Q^H # the conjugate transpose of Q

@@ -194,13 +194,18 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             CASE ("ESTIMATE")
                 if (line.returns().empty()) WARNING("No return value given!.");
                 else {
-                    Keys keys { "Q", "y", "init" };
+                    Keys keys { "Q", "y", "nonezero", "init" };
                     APPLY_KEYS("ESTIMATE");
                     std::string estimate_str = line.returns(0).name + "::";
                     if (auto&& type = line.returns(0).type; type.empty()) estimate_str += "v";
                     else estimate_str += type;
-                    estimate_str += " = CALL " + _macro.alg_names[_job_cnt][_alg_cnt] +
-                                    " " + _ms("Q") + " " + _ms("y") + " " + _macro.alg_params[_job_cnt][_alg_cnt];
+                    if (_macro.alg_names[_job_cnt][_alg_cnt] == "Oracle_LS") {
+                        estimate_str += " = CALL Oracle_LS " + _ms("Q") + " " + _ms("y") + " " + inlineCalc(_ms("nonezero"), "cpp") +
+                            " " + _macro.alg_params[_job_cnt][_alg_cnt];
+                    } else {
+                        estimate_str += " = CALL " + _macro.alg_names[_job_cnt][_alg_cnt] +
+                            " " + _ms("Q") + " " + _ms("y") + " " + _macro.alg_params[_job_cnt][_alg_cnt];
+                    }
                     if (line.hasKey("init")) estimate_str += std::string(" init=") + line["init"];
                     Alg estimate_alg(estimate_str, _macro, _job_cnt, _alg_cnt);
                     estimate_alg.write(f, lang);
