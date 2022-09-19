@@ -548,6 +548,11 @@ void Export::_reporting() {
     std::tm     curr_tm   = *std::localtime(&curr_time);
     const char* time_format = "%F %T (UTC %z)";
 
+    auto&& t_node = _config["nodes"][_transmitters[0]];
+    auto&& r_node = _config["nodes"][_receivers[0]];
+    auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
+    auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
+
     _f() << "tex_file << \"\\\\documentclass[mmcesim]{simreport}\\n\";"
          << "tex_file << \"\\\\begin{document}\\n\";"
          << "tex_file << \"\\\\title{" << sim_title << "}\\n\";"
@@ -565,7 +570,12 @@ void Export::_reporting() {
          << "report_file << \"# GitHub organization at " << _MMCESIM_GIT << ".\\n\";"
          << "report_file << \"# Web app is available at " << _MMCESIM_WEBAPP << ".\\n\";"
          << "report_file << \"# Visit " << _MMCESIM_WEB << " for more information.\\n\";"
-         << "report_file << \"#" << std::string(78, '-') << "\\n\\n\";";
+         << "report_file << \"#" << std::string(78, '-') << "\\n\\n\";"
+         << "report_file << \"# System Settings\\n\\n\";"
+         << "report_file << \"  Transmitter: " << Nx << "x" << Ny << ", Grid: "
+         << GNx << "x" << GNy << ", Beam: " << BNx << "x" << BNy << "\\n\";"
+         << "report_file << \"  Receiver: " << Mx << "x" << My << ", Grid: "
+         << GMx << "x" << GMy << ", Beam: " << BMx << "x" << BMy << "\\n\\n\";";
     for (unsigned job_cnt = 0; job_cnt != jobs.size(); ++job_cnt) {
         auto&& job = jobs[job_cnt];
         auto&& algs = job["algorithms"];

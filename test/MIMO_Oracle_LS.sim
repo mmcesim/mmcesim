@@ -76,7 +76,7 @@ simulation:
   metric: [NMSE] # used for compare
   jobs:
     - name: "NMSE v.s. SNR (Pilot: 32)"
-      test_num: 20
+      test_num: 10
       SNR: [-10:2:20]
       SNR_mode: dB # dB (default) | linear
       pilot: 32
@@ -87,7 +87,7 @@ simulation:
           label: OMP # used in report
           estimated_channel: H_hat_OMP # variable name for the estimated channel
     - name: NMSE v.s. Pilot (-10dB)
-      test_num: 100
+      test_num: 10
       SNR: -10
       pilot: [8:8:128]
       algorithms: # compare different languages
@@ -103,7 +103,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS # used in report
     - name: NMSE v.s. Pilot (0dB)
-      test_num: 100
+      test_num: 10
       SNR: 0
       pilot: [8:8:128]
       algorithms: # compare different languages
@@ -119,7 +119,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS # used in report
     - name: NMSE v.s. Pilot (10dB)
-      test_num: 100
+      test_num: 10
       SNR: 10
       pilot: [8:8:128]
       algorithms: # compare different languages
