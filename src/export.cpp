@@ -565,6 +565,19 @@ void Export::_reporting() {
         channel_sparsity = channel_sparsity_node.as<std::string>();
     }
 
+    std::filesystem::path input_path(_opt.input);
+    std::string sim_file = input_path.filename().replace_extension();
+    std::string out_dir = input_path.parent_path();
+
+    std::filesystem::create_directory(out_dir + "/_tex_report");
+    std::filesystem::copy_file(appDir() + "/../include/mmcesim/tex/simreport.cls",
+        out_dir + "/_tex_report/simreport.cls",
+        std::filesystem::copy_options::overwrite_existing);
+    std::filesystem::create_directory(out_dir + "/_tex_report/fig");
+    std::filesystem::copy_file(appDir() + "/../include/mmcesim/tex/fig/mmCEsim_logo_256.png",
+        out_dir + "/_tex_report/fig/mmCEsim_logo_256.png",
+        std::filesystem::copy_options::overwrite_existing);
+
     _f() << "tex_file << \"\\\\documentclass[mmcesim]{simreport}\\n\";"
          << "tex_file << \"\\\\begin{document}\\n\";"
          << "tex_file << \"\\\\title{" << sim_title << "}\\n\";"
@@ -590,7 +603,11 @@ void Export::_reporting() {
          << GMx << "x" << GMy << ", Beam: " << BMx << "x" << BMy << "\\n\";"
          << "report_file << \"  Channel Sparsity: " << channel_sparsity << "\\n\";"
          << "report_file << \"  Off Grid: " << off_grid << "\\n\";"
-         << "report_file << \"  Bandwidth: Narrowband\\n\\n\";";
+         << "report_file << \"  Bandwidth: Narrowband\\n\\n\";"
+         << "tex_file << \"\\\\simsystem{"
+         << Nx << "}{" << Ny << "}{" << BNx << "}{" << BNy << "}{" << GNx << "}{" << GNy << "}{"
+         << Mx << "}{" << My << "}{" << BMx << "}{" << BMy << "}{" << GMx << "}{" << GMy << "}{"
+         << channel_sparsity << "}{" << off_grid << "}\\n\";";
     for (unsigned job_cnt = 0; job_cnt != jobs.size(); ++job_cnt) {
         auto&& job = jobs[job_cnt];
         auto&& algs = job["algorithms"];
@@ -634,7 +651,8 @@ void Export::_reporting() {
         }
         _f() << "{\n"
              << "std::ofstream data_file(\"_tex_report/d" << job_cnt << ".dat\");\n"
-             << "tex_file << \"\\\\simjob{" << raw_title << "}{d" << job_cnt << ".dat}\\n\";\n"
+             << "tex_file << \"\\\\simjob{" << raw_title << "}{d" << job_cnt << ".dat}{"
+             << test_num << "}\\n\";\n"
              << "report_file << \"# " << title << "\\n\\n\";"
              << "std::string col1label = \"" << col1_name << "\";\n"
              << "std::vector<std::string> labels = {" << stringVecAsString(labels, ", ") << "};\n"
@@ -643,7 +661,31 @@ void Export::_reporting() {
              << job_cnt << "));\n"
              << "mmce::reportData(data_file, col1label, labels, col1, 10 * arma::log10(NMSE"
              << job_cnt << "));\n"
-             << "report_file << \"\\n\";data_file.close();}";
+             << "report_file << \"\\n  (Simulated with " << test_num << " Monte Carlo tests.)\\n\\n\";"
+             << "data_file.close();}";
+    }
+    _f() << "tex_file << \"\\\\simcode{" << sim_file << "}\\n\";";
+    if (auto&& jobs = _config["simulation"]["jobs"]; _preCheck(jobs, DType::SEQ)) {
+        std::vector<std::string> algs;
+        for (auto&& job : jobs) {
+            auto&& job_algs = job["algorithms"];
+            if (_preCheck(job_algs, DType::SEQ)) {
+                for (auto&& job_alg : job_algs) {
+                    algs.push_back(_asStr(job_alg["alg"]));
+                }
+            }
+        }
+        std::sort(algs.begin(), algs.end());
+        algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
+        for (auto&& alg : algs) {
+            if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
+                std::filesystem::copy_file(f_name, out_dir + "/_tex_report/" + alg + ".mmcesim-alg",
+                    std::filesystem::copy_options::overwrite_existing);
+                _f() << "tex_file << \"\\\\algcode{" << alg << "}\\n\";";
+            } else {
+                // TODO: If the algorithm cannot be found in official library.
+            }
+        }
     }
     _f() << "tex_file << \"\\\\end{document}\\n\";"
          << "tex_file.close();"

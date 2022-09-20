@@ -1,14 +1,17 @@
-# MIMO_real.sim
-# Basic MIMO Oracle LS Test
+# Example_Configuration.sim
+# mmCEsim Simulation Example
 # Author: Wuqiong Zhao
-# Date: 2022-09-16
+# Date: 2022-09-20
 
 version: 0.1.0 # the targeted mmCEsim version
 meta: # document meta data
-  title: MIMO mmWave Oracle LS Test
+  title: mmCEsim Simulation Example
   description:
-    Oracle LS performance is tested in relation to the number of measurements.
-    Here in the MIMO system it is about the pilot overhead.
+    This is a basic millimeter wave channel estimation simulation example with mmCEsim.
+    The involved algorithms are `OMP' and `Oracle LS'.
+    There are 4 jobs in total, with SNR and pilot overhead as variables and NMSE as metric.
+    The PFD report is auto generated via `simreport.cls'
+    and a corresponding plain text report is also available.
   author: Wuqiong Zhao
   email: contact@mmcesim.org
   website: https://mmcesim.org
@@ -76,7 +79,7 @@ simulation:
   metric: [NMSE] # used for compare
   jobs:
     - name: "NMSE v.s. SNR (Pilot: 32)"
-      test_num: 10
+      test_num: 100
       SNR: [-10:2:20]
       SNR_mode: dB # dB (default) | linear
       pilot: 32
@@ -86,8 +89,10 @@ simulation:
           max_iter: 6
           label: OMP # used in report
           estimated_channel: H_hat_OMP # variable name for the estimated channel
-    - name: NMSE v.s. Pilot (-10dB)
-      test_num: 10
+        - alg: Oracle_LS
+          label: Oracle LS
+    - name: NMSE v.s. Pilot (-10 dB)
+      test_num: 200
       SNR: -10
       pilot: [8:8:128]
       algorithms: # compare different languages
@@ -103,7 +108,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS # used in report
     - name: NMSE v.s. Pilot (0 dB)
-      test_num: 10
+      test_num: 200
       SNR: 0
       pilot: [8:8:128]
       algorithms: # compare different languages
@@ -119,7 +124,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS # used in report
     - name: NMSE v.s. Pilot (10 dB)
-      test_num: 10
+      test_num: 200
       SNR: 10
       pilot: [8:8:128]
       algorithms: # compare different languages
@@ -135,7 +140,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS # used in report
   report:
-    name: MIMO_Oracle_LS
+    name: mmCEsim_Example_Report
     format: [pdf, latex] # both compiled PDF and tex files
     plot: true # plot data
     table: false # do not print table
