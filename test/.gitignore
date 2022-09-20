@@ -7,3 +7,6 @@
 !*.sim
 !*.alg
 !armadillo
+
+# not ready yet
+OMPL.sim

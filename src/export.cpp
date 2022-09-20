@@ -477,7 +477,21 @@ void Export::_sounding() {
                             alg_params.push_back("100");
                         }
                     } else {
-                        alg_params.push_back("");
+                        // for custom functions
+                        auto&& params_node = alg["params"];
+                        if (params_node.IsDefined()) {
+                            if (params_node.IsSequence()) {
+                                std::string params;
+                                for (size_t j = 0; j + 1 != params_node.size(); ++j) {
+                                    params += params_node[j].as<std::string>() + " ";
+                                }
+                                params += params_node[params_node.size() - 1].as<std::string>();
+                                alg_params.push_back(params);
+                            } else {
+                                alg_params.push_back(params_node.as<std::string>());
+                            }
+                        }
+                        else alg_params.push_back("");
                     }
                 }
                 macro.alg_names.push_back(alg_names);
@@ -566,8 +580,8 @@ void Export::_reporting() {
     }
 
     std::filesystem::path input_path(_opt.input);
-    std::string sim_file = input_path.filename().replace_extension();
-    std::string out_dir = input_path.parent_path();
+    std::string sim_file = input_path.filename().replace_extension().string();
+    std::string out_dir = input_path.parent_path().string();
 
     std::filesystem::create_directory(out_dir + "/_tex_report");
     std::filesystem::copy_file(appDir() + "/../include/mmcesim/tex/simreport.cls",
