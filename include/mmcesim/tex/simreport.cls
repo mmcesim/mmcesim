@@ -153,7 +153,7 @@
   alsoletter={:\\},
   keywords=[1]{BRANCH,BREAK,CALC,CALL,COMMENT,CPP,ESTIMATE,INIT,MATLAB,MERGE,NEW,OCTAVE,PRINT,PYTHON,RECOVER,ELSE,ELIF,FOR,FOREVER,FUNCTION,IF,LOOP,WHILE,END,ELSE,ELIF},
   keywords=[2]{\\abs,\\find,\\kron,\\reshape,\\size,\\zeros,\\ones,\\length,\\index_max,\\index_min,\\max,\\min,\\ismember,\\pinv,\\inv,\\sum,\\accu,},
-  keywords=[5]{version:,meta:,title:,description:,author:,email:,website:,license:,date:,comments:,physics:,frequency:,off_grid:,nodes:,id:,role:,num:,size:,beam:,grid:,beamforming:,variable:,scheme:,channels:,from:,to:,sparsity:,gains:,mode:,mean:,variance:,sounding:,variables:,received:,noise:,channel:,preamble:,estimation:,conclusion:,simulation:,backend:,metric:,jobs:,name:,test_num:,SNR:,SNR_mode:,pilot:,algorithms:,alg:,max_iter:,label:,estimated_channel:,report:,format:,plot:,table:,latex:,command:,UTF8:},
+  keywords=[5]{version:,meta:,title:,description:,author:,email:,website:,license:,date:,comments:,physics:,frequency:,off_grid:,nodes:,id:,role:,num:,size:,beam:,grid:,beamforming:,variable:,scheme:,channels:,from:,to:,sparsity:,gains:,mode:,mean:,variance:,sounding:,variables:,received:,noise:,channel:,preamble:,estimation:,conclusion:,simulation:,backend:,metric:,jobs:,name:,test_num:,SNR:,SNR_mode:,pilot:,algorithms:,alg:,max_iter:,label:,estimated_channel:,report:,format:,plot:,table:,latex:,command:,UTF8:,appendix:,stopping_thr:},
   upquote,
   morestring=[b]`,
   morecomment=[l]{\#},
@@ -239,7 +239,38 @@
 }
 \newcommand{\algcode}[1]{%
   \ifnumequal{\the\value{subsection}}{1}{\subsection{Algorithms}}{}
-  \lstinputlisting[language=mmcesim-sim,caption={\ttfamily\protect\filename@parse{\simtools@detokenize{#1}}\protect\filename@base.mmcesim-alg}]{#1.mmcesim-alg}
+  \lstinputlisting[language=mmcesim-sim,caption={\ttfamily\protect\filename@parse{\simtools@detokenize{#1}}\protect\filename@base.alg}]{#1.mmcesim-alg}
+}
+
+\newcommand{\simsystem}[9]{%
+  \def\ST@tempa{#1}
+  \def\ST@tempb{#2}
+  \def\ST@tempc{#3}
+  \def\ST@tempd{#4}
+  \def\ST@tempe{#5}
+  \def\ST@tempf{#6}
+  \def\ST@tempg{#7}
+  \def\ST@temph{#8}
+  \def\ST@tempi{#9}
+  \simsystem@continued
+}
+\newcommand{\simsystem@continued}[5]{%
+  \tableofcontents
+  \section{System Settings}
+  \begin{tabular}{cccc}%
+    \toprule%
+    Name & Antenna Number & Beam Number & Grid Number \\%
+    \midrule%
+    Transmitter & $\ST@tempa\times\ST@tempb$ & $\ST@tempc\times\ST@tempd$ & $\ST@tempe\times\ST@tempf$ \\%
+    Receiver & $\ST@tempg\times\ST@temph$ & $\ST@tempi\times#1$ & $#2\times#3$ \\%
+    \bottomrule%
+  \end{tabular}%
+
+  \begin{itemize}
+    \item Channel Sparsity: $#4$;
+    \item Off Grid Effect: #5;
+    \item Bandwidth: Narrowband.
+  \end{itemize}
 }
 
 \RequirePackage[hidelinks]{hyperref}

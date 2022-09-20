@@ -553,6 +553,18 @@ void Export::_reporting() {
     auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
     auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
 
+    std::string off_grid = "true";
+    auto&& off_grid_node = _config["physics"]["off_grid"];
+    if (_preCheck(off_grid_node, DType::BOOL, false)) {
+        if (off_grid_node.as<bool>() == false) off_grid = "false";
+    }
+
+    std::string channel_sparsity;
+    auto&& channel_sparsity_node = _config["channels"][0]["sparsity"];
+    if (_preCheck(channel_sparsity_node, DType::INT, false)) {
+        channel_sparsity = channel_sparsity_node.as<std::string>();
+    }
+
     _f() << "tex_file << \"\\\\documentclass[mmcesim]{simreport}\\n\";"
          << "tex_file << \"\\\\begin{document}\\n\";"
          << "tex_file << \"\\\\title{" << sim_title << "}\\n\";"
@@ -575,7 +587,10 @@ void Export::_reporting() {
          << "report_file << \"  Transmitter: " << Nx << "x" << Ny << ", Grid: "
          << GNx << "x" << GNy << ", Beam: " << BNx << "x" << BNy << "\\n\";"
          << "report_file << \"  Receiver: " << Mx << "x" << My << ", Grid: "
-         << GMx << "x" << GMy << ", Beam: " << BMx << "x" << BMy << "\\n\\n\";";
+         << GMx << "x" << GMy << ", Beam: " << BMx << "x" << BMy << "\\n\";"
+         << "report_file << \"  Channel Sparsity: " << channel_sparsity << "\\n\";"
+         << "report_file << \"  Off Grid: " << off_grid << "\\n\";"
+         << "report_file << \"  Bandwidth: Narrowband\\n\\n\";";
     for (unsigned job_cnt = 0; job_cnt != jobs.size(); ++job_cnt) {
         auto&& job = jobs[job_cnt];
         auto&& algs = job["algorithms"];
@@ -619,8 +634,7 @@ void Export::_reporting() {
         }
         _f() << "{\n"
              << "std::ofstream data_file(\"_tex_report/d" << job_cnt << ".dat\");\n"
-             << "tex_file << \"\\\\section{" << raw_title << "}\\n\";"
-             << "tex_file << \"\\\\pgfplotstabletypeset{d" << job_cnt << ".dat}\\n\";\n"
+             << "tex_file << \"\\\\simjob{" << raw_title << "}{d" << job_cnt << ".dat}\\n\";\n"
              << "report_file << \"# " << title << "\\n\\n\";"
              << "std::string col1label = \"" << col1_name << "\";\n"
              << "std::vector<std::string> labels = {" << stringVecAsString(labels, ", ") << "};\n"
