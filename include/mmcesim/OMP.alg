@@ -28,15 +28,16 @@ h::v = FUNCTION OMP Q::m y::v L::u0
     END
     support_{j} = index
     columns::m = NEW Q_{:, support_{0:j}}
-    a = \pinv(columns) @ y
+    a = \solve(columns,  y)
     r = y - columns @ a
-    IF \sum(\abs(r - r_last)) / \sum(\abs(r_last)) < 0.0001 || j >= L
+    IF \sum(\abs(r - r_last)) / \sum(\abs(r_last)) < 0.0001 || j + 1 >= L
       j = j + 1
       BREAK # accurate enough to end iteration
     ELSE
       r_last = r
     END
   END
+  # PRINT ""OMP"" \accu(\pow(\abs(r),2)) '\n'
   # prepare for the final return
   h_{support_{0:j-1}} = a
 END

@@ -93,12 +93,18 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addArma(str, "max");
         _addArma(str, "index_min");
         _addArma(str, "index_max");
+        _addArma(str, "sort_index");
         _addArma(str, "reshape");
         _addArma(str, "kron");
         _addArma(str, "find");
+        _addArma(str, "repmat");
+        _addArma(str, "resize");
+        _addArma(str, "solve");
+        boost::replace_all(str, "\\range", "arma::regspace<uvec>");
         // matrix initialization
         _addMmce(str, "zeros");
         _addMmce(str, "ones");
+        _addMmce(str, "set_size");
         // mmCEsim defined functions
         _addMmce(str, "dictionary");
         _addMmce(str, "size");

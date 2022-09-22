@@ -86,6 +86,11 @@ namespace mmce {
         return center_helper<std::string::value_type, std::string::traits_type>(str);
     }
 
+    template<typename T>
+    void set_size(T& x, unsigned size) {
+        x.set_size(size);
+    }
+
     template<typename charT, typename traits>
     std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& s, const center_helper<charT, traits>& c) {
         std::streamsize w = s.width();
@@ -151,7 +156,7 @@ namespace mmce {
 template<typename T>
 inline auto _as_uvec(const T& x) {
     if constexpr (std::is_arithmetic_v<std::remove_cv_t<std::remove_reference_t<T>>>) {
-        arma::uvec v = { x };
+        arma::uvec v = { static_cast<uword>(x) };
         return v;
     } else return x;
 }

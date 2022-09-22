@@ -153,7 +153,7 @@
 {
   alsoletter={:\\.`*},
   keywords=[1]{BRANCH,BREAK,CALC,CALL,COMMENT,CPP,ESTIMATE,INIT,MATLAB,MERGE,NEW,OCTAVE,PRINT,PYTHON,RECOVER,ELSE,ELIF,FOR,FOREVER,FUNCTION,IF,LOOP,WHILE,END,ELSE,ELIF},
-  keywords=[2]{\\abs,\\find,\\kron,\\reshape,\\size,\\zeros,\\ones,\\length,\\index_max,\\index_min,\\max,\\min,\\ismember,\\pinv,\\inv,\\sum,\\accu,},
+  keywords=[2]{\\abs,\\find,\\kron,\\reshape,\\size,\\zeros,\\ones,\\length,\\index_max,\\index_min,\\max,\\min,\\ismember,\\pinv,\\inv,\\sum,\\accu,\\set_size,\\range,\\sort_index,\\solve,\\pow},
   keywords=[3]{`ALG_NAME`,`ALG_PARAMS`,`ALG_NUM`,`BEAM.R.x`,`BEAM.R.y`,`BEAM.R`,`BEAM.T.x`,`BEAM.T.y`,`BEAM.T`,`BEAM.*`,`DICTIONARY.R`,`DICTIONARY.T`,`GRID.R.x`,`GRID.R.y`,`GRID.R`,`GRID.T.x`,`GRID.T.y`,`GRID.T`,`GRID.*`,`JOB_NUM`,`JOB_CNT`,`MEASUREMENT`,`NMSE`,`PILOT`,`SIZE.R.x`,`SIZE.R.y`,`SIZE.R`,`SIZE.T.x`,`SIZE.T.y`,`SIZE.T`,`SIZE.*`,`SNR_dB`,`SNR_LINEAR`,`VERSION`},
   keywords=[6]{version:,meta:,title:,description:,author:,email:,website:,license:,date:,comments:,physics:,frequency:,off_grid:,nodes:,id:,role:,num:,size:,beam:,grid:,beamforming:,variable:,scheme:,channels:,from:,to:,sparsity:,gains:,mode:,mean:,variance:,sounding:,variables:,received:,noise:,channel:,preamble:,estimation:,conclusion:,simulation:,backend:,metric:,jobs:,name:,test_num:,SNR:,SNR_mode:,pilot:,algorithms:,alg:,max_iter:,label:,estimated_channel:,report:,format:,plot:,table:,latex:,command:,UTF8:,appendix:,stopping_thr:,params:},
   upquote,
@@ -269,6 +269,7 @@
   \section{System Settings}
   The simulation adoptes the geometric channel model for millimeter wave (mmWave).
   
+  \vspace*{1\baselineskip}
   \begin{tabular}{cccc}%
     \toprule%
     Name & Antenna Number & Beam Number & Grid Number \\%
@@ -295,7 +296,7 @@
     mmCEsim is \textit{open source}!
     The software can be freely used and distributed under the MIT license.
     \begin{itemize}
-      \item Official website: \url{https://mmcesim.org}
+      \item Official Website: \url{https://mmcesim.org}
       \item Documentation: \url{https://mmcesim.org/doc}
       \item Tutorial: \url{https://mmcesim.org/tutorial}
       \item Web Application: \url{https://app.mmcesim.org}
