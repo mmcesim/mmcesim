@@ -162,9 +162,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (p > 0) {
                         for (unsigned i = 1; i != p; ++i) {
                             // TODO: check type if specified
-                            f << _mi(i) << ",";
+                            f << inlineCalc(_mi(i), "cpp") << ",";
                         }
-                        f << _mi(p);
+                        f << inlineCalc(_mi(p), "cpp");
                     }
                     f << ")";
                     if (_add_semicolon) f << ";";

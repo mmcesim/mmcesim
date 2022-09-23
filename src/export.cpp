@@ -248,9 +248,9 @@ void Export::_topComment() {
     if (lang == Lang::CPP) {
         _wComment() << '\n';
         _wComment() << "Compile Commands:\n";
-        _wComment() << "$ g++ " << _opt.output << " -std=c++17 -larmadillo\n";
+        _wComment() << "$ g++ " << _opt.output << " -std=c++17 -larmadillo -O3\n";
         _wComment() << "or\n";
-        _wComment() << "$ clang++ " << _opt.output << " -std=c++17 -larmadillo\n";
+        _wComment() << "$ clang++ " << _opt.output << " -std=c++17 -larmadillo -O3\n";
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
     }
     _f() << "\n";

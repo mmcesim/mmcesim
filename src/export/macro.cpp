@@ -27,6 +27,7 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
     r = std::regex_replace(r, job_nmse_re, "NMSE" + std::to_string(job_cnt));
     r = std::regex_replace(r, pilot_re, "pilot");
     r = std::regex_replace(r, snr_db_re, "SNR_dB");
+    r = std::regex_replace(r, std::regex("`CARRIERS_NUM`"), "carriers_num");
     if (_N.Tx > 0) r = std::regex_replace(r, std::regex("`SIZE.T.x`"), std::to_string(_N.Tx));
     if (_N.Ty > 0) r = std::regex_replace(r, std::regex("`SIZE.T.y`"), std::to_string(_N.Ty));
     if (_N.Rx > 0) r = std::regex_replace(r, std::regex("`SIZE.R.x`"), std::to_string(_N.Rx));
