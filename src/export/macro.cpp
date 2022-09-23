@@ -10,6 +10,7 @@
  */
 
 #include "export/macro.h"
+#include <iostream>
 
 std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const {
     std::regex job_num_re("`JOB_NUM`");
@@ -69,12 +70,14 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
         if (alg_cnt >= 0) {
             r = std::regex_replace(r, alg_name_re, this->alg_names[job_cnt][alg_cnt]);
             r = std::regex_replace(r, alg_params_re, this->alg_params[job_cnt][alg_cnt]);
-        } // else {
-        //     if (lang == "cpp") {
-        //         r = std::regex_replace(r, alg_name_re, "_macro_alg_names[" + std::to_string(alg_cnt) + "]");
-        //         r = std::regex_replace(r, alg_params_re, "_macro_alg_params[" + std::to_string(alg_cnt) + "]");
-        //     }
-        // }
+            if (alg_custom.size() > job_cnt && alg_custom[job_cnt].size() > alg_cnt) {
+                auto&& pairs = alg_custom[job_cnt][alg_cnt];
+                for (auto&& pair : pairs) {
+                    std::cout << "Replacing custom macro.\n";
+                    r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
+                }
+            }
+        }
     }
     return r;
 }

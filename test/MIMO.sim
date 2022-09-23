@@ -142,6 +142,7 @@ estimation: | # Alg test here
   COMMENT `ALG_NUM` `ALG_NAME`?`ALG_PARAMS`||`JOB_NUM`, `ALG_NUM` emm
   h = ESTIMATE Q y init=true
   RECOVER H
+  CALC `CUSTOM_MACRO`
   PRINT H "is a variable!"
   MERGE
 simulation:
@@ -172,6 +173,9 @@ simulation:
         - alg: OMP
           max_iter: auto
           label: OMP # used in report
+          macro: # custom macro
+            - name: "CUSTOM_MACRO"
+              value: replaced_custom_macro
         - alg: SBL
           max_iter: 100
           stop_thr: 0.001

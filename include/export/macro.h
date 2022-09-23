@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <utility>
 #include "utils.h"
 
 struct XY_Size {
@@ -31,8 +32,9 @@ struct XY_Size {
 struct Macro {
     unsigned job_num = 0;
     std::vector<unsigned> alg_num;
-    std::vector<std::vector<std::string>> alg_names; // ALG names separated by comma (,)
+    std::vector<std::vector<std::string>> alg_names;
     std::vector<std::vector<std::string>> alg_params;
+    std::vector<std::vector<std::vector<std::pair<std::string, std::string>>>> alg_custom;
     std::string _cascaded_channel;
     XY_Size _N, _B, _G;
 

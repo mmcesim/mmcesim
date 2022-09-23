@@ -463,6 +463,7 @@ void Export::_sounding() {
                 macro.alg_num.push_back(job_algs.size());
                 std::vector<std::string> alg_names;
                 std::vector<std::string> alg_params;
+                std::vector<std::vector<std::pair<std::string, std::string>>> alg_custom;
                 for (auto&& alg : job_algs) {
                     auto alg_name = _asStr(alg["alg"]);
                     alg_names.push_back(alg_name);
@@ -493,9 +494,21 @@ void Export::_sounding() {
                         }
                         else alg_params.push_back("");
                     }
+                    // add custom macros
+                    std::vector<std::pair<std::string, std::string>> alg_custom_;
+                    auto&& custom_macro_node = alg["macro"];
+                    if (_preCheck(custom_macro_node, DType::SEQ, false)) {
+                        for (auto&& macro_pair : custom_macro_node) {
+                            alg_custom_.push_back(
+                                { _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) }
+                            );
+                        }
+                    }
+                    alg_custom.push_back(alg_custom_);
                 }
                 macro.alg_names.push_back(alg_names);
                 macro.alg_params.push_back(alg_params);
+                macro.alg_custom.push_back(alg_custom);
             }
             _estimation(macro, job_cnt);
             _f() << "}\n";
