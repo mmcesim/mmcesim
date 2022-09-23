@@ -23,7 +23,7 @@ h::v = FUNCTION OMP Q::m y::v L::u0
   FOR "" $j != \length(y)$ $j = j + 1$
     term = \abs(Q_H @ r)
     index::u0 = NEW \index_max(term)
-    IF \ismember(index, support)
+    IF j && \ismember(index, support_{0:j-1})
       BREAK # end of the LOOP
     END
     support_{j} = index

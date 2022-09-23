@@ -119,5 +119,6 @@
         "__memory": "cpp",
         "filesystem": "cpp",
         "armadillo": "cpp"
-    }
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
