@@ -11,6 +11,7 @@
 
 #include "export/calc.h"
 #include <iostream>
+#include <exception>
 
 Calc::Calc(const std::string& str) : _str(removeSpaceCopy(str)) {}
 
@@ -262,7 +263,12 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                     }
                     std::cout << start_i << ' ' << i << ' ' << subs << '\n';
                     std::cout << str << std::endl;
-                    str.replace(start_i, i - start_i + 1, subs);
+                    try {
+                        str.replace(start_i, i - start_i + 1, subs);
+                    } catch (const std::exception& e) {
+                        // Try to diagnose Windows MSVC test error.
+                        std::cerr << "REPLACE ERROR: " << e.what() << std::endl;
+                    }
                     std::cout << "alive\n";
                 } // otherwise it might just be part of variable name
             }

@@ -310,23 +310,29 @@ void Export::_generateChannels() {
     unsigned carriers = 1;
     if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) {
         freq = _asStr(n);
-        if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
-            carriers = m.as<unsigned>();
-        }
+    }
+    if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
+        carriers = m.as<unsigned>();
     }
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
         std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
         auto&& t_node = _config["nodes"][_transmitters[0]];
         auto&& r_node = _config["nodes"][_receivers[0]];
-        // size_t Mx, My, GMx, GMy, BMx, BMy, Nx, Ny, GNx, GNy, BNx, BNy;
         auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
         auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
         _f() << "std::filesystem::create_directory(\"_data\");\n"
-             << "cx_mat " << _noise
-             << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
-             << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n"
-             << _noise << ".save(\"_data/" << _noise << ".bin\");\n"
+             << (freq == "wide" ? "cx_cube " : "cx_mat ") << _noise;
+        if (freq == "wide") {
+            _f() << " = arma::randn<cube>(" << BMx * BMy << "*" << BNx * BNy << ", " << carriers << ", "
+                 << _max_test_num
+                 << ") + 1i * arma::randn<cube>(" << BMx * BMy << "*" << BNx * BNy << ", " << carriers << ", "
+                 << _max_test_num << ");\n";
+        } else {
+            _f() << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
+                 << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n";
+        }
+        _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n"
              << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
         if (freq == "wide")
             _f() << "cx_cube " << channel_name << " = mmce::wide_channel(" << carriers << ",";
@@ -360,17 +366,27 @@ void Export::_algorithms() {
 void Export::_sounding() {
     auto&& t_node = _config["nodes"][_transmitters[0]];
     auto&& r_node = _config["nodes"][_receivers[0]];
-    // size_t Mx, My, GMx, GMy, BMx, BMy, Nx, Ny, GNx, GNy, BNx, BNy;
     auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
     auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
+    std::string freq = "narrow";
+    unsigned carriers = 1;
+    if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) {
+        freq = _asStr(n);
+    }
+    if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
+        carriers = m.as<unsigned>();
+    }
     if (lang == Lang::CPP) {
         _f() << "int main(int argc, char* argv[]) {\n"
              << "arma_rng::set_seed_random();\n"
              << "mmce::generateChannels();\n"
-             << "cx_mat " << _noise << ";\n"
+             << (freq == "wide" ? "cx_cube " : "cx_mat ") << _noise << ";\n"
              << "if (!" << _noise << ".load(\"_data/" << _noise << ".bin\", arma::arma_binary)) {\n"
              << "std::cerr << \"ERROR: Failed to load '" << _noise
              << ".bin' from '_data'.\" << std::endl; return 1;}\n";
+        if (freq == "wide") {
+            _f() << "uword carriers_num = " << carriers << ";\n";
+        }
         auto&& jobs = _config["simulation"]["jobs"];
         unsigned job_cnt = 0;
         for (auto&& job : jobs) {
@@ -442,7 +458,7 @@ void Export::_sounding() {
             for (auto&& channel : _config["channels"]) {
                 // Load channel matrices.
                 std::string ch = channel["id"].as<std::string>();
-                _f() << "cx_mat " << ch << ";\n"
+                _f() << (freq == "wide" ? "cx_cube " : "cx_mat ") << ch << ";\n"
                      << "if (!" << ch << ".load(\"_data/" << ch
                      << "\" + std::to_string(test_n) + \".bin\", arma::arma_binary)) {\n"
                      << "std::cerr << \"ERROR: Failed to load '" << ch << "\" + std::to_string(test_n) + \""
@@ -450,18 +466,34 @@ void Export::_sounding() {
             }
             // TODO: The cascaded channel is the only channel is valid only for a simple MIMO system.
             // TODO: transmit pilots!
-            _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
-                 << "cx_mat " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>() << ";"
-                 << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
-                 << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
-                 << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
-                 << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
-                 << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
-                 << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
-                 << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
-                 << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
-                 << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy 
-                 << ",(t+1)*" << BNx * BNy * BMx * BMy <<  "-1)) = _y;}\n";
+            if (freq == "wide") {
+                _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
+                     << "cx_cube " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>() << ";"
+                     << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
+                     << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
+                     << "for (uword k = 0; k != carriers_num; ++k) {"
+                     << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".slice(k).as_col();\n"
+                     << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
+                     << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
+                     << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
+                     << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
+                     << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy 
+                     << ",(t+1)*" << BNx * BNy * BMx * BMy <<  "-1), k) = _y;}}\n";
+            } else {
+                _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
+                     << "cx_mat " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>() << ";"
+                     << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
+                     << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
+                     << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
+                     << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
+                     << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
+                     << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
+                     << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
+                     << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy 
+                     << ",(t+1)*" << BNx * BNy * BMx * BMy <<  "-1)) = _y;}\n";
+            }
             Macro macro;
             macro._cascaded_channel = _cascaded_channel;
             macro.job_num = jobs.size();
