@@ -102,4 +102,79 @@ namespace mmce {
         }
         return std::sqrt((double)M * N / L) * H;
     }
+
+    /**
+     * @brief Generate Wideband Channel
+     * 
+     * @param K Number of carriers
+     * @param Mx Transmitter side x dimension.
+     * @param My Transmitter side y dimension. (1 indicating ULA, otherwise UPA)
+     * @param Nx Receiver side x dimension.
+     * @param Ny Receiver side y dimension.
+     * @param GMx Transmitter side grid x dimension.
+     * @param GMy Transmitter side grid y dimension. (1 indicating ULA, otherwise UPA)
+     * @param GNx Receiver side grid x dimension.
+     * @param GNy Receiver side grid y dimension.
+     * @param L Number of paths.
+     * @param gain_normal Channel gain as normal (true) or uniform (false).
+     * @param gain_param1 Mean for normal distribution, min for uniform distribution.
+     * @param gain_param2 Variance for normal distribution, max for uniform distribution.
+     * @param off_grid Considers off-grid.
+     * @return (cx_mat) The channel.
+     */
+    cx_cube wide_channel(uword K, uword Mx, uword My, uword Nx, uword Ny,
+        uword GMx, uword GMy, uword GNx, uword GNy, uword L,
+        bool gain_normal, double gain_param1, double gain_param2,
+        bool off_grid) {
+        const uword M = Mx * My;
+        const uword N = Nx * Ny;
+        const uword GM = GMx * GMy;
+        const uword GN = GNx * GNy;
+        const rowvec steering_Mx = steering(GMx, off_grid);
+        const rowvec steering_My = steering(GMy, off_grid);
+        const rowvec steering_Nx = steering(GNx, off_grid);
+        const rowvec steering_Ny = steering(GNy, off_grid);
+        const vec _0_Mx = linspace(0, double(Mx - 1), Mx) / Mx;
+        const vec _0_My = linspace(0, double(My - 1), My) / My;
+        const vec _0_Nx = linspace(0, double(Nx - 1), Nx) / Nx;
+        const vec _0_Ny = linspace(0, double(Ny - 1), Ny) / Ny;
+        cx_cube H(M, N, K, arma::fill::zeros);
+
+        uvec index1 = randperm_s(GMx, L);
+        uvec index2 = randperm_s(GMy, L);
+        uvec index3 = randperm_s(GNx, L);
+        uvec index4 = randperm_s(GNy, L);
+
+        for (uword k = 0; k != K; ++k) {
+            // channel gain
+            cx_vec alpha;
+            if (gain_normal) { // normal distribution
+                alpha = (randn<vec>(L) + 1i * randn<vec>(L)) * std::sqrt(0.5 * gain_param2) + gain_param1;
+            } else { // uniform distribution
+                alpha = (randu<vec>(L) + 1i * randu<vec>(L)) * std::sqrt(0.5)
+                    * (randu<vec>(L) * (gain_param2 - gain_param1) + gain_param1);
+            }
+
+            for (uword l = 0; l != L; ++l) {
+                cx_vec a;
+                if (My == 1) { // ULA
+                    a = std::sqrt(1.0 / Mx) * exp(-1i * _2pi * _0_Mx * steering_Mx[index1[l]]);
+                } else { // UPA
+                    const cx_vec a1 = std::sqrt(1.0 / Mx) * exp(-1i * _2pi * _0_Mx * steering_Mx[index1[l]]);
+                    const cx_vec a2 = std::sqrt(1.0 / My) * exp(-1i * _2pi * _0_My * steering_My[index2[l]]);
+                    a = kron(a1, a2);
+                }
+                cx_vec b;
+                if (Ny == 1) { // ULA
+                    b = std::sqrt(1.0 / Nx) * exp(-1i * _2pi * _0_Nx * steering_Nx[index3[l]]);
+                } else { // UPA
+                    const cx_vec b1 = std::sqrt(1.0 / Nx) * exp(-1i * _2pi * _0_Nx * steering_Nx[index3[l]]);
+                    const cx_vec b2 = std::sqrt(1.0 / Ny) * exp(-1i * _2pi * _0_Ny * steering_Ny[index4[l]]);
+                    b = kron(b1, b2);
+                }
+                H.slice(k) += alpha[l] * a * b.t();
+            }
+        }
+        return std::sqrt((double)M * N / L) * H;
+    }
 }

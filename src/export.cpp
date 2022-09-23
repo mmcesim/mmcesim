@@ -306,6 +306,14 @@ void Export::_generateChannels() {
     }
     std::string sparsity = _asStr(_config["channels"][0]["sparsity"]);
     std::string channel_name = _asStr(_config["channels"][0]["id"]);
+    std::string freq = "narrow";
+    unsigned carriers = 1;
+    if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) {
+        freq = _asStr(n);
+        if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
+            carriers = m.as<unsigned>();
+        }
+    }
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
         std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
@@ -319,9 +327,11 @@ void Export::_generateChannels() {
              << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
              << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n"
              << _noise << ".save(\"_data/" << _noise << ".bin\");\n"
-             << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n"
-             << "cx_mat " << channel_name << " = mmce::channel("
-             << Mx << "," << My << ","
+             << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
+        if (freq == "wide")
+            _f() << "cx_cube " << channel_name << " = mmce::wide_channel(" << carriers << ",";
+        else _f() << "cx_mat " << channel_name << " = mmce::channel(";
+        _f() << Mx << "," << My << ","
              << Nx << "," << Ny << ","
              << GMx << "," << GMy << ","
              << GNx << "," << GNy << ","

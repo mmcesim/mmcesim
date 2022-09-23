@@ -16,7 +16,8 @@ meta: # document meta data
   date: "2022-07-10"
   comments: This is an uplink channel.
 physics:
-  frequency: narrow # assume narrow band
+  frequency: wide # assume narrow band
+  carriers: 16 # number of carriers
   off_grid: false # do not consider off-grid problem
 nodes:
   - id: BS # this should be unique
