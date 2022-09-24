@@ -269,7 +269,7 @@
   \def\ST@tempi{#9}
   \simsystem@continued
 }
-\newcommand{\simsystem@continued}[5]{%
+\newcommand{\simsystem@continued}[7]{%
   \tableofcontents
   \section{System Settings}
   The simulation adoptes the geometric channel model for millimeter wave (mmWave).
@@ -287,7 +287,12 @@
   \begin{itemize}
     \item Channel Sparsity: $#4$;
     \item Off Grid Effect: #5;
-    \item Bandwidth: Narrowband.
+    \ifx1#6%
+      \item Bandwidth: Wideband;
+      \item Carriers: #7.
+    \else
+      \item Bandwidth: Narrowband;
+    \fi%
   \end{itemize}
 }
 

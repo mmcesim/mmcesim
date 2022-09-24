@@ -613,6 +613,15 @@ void Export::_reporting() {
     if (_preCheck(_config["meta"]["author"], DType::STRING, false)) {
         sim_author = _asStr(_config["meta"]["author"]);
     }
+    std::string freq = "narrow";
+    unsigned carriers = 1;
+    if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) {
+        freq = _asStr(n);
+    }
+    if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
+        carriers = m.as<unsigned>();
+    }
+
     std::time_t curr_time = std::time(nullptr);
     std::tm     curr_tm   = *std::localtime(&curr_time);
     const char* time_format = "%F %T (UTC %z)";
@@ -672,11 +681,14 @@ void Export::_reporting() {
          << GMx << "x" << GMy << ", Beam: " << BMx << "x" << BMy << "\\n\";"
          << "report_file << \"  Channel Sparsity: " << channel_sparsity << "\\n\";"
          << "report_file << \"  Off Grid: " << off_grid << "\\n\";"
-         << "report_file << \"  Bandwidth: Narrowband\\n\\n\";"
+         << "report_file << \"  Bandwidth: " << (freq != "narrow" ? "Wide" : "Narrow") << "band\\n\";";
+    if (freq != "narrow") _f() << "report_file << \"   Carriers: " << carriers << "\\n\";";
+    _f() << "report_file << \"\\n\";"
          << "tex_file << \"\\\\simsystem{"
          << Nx << "}{" << Ny << "}{" << BNx << "}{" << BNy << "}{" << GNx << "}{" << GNy << "}{"
          << Mx << "}{" << My << "}{" << BMx << "}{" << BMy << "}{" << GMx << "}{" << GMy << "}{"
-         << channel_sparsity << "}{" << off_grid << "}\\n\";";
+         << channel_sparsity << "}{" << off_grid << "}{"
+         << (freq != "narrow" ? "1" : "0") << "}{" << carriers <<"}\\n\";";
     for (unsigned job_cnt = 0; job_cnt != jobs.size(); ++job_cnt) {
         auto&& job = jobs[job_cnt];
         auto&& algs = job["algorithms"];
