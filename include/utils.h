@@ -74,6 +74,17 @@ T strAs(const std::string& s) {
     return t;
 }
 
+/**
+ * @brief Check if the string is an unsigned integer.
+ * 
+ * @param s the string
+ * @note Ref: https://stackoverflow.com/a/4654718/15080514
+ */
+static inline bool isUInt(const std::string& s) {
+    return !s.empty() && std::find_if(s.begin(), 
+        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
+
 // If the string is quoted with a character
 static inline bool isQuoted(const std::string& s, char c = '"') {
     if (s.length() < 2) return false;

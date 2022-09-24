@@ -20,23 +20,35 @@ Type Type_Track::operator[](const std::string& var) {
 }
 
 void Type_Track::operator++(int) {
-    _blocks.push(_types.size());
+    _scopes.push(_types.size());
+#ifdef _TYPE_TRACK_PRINT_INFO
+    std::cout << "[Type Track] Scope starts with size " << size() << std::endl;
+#endif
 }
 
 void Type_Track::operator--(int) {
-    if (_blocks.empty()) {
+#ifdef _TYPE_TRACK_PRINT_INFO
+    std::cout << "[Type Track] Scope ends with size " << size() << std::endl;
+#endif
+    if (_scopes.empty()) {
         throw std::out_of_range("-- operator in Type_Track out of range.");
     } else {
-        // end of a block, erase all elements within the block
-        _types.erase(_types.begin() + _blocks.top());
-        _blocks.pop();
+        // end of a scope, erase all elements within the scope
+        _types.erase(_types.begin() + _scopes.top(), _types.end());
+        _scopes.pop();
     }
 }
 
 void Type_Track::push(const std::string& var, const Type& type) {
+#ifdef _TYPE_TRACK_PRINT_INFO
+    std::cout << "[Type Track] Push '" << var << "' of type '" << type.string() << "'" << std::endl;
+#endif
     _types.push_back( { var, type } );
 }
 
 void Type_Track::push(const std::string& var, const std::string& type) {
+#ifdef _TYPE_TRACK_PRINT_INFO
+    std::cout << "[Type Track] Push '" << var << "' of type " << type << std::endl;
+#endif
     _types.push_back( { var, Type(type) } );
 }

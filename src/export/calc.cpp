@@ -13,6 +13,8 @@
 #include <iostream>
 #include <exception>
 
+Type_Track type_track; // defined in export/type_track_global.h
+
 Calc::Calc(const std::string& str) : _str(removeSpaceCopy(str)) {}
 
 std::string Calc::as(std::string lang, std::string* msg) const {
@@ -21,7 +23,7 @@ std::string Calc::as(std::string lang, std::string* msg) const {
     if (_changeOperator(str, lang, msg) &&
         _changeFunction(str, lang, msg) &&
         _changeSuperScript(str, lang, msg) &&
-        _changeSubScript(str, lang, msg) &&
+        _changeSubScript(str, lang, nullptr, msg) &&
         _changeParen(str, lang, msg)) {}
     return str;
 }
@@ -156,7 +158,7 @@ bool Calc::_changeSuperScript(std::string& str, std::string lang, std::string* m
     return true;
 }
 
-bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg) const {
+bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::string* msg) const {
     boost::replace_all(str, "_{}", ""); // meaning less contents
     boost::replace_all(str, "_{:}", ""); // meaning less contents
     boost::replace_all(str, "_{:,:}", ""); // meaning less contents
@@ -182,6 +184,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                     std::string dims[3];
                     bool starts_from_1[3] = { false, false, false };
                     int dim = 0;
+                    int result_dim = 0;
                     int l_bracket = 0;
                     while (i < str.size()) {
                         char ch = str[i];
@@ -210,55 +213,107 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                         std::cout << "Iter " << i << '\n';
                     }
                     std::string subs;
-                    auto parseDim = [&] (int j, bool after = true) {
+                    std::string subs_buf;
+                    auto parseDim = [&] (int j) -> int8_t {
+                        int8_t d_buf = 0;
                         size_t colon_pos = dims[j].find(':');
                         size_t bracket_pos = dims[j].find('{');
                         bool has_colon = colon_pos != std::string::npos;
                         bool has_bracket = bracket_pos != std::string::npos;
                         // size_t question_pos = dims[j].find('?');
                         // bool has_question = question_pos != std::string::npos;
+                        subs_buf.clear();
                         if (has_bracket) {
                             std::string dim_with_sub = dims[j];
-                            _changeSubScript(dim_with_sub, lang, msg);
-                            subs += dim_with_sub;
+                            _changeSubScript(dim_with_sub, lang, &d_buf, msg);
+                            subs_buf += dim_with_sub;
                         } else {
                             if (has_colon) {
+                                d_buf = 1;
                                 if (dims[j] == ":") {
                                     LANG_CPP
-                                        subs += "arma::span::all";
+                                        subs_buf += "arma::span::all";
                                     LANG_PY
                                     LANG_M
-                                        subs += ":";
+                                        subs_buf += ":";
                                     END_LANG
                                 } else {
-                                    subs += "arma::span(" + dims[j].substr(0, colon_pos) + "," +
-                                            dims[j].substr(colon_pos + 1) + ")";
+                                    subs_buf += "arma::span(" + dims[j].substr(0, colon_pos) + "," +
+                                                dims[j].substr(colon_pos + 1) + ")";
                                 }
                             } else {
-                                subs += dims[j];
+                                subs_buf += dims[j];
+                                if (isUInt(dims[j])) d_buf = 0;
+                                else {
+                                    Type type = type_track[dims[j]];
+                                    if (type.isUnknown()) d_buf = -1;
+                                    else d_buf = type.dim();
+                                }
+                                std::cout << "Type_Track: " << dims[j] << ", dim=" << int(d_buf)
+                                          << ", Size: " << type_track.size() << std::endl;
                             }
                         }
-                        if (after) {
-                            if (j != dim) subs += ',';
-                            else subs += ')';
-                        }
+                        return d_buf;
                     };
                     if (dim == 1 && dims[0] == ":") {
-                        subs = ".cols(_as_uvec(";
-                        parseDim(1);
-                        subs += ")";
+                        if (isUInt(dims[1])) {
+                            subs = ".col(";
+                            parseDim(1);
+                            subs += subs_buf + ")";
+                            result_dim = 1;
+                        } else {
+                            if (auto pd = parseDim(1); pd == 0) {
+                                subs = ".col(" + subs_buf + ")";
+                                result_dim = 1;
+                            } else if (pd == -1) {
+                                subs = ".cols(_as_uvec(" + subs_buf + "))";
+                                result_dim = 2;
+                            } else {
+                                subs = ".cols(" + subs_buf + ")";
+                                result_dim = 2;
+                            }
+                        }
                     } else if (dim == 1 && dims[1] == ":") {
-                        subs = ".rows(_as_uvec(";
-                        parseDim(0, false);
-                        subs += "))";
+                        if (isUInt(dims[0])) {
+                            subs = ".row(";
+                            parseDim(0);
+                            subs += subs_buf + ")";
+                            result_dim = 1;
+                        } else {
+                            if (auto pd = parseDim(0); pd == 0) {
+                                subs += ".row(" + subs_buf + ")";
+                                result_dim = 1;
+                            } else if (pd == -1) {
+                                subs = ".rows(_as_uvec(" + subs_buf + "))";
+                                result_dim = 2;
+                            } else {
+                                subs = ".rows(" + subs_buf + ")";
+                                result_dim = 2;
+                            }
+                        }
                     } else if (dim == 2 && dims[0] == ":" && dims[1] == ":") {
-                        subs = ".slices(_as_uvec(";
-                        parseDim(2);
-                        subs += ")";
+                        if (isUInt(dims[2])) {
+                            subs = ".slice(";
+                            parseDim(2);
+                            subs += subs_buf + ")";
+                            result_dim = 2;
+                        } else {
+                            if (auto pd = parseDim(2); pd == 0) {
+                                subs = ".slice(" + subs_buf + ")";
+                                result_dim = 2;
+                            } else if (pd == -1) {
+                                subs = ".slices(_as_uvec(" + subs_buf + "))";
+                                result_dim = 3;
+                            } else {
+                                subs = ".slices(" + subs_buf + ")";
+                                result_dim = 3;
+                            }
+                        }
                     } else {
                         subs = "(";
                         for (int j = 0; j <= dim; ++j) {
-                            parseDim(j);
+                            if (parseDim(j) > 0) ++result_dim;
+                            subs += subs_buf + (j == dim ? ")" : ",");
                         }
                     }
                     std::cout << start_i << ' ' << i << ' ' << subs << '\n';
@@ -270,6 +325,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, std::string* msg
                         std::cerr << "REPLACE ERROR: " << e.what() << std::endl;
                     }
                     std::cout << "alive\n";
+                    if (d) *d = result_dim;
                 } // otherwise it might just be part of variable name
             }
         }

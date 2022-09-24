@@ -69,7 +69,7 @@ estimation: |
     lambda_hat = ESTIMATE Q Y_{:,k}
     H_hat_{:,:,k} = VNr @ \reshape(lambda_hat, `GRID.R`, `GRID.T`) @ VNt^H
   END
-  RECOVER VNr @ H_hat
+  RECOVER H_hat
   MERGE
 conclusion: |
   i::u0 = LOOP 0 \length(`NMSE`)

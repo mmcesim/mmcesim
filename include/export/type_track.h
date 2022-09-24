@@ -19,6 +19,8 @@
 #include <stdexcept>
 #include "export/type.h"
 
+#define _TYPE_TRACK_PRINT_INFO
+
 using Type_Pair = std::pair<std::string, Type>;
 
 class Type_Track {
@@ -33,9 +35,21 @@ public:
 
     void push(const std::string& var, const std::string& type);
 
+    size_t size() const noexcept;
+
+    bool empty() const noexcept;
+
 private:
     std::vector<Type_Pair> _types;
-    std::stack<size_t> _blocks; // the index of the starting block
+    std::stack<size_t> _scopes; // the index of the starting scope
 };
+
+inline size_t Type_Track::size() const noexcept {
+    return _types.size();
+}
+
+inline bool Type_Track::empty() const noexcept {
+    return _types.empty();
+}
 
 #endif

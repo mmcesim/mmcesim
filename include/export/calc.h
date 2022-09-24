@@ -14,6 +14,8 @@
 
 #include <string>
 #include <boost/algorithm/string/replace.hpp>
+#include <tuple>
+#include "export/type_track_global.h"
 #include "utils.h"
 
 class Calc {
@@ -39,7 +41,7 @@ private:
 
     bool _changeSuperScript(std::string& str, std::string lang, std::string* msg = nullptr) const;
 
-    bool _changeSubScript(std::string& str, std::string lang, std::string* msg = nullptr) const;
+    bool _changeSubScript(std::string& str, std::string lang, int8_t* d = nullptr, std::string* msg = nullptr) const;
 
     bool _changeParen(std::string& str, std::string lang, std::string* msg = nullptr) const;
 

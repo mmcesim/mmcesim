@@ -95,6 +95,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     // f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
                     f << "{";
                 END_LANG
+                type_track++;
             CASE ("BREAK")
                 f << "break";
                 LANG_CPP
@@ -273,6 +274,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                         << inlineCalc(_ms("dim2"), "cpp") << ", "
                                         << inlineCalc(_ms("dim3"), "cpp") << ")";
                                 END_LANG
+                                type_track.push(line.returns(0).name, type);
                             } else {
                                 // dim: 2 (a matrix)
                                 Type type = getReturnType('2');
@@ -281,6 +283,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     f << "arma::" << fill << '(' << inlineCalc(_ms("dim1"), "cpp")
                                     << ", " << inlineCalc(_ms("dim2"), "cpp") << ")";
                                 END_LANG
+                                type_track.push(line.returns(0).name, type);
                             }
                         } else {
                             // dim: 1 (a vector)
@@ -292,16 +295,19 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     // the user may only specify one dimension.
                                     // But it should be understood as a matrix now.
                                     f << "arma::" << fill << "(1, " << inlineCalc(_ms("dim1"), "cpp") << ")";
-                                } else if (Type type = s; type.dim() == 0) {
+                                    type_track.push(line.returns(0).name, type);
+                                } else if (Type type_ = s; type_.dim() == 0) {
                                     // scalar assigning can just use the 
                                     if (line.hasKey("scale")) {
                                         f << inlineCalc(_ms("scale"), "cpp") << "";
                                     } else {
                                         f << inlineCalc(_ms("dim1"), "cpp") << "";
                                     }
+                                    type_track.push(line.returns(0).name, type_);
                                 } else {
                                     f << "arma::" << fill << '('
                                       << inlineCalc(_ms("dim1"), "cpp") << ")";
+                                    type_track.push(line.returns(0).name, type);
                                 }
                             END_LANG
                         }
@@ -311,6 +317,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         LANG_CPP
                             f << type.string() << " " << line.returns(0).name;
                         END_LANG
+                        type_track.push(line.returns(0).name, type);
                     }
                     LANG_CPP
                         if (_add_semicolon) f << ";";
@@ -328,6 +335,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "}";
                 END_LANG
+                try {
+                    type_track--;
+                } catch (const std::out_of_range& e) {
+                    std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
+                              << ": " << e.what() << std::endl; 
+                }
             CASE ("NEW")
                 std::string msg;
                 std::string out;
@@ -342,6 +355,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                     auto&& type = line.returns(0).type;
                                     f << (type.empty() ? "auto " : static_cast<Type>(type).string() + " ")
                                       << line.returns(0).name;
+                                    type_track.push(line.returns(0).name, type);
                                 } else {
                                     // TODO: multiple return values
                                 }
@@ -385,6 +399,13 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_CPP
                     f << "} else {";
                 END_LANG
+                try {
+                    type_track--;
+                } catch (const std::out_of_range& e) {
+                    std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
+                              << ": " << e.what() << std::endl; 
+                }
+                type_track++;
             CASE ("ELIF")
                 Keys keys { "cond" };
                 APPLY_KEYS("ELIF");
@@ -398,6 +419,13 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                     f << ") {";
                 END_LANG
+                try {
+                    type_track--;
+                } catch (const std::out_of_range& e) {
+                    std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
+                              << ": " << e.what() << std::endl; 
+                }
+                type_track++;
             CASE ("FOR")
                 Keys keys { "init", "cond", "oper" };
                 APPLY_KEYS("FOR");
@@ -424,12 +452,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                     f << ") {";
                 END_LANG
+                type_track++;
                 ++indent_cnt;
                 _contents_at_end.push("");
             CASE ("FOREVER")
                 LANG_CPP
                     f << "while(1) {";
                 END_LANG
+                type_track++;
                 ++indent_cnt;
                 _contents_at_end.push("");
             CASE ("FUNCTION")
@@ -473,6 +503,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                     _contents_at_end.push("return " + line.returns(0).name + ";");
                 END_LANG
+                type_track++;
                 ++indent_cnt;
             CASE ("IF")
                 Keys keys { "cond" };
@@ -487,9 +518,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                     f << ") {";
                 END_LANG
+                type_track++;
                 ++indent_cnt;
                 _contents_at_end.push("");
             CASE ("LOOP")
+                type_track++;
                 Keys keys { "begin", "end", "step", "from", "to" };
                 APPLY_KEYS("LOOP");
                 LANG_CPP
@@ -499,13 +532,16 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         if (auto&& s = line.returns(0).type; !s.empty()) {
                             Type iter_type = s;
                             f << iter_type.string() << ' ';
+                            type_track.push(line.returns(0).name, iter_type);
                         } else {
                             f << "auto ";
+                            type_track.push(line.returns(0).name, "u0");
                         }
                         var_name = line.returns(0).name;
                         f << var_name;
                     } else {
                         f << "auto i";
+                        type_track.push("i", "u0");
                     }
                     f << "=";
                     std::string step;
@@ -553,6 +589,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     }
                     f << ") {";
                 END_LANG
+                type_track++;
                 ++indent_cnt;
                 _contents_at_end.push("");
             // function is end
@@ -571,6 +608,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_PY
                 LANG_M f << INDENT << "end";
                 END_LANG
+                try {
+                    type_track--;
+                } catch (const std::out_of_range& e) {
+                    std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
+                              << ": " << e.what() << std::endl; 
+                }
             DEFAULT
                 // if (_add_semicolon) f << ";";
         END_SWITCH
@@ -586,6 +629,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             LANG_CPP
                 f << "}";
             END_LANG
+            try {
+                type_track--;
+            } catch (const std::out_of_range& e) {
+                std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
+                          << ": " << e.what() << std::endl; 
+            }
         }
     }
     return true;

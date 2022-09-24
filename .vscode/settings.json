@@ -118,7 +118,8 @@
         "*.mmcesim-cpp": "cpp",
         "__memory": "cpp",
         "filesystem": "cpp",
-        "armadillo": "cpp"
+        "armadillo": "cpp",
+        "__functional_base_03": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
