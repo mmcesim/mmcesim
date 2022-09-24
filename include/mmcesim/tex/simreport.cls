@@ -165,6 +165,7 @@
 }
 
 \RequirePackage{pgfplotstable}
+\pgfplotsset{compat=newest}
 \RequirePackage{booktabs}
 \pgfplotstableset{
   every head row/.style={before row=\toprule, after row=\midrule},
@@ -203,23 +204,27 @@
     \pgfplotstableread{#1}{\table}%
     \pgfplotstablegetcolsof{#1}%
     \pgfmathtruncatemacro\numberofcols{\pgfplotsretval-1}%
-    \pgfplotstablegetcolumnnamebyindex{0}\of{\table}\to{\colzeroname}%
-    \begin{axis}[%
-      width=.65\linewidth,%
-      legend pos=outer north east,%
-      enlargelimits=false,%
-      xlabel=\colzeroname,%
-      ylabel={NMSE [dB]},%
-      cycle list name=simtools,%
-      grid=both,%
-      ticklabel style={/pgf/number format/.cd, fixed, fixed zerofill=false}%
-    ]%
-      \pgfplotsinvokeforeach{1,...,\numberofcols}{%
-        \pgfplotstablegetcolumnnamebyindex{##1}\of{\table}\to{\colname}%
-        \addplot table [y index=##1] {#1};%
-        \addlegendentryexpanded{\colname}%
-      }%
-    \end{axis}%
+    \pgfplotstablegetrowsof{#1}%
+    \pgfmathtruncatemacro\numberofrows{\pgfplotsretval-1}%
+    \ifnum\numberofrows>2% only plot the table if data has more than 1 row
+      \pgfplotstablegetcolumnnamebyindex{0}\of{\table}\to{\colzeroname}%
+      \begin{axis}[%
+        width=.65\linewidth,%
+        legend pos=outer north east,%
+        enlargelimits=false,%
+        xlabel=\colzeroname,%
+        ylabel={NMSE [dB]},%
+        cycle list name=simtools,%
+        grid=both,%
+        ticklabel style={/pgf/number format/.cd, fixed, fixed zerofill=false}%
+      ]%
+        \pgfplotsinvokeforeach{1,...,\numberofcols}{%
+          \pgfplotstablegetcolumnnamebyindex{##1}\of{\table}\to{\colname}%
+          \addplot table [y index=##1] {#1};%
+          \addlegendentryexpanded{\colname}%
+        }%
+      \end{axis}%
+    \fi%
   \end{tikzpicture}%
 }
 

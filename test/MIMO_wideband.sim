@@ -72,10 +72,10 @@ estimation: |
   RECOVER H_hat
   MERGE
 conclusion: |
-  i::u0 = LOOP 0 \length(`NMSE`)
-    PRINT `NMSE`_{i} '\n'
-  END
-  PRINT '\n'
+  # i::u0 = LOOP 0 \length(`NMSE`)
+  #   PRINT `NMSE`_{i} '\n'
+  # END
+  # PRINT '\n'
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
@@ -126,7 +126,7 @@ simulation:
           max_iter: 10
           label: OMP Iter 10 # used in report
   report:
-    name: MIMO_OMP_Report
+    name: MIMO_OMP_Report_Wideband
     format: [pdf, latex] # both compiled PDF and tex files
     plot: true # plot data
     table: false # do not print table

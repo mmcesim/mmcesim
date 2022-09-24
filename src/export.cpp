@@ -474,7 +474,7 @@ void Export::_sounding() {
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
                      << "for (uword k = 0; k != carriers_num; ++k) {"
                      << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".slice(k).as_col();\n"
-                     << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
+                     << "cx_vec this_noise = " << _noise << ".slice(test_n).col(k);\n"
                      << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
                      << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
                      << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
