@@ -15,6 +15,8 @@
 #include <vector>
 #include <stack>
 #include <utility>
+#include <iostream>
+#include <stdexcept>
 #include "export/type.h"
 
 using Type_Pair = std::pair<std::string, Type>;
