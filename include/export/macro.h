@@ -35,6 +35,8 @@ struct Macro {
     std::vector<std::vector<std::string>> alg_names;
     std::vector<std::vector<std::string>> alg_params;
     std::vector<std::vector<std::vector<std::pair<std::string, std::string>>>> alg_custom;
+    std::vector<std::pair<std::string, std::string>> custom;
+    std::vector<std::pair<std::string, std::string>> custom_in_alg;
     std::string _cascaded_channel;
     XY_Size _N, _B, _G;
 

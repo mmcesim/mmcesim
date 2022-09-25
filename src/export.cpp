@@ -353,12 +353,47 @@ void Export::_generateChannels() {
 
 void Export::_algorithms() {
     _loadALG();
+    // prepare macros
+    auto&& t_node = _config["nodes"][_transmitters[0]];
+    auto&& r_node = _config["nodes"][_receivers[0]];
+    auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
+    auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
+    std::string freq = "narrow";
+    unsigned carriers = 1;
+    if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) {
+        freq = _asStr(n);
+    }
+    if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
+        carriers = m.as<unsigned>();
+    }
+    auto&& jobs = _config["simulation"]["jobs"];
+    Macro macro;
+    macro._cascaded_channel = _cascaded_channel;
+    macro.job_num = jobs.size();
+    macro._N = { Nx, Ny, Mx, My };
+    macro._B = { BNx, BNy, BMx, BMy };
+    macro._G = { GNx, GNy, GMx, GMy };
+    auto&& common_custom_macro_node = _config["macro"];
+    if (_preCheck(common_custom_macro_node, DType::SEQ, false)) {
+        for (auto&& macro_pair : common_custom_macro_node) {
+            bool in_alg = false;
+            auto&& in_alg_node = macro_pair["in_alg"];
+            if (_preCheck(in_alg_node, DType::BOOL, false)) {
+                in_alg = in_alg_node.as<bool>();
+            }
+            if (!in_alg) {
+                macro.custom.push_back(
+                    { _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) }
+                );
+            }
+        }
+    }
     // load preamble
     if (_preCheck(_config["preamble"], DType::STRING, false)) {
         std::string preamble_str = _asStr(_config["preamble"]);
         trim(preamble_str);
         std::cout << "Preamble Text:\n" << preamble_str << "\n";
-        Alg alg(preamble_str);
+        Alg alg(preamble_str, macro);
         alg.write(_f(), _langStr());
     }
 }
@@ -547,6 +582,25 @@ void Export::_sounding() {
                         }
                     }
                     alg_custom.push_back(alg_custom_);
+                }
+                auto&& common_custom_macro_node = _config["macro"];
+                if (_preCheck(common_custom_macro_node, DType::SEQ, false)) {
+                    for (auto&& macro_pair : common_custom_macro_node) {
+                        bool in_alg = false;
+                        auto&& in_alg_node = macro_pair["in_alg"];
+                        if (_preCheck(in_alg_node, DType::BOOL, false)) {
+                            in_alg = in_alg_node.as<bool>();
+                        }
+                        if (in_alg) {
+                            macro.custom_in_alg.push_back(
+                                { _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) }
+                            );
+                        } else {
+                            macro.custom.push_back(
+                                { _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) }
+                            );
+                        }
+                    }
                 }
                 macro.alg_names.push_back(alg_names);
                 macro.alg_params.push_back(alg_params);

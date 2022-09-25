@@ -37,7 +37,6 @@ h::v = FUNCTION OMP Q::m y::v L::u0
       r_last = r
     END
   END
-  # PRINT ""OMP"" \accu(\pow(\abs(r),2)) '\n'
   # prepare for the final return
   h_{support_{0:j-1}} = a
 END

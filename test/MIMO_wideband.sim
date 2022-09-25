@@ -51,8 +51,14 @@ sounding:
     received: "Y" # received signal vector
     noise: "noise" # received noise vector
     channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
+macro:
+  - name: OFDM_ANGLE_ESTIMATE_NUM
+    value: 4
+    in_alg: true
+  - name: FOO
+    value: fooo
 preamble: |
-  COMMENT Here starts the preamble.
+  COMMENT Here starts the preamble. `FOO`
 estimation: |
   VNt::m = NEW `DICTIONARY.T`
   VNr::m = NEW `DICTIONARY.R`
@@ -65,6 +71,7 @@ estimation: |
     Q_{i*`BEAM.*`:(i+1)*`BEAM.*`-1,:} = \kron(F_t^T, W_t^H) @ \kron(VNt^*, VNr) # the sensing matrix
   END
   BRANCH
+  COMMENT Hello! `OFDM_ANGLE_ESTIMATE_NUM`
   k::u0 = LOOP 0 `CARRIERS_NUM`
     lambda_hat = ESTIMATE Q Y_{:,k}
     H_hat_{:,:,k} = VNr @ \reshape(lambda_hat, `GRID.R`, `GRID.T`) @ VNt^H
@@ -89,8 +96,10 @@ simulation:
       algorithms: # compare different languages
         - alg: OMP
           max_iter: 5
+          macro:
+            - name: OFDM_ANGLE_ESTIMATE_NUM
+              value: 8
           label: OMP # used in report
-          estimated_channel: H_hat_OMP # variable name for the estimated channel
     - name: NMSE v.s. pilot
       test_num: 20
       SNR: 0

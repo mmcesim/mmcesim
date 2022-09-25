@@ -74,11 +74,19 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
             if (alg_custom.size() > job_cnt && alg_custom[job_cnt].size() > alg_cnt) {
                 auto&& pairs = alg_custom[job_cnt][alg_cnt];
                 for (auto&& pair : pairs) {
-                    std::cout << "Replacing custom macro.\n";
+                    std::cout << "Replacing alg custom macro.\n";
                     r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
                 }
             }
+            for (auto&& pair : custom_in_alg) {
+                std::cout << "Replacing user's in_alg custom macro.\n";
+                r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
+            }
         }
+    }
+    for (auto&& pair : custom) {
+        std::cout << "Replacing user's custom macro.\n";
+        r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
     }
     return r;
 }
