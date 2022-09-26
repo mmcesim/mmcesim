@@ -108,6 +108,7 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
         _addMmce(str, "zeros");
         _addMmce(str, "ones");
         _addMmce(str, "set_size");
+        boost::replace_all(str, "\\vec", "arma::vectorise");
         // mmCEsim defined functions
         _addMmce(str, "dictionary");
         _addMmce(str, "size");

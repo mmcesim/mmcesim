@@ -28,7 +28,7 @@ h::v = FUNCTION OMP Q::m y::v L::u0
     END
     support_{j} = index
     columns::m = NEW Q_{:, support_{0:j}}
-    a = \solve(columns,  y)
+    a = \solve(columns, y)
     r = y - columns @ a
     IF \sum(\abs(r - r_last)) / \sum(\abs(r_last)) < 0.0001 || j + 1 >= L
       j = j + 1

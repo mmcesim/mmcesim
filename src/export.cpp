@@ -837,6 +837,7 @@ void Export::_ending() {
 bool Export::_loadALG() {
     if (auto&& jobs = _config["simulation"]["jobs"]; !_preCheck(jobs, DType::SEQ)) return false;
     else {
+        // algorithms in simulation jobs
         std::vector<std::string> algs;
         for (auto&& job : jobs) {
             auto&& job_algs = job["algorithms"];
@@ -845,6 +846,50 @@ bool Export::_loadALG() {
                 algs.push_back(_asStr(job_alg["alg"]));
             }
         }
+        // functions with function CALL
+        auto&& estimation_node = _config["estimation"];
+        auto&& preamble_node = _config["preamble"];
+        auto&& conclusion_node = _config["conclusion"];
+        auto&& appendix_node = _config["appendix"];
+        std::smatch sm;
+        // Here have to find the match containing the word CALL and the space after it
+        // because std::regex does not support lookbehind.
+        // In my VS Code extension, I define the syntax as (?<=CALL\s+)(\w+)
+        std::regex r(R"(CALL\s+\w+)");
+        std::cout << "starting regex search\n";
+        if (_preCheck(estimation_node, DType::STRING, false)) {
+            std::string estimation_str = _asStr(estimation_node);
+            while(std::regex_search(estimation_str, sm, r)) {
+                algs.push_back(trim_copy(sm.str().substr(4)));
+                estimation_str = sm.suffix();
+                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+            }
+        }
+        if (_preCheck(preamble_node, DType::STRING, false)) {
+            std::string preamble_str = _asStr(preamble_node);
+            while(std::regex_search(preamble_str, sm, r)) {
+                algs.push_back(trim_copy(sm.str().substr(4)));
+                preamble_str = sm.suffix();
+                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+            }
+        }
+        if (_preCheck(conclusion_node, DType::STRING, false)) {
+            std::string conclusion_str = _asStr(conclusion_node);
+            while(std::regex_search(conclusion_str, sm, r)) {
+                algs.push_back(trim_copy(sm.str().substr(4)));
+                conclusion_str = sm.suffix();
+                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+            }
+        }
+        if (_preCheck(appendix_node, DType::STRING, false)) {
+            std::string appendix_str = _asStr(appendix_node);
+            while(std::regex_search(appendix_str, sm, r)) {
+                algs.push_back(trim_copy(sm.str().substr(4)));
+                appendix_str = sm.suffix();
+                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+            }
+        }
+        std::cout << "Finished adding CALL with size " << algs.size() << "\n";
         std::sort(algs.begin(), algs.end());
         algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
         for (auto&& alg : algs) {

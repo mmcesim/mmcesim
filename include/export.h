@@ -21,6 +21,7 @@
 #include <tuple>
 #include <algorithm>
 #include <sstream>
+#include <regex>
 #include <boost/algorithm/string.hpp>
 #include "export/keywords.h"
 #include "export/alg.h"
