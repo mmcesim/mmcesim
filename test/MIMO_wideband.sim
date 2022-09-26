@@ -1,13 +1,26 @@
-# MIMO_real.sim
-# Basic mmWave MIMO model
+# MIMO_wideband.sim
+# Wideband (OFDM) mmWave Channel Estimation with OMP
 # Author: Wuqiong Zhao
-# Date: 2022-09-16
+# Date: 2022-09-26
 
 version: 0.1.0 # the targeted mmCEsim version
 meta: # document meta data
-  title: mmWave MIMO model
+  title: OFDM mmWave Channel Estimation with OMP
   description:
-    Simple Functional Test with OMP
+    This is a simple simulation of millimeter wave (mmWave)
+    channel estimation in wideband assisted by OFDM
+    with orthogonal matching pursuit (OMP) algorithm.
+    The main idea of OFDM mmWave channel estimation
+    is the shared angle of arrival (AoA) and angle of departure
+    (AoD). However, in wideband mmWave MIMO systems,
+    the beam squint effect cannot be neglected. For simplicity,
+    this effect is not considered in this simulation.
+    The number in the bracket after OMP is the number of
+    carriers used to estimate the AoA and AoD (i.e. non-zero
+    elements in the beam domain). The R suffix means
+    re-estimating the carriers used to estimate the AoA
+    and AoD using least square (LS)
+    after the support is calculated.
   author: Wuqiong Zhao
   email: contact@mmcesim.org
   website: https://mmcesim.org
@@ -16,7 +29,7 @@ meta: # document meta data
   comments: This is an uplink channel.
 physics:
   frequency: wide # assume narrow band
-  carriers: 16
+  carriers: 64
   off_grid: false # do not consider off-grid problem
 nodes:
   - id: BS # this should be unique
@@ -62,7 +75,7 @@ macro:
     value: 6
     in_alg: true
 preamble: |
-  COMMENT Here starts the preamble. `FOO`
+  COMMENT Here starts the preamble.
 estimation: |
   VNt::m = NEW `DICTIONARY.T`
   VNr::m = NEW `DICTIONARY.R`
@@ -77,9 +90,9 @@ estimation: |
   BRANCH
   angle_est = INIT `GRID.R`*`GRID.T` dtype=f
   k::u0 = LOOP 0 `OFDM_ANGLE_EST_NUM`
-    lambda_hat = ESTIMATE Q Y_{:,k}
+    none_zero::u1 = NEW \find(\abs(VNr^H@H_cascaded_{:,:,k}@VNt)>0.1)
+    lambda_hat = ESTIMATE Q Y_{:,k} none_zero
     angle_est = angle_est + \pow(\abs(lambda_hat), 2)
-    # PRINT angle_est
     IF !`OFDM_RE_ESTIMATE`
       H_hat_{:,:,k} = VNr @ \reshape(lambda_hat, `GRID.R`, `GRID.T`) @ VNt^H
     END
@@ -97,66 +110,164 @@ estimation: |
   RECOVER H_hat
   MERGE
 conclusion: |
-  # i::u0 = LOOP 0 \length(`NMSE`)
-  #   PRINT `NMSE`_{i} '\n'
-  # END
-  # PRINT '\n'
+  PRINT "">>\t"" `JOB_CNT`+1 '/' `JOB_NUM` '\n'
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
   jobs:
-    - name: NMSE v.s. SNR
-      test_num: 20
+    - name: "NMSE v.s. SNR (Pilot: 16)"
+      test_num: 500
       SNR: [-10:2:20]
       SNR_mode: dB # dB (default) | linear
-      pilot: 32
+      pilot: 16
       # pilot_mode: percent # num (default) | percent
       algorithms: # compare different languages
         - alg: OMP
           max_iter: 6
           macro:
             - name: OFDM_ANGLE_EST_NUM
+              value: 1
+          label: OMP (1) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 2
+          label: OMP (2) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
               value: 4
-          label: OMP # used in report
-    # - name: NMSE v.s. pilot
-    #   test_num: 20
-    #   SNR: 0
-    #   pilot: [16:8:64]
-    #   algorithms: # compare different languages
-    #     - alg: OMP
-    #       max_iter: 5
-    #       label: OMP # used in report
-    # - name: OMP NMSE v.s. Iter
-    #   test_num: 20
-    #   SNR: 0
-    #   pilot: 32
-    #   algorithms: # compare different languages
-    #     - alg: OMP
-    #       max_iter: 2
-    #       label: OMP Iter 2
-    #     - alg: OMP
-    #       max_iter: 3
-    #       label: OMP Iter 3
-    #     - alg: OMP
-    #       max_iter: 4
-    #       label: OMP Iter 4
-    #     - alg: OMP
-    #       max_iter: 5
-    #       label: OMP Iter 5
-    #     - alg: OMP
-    #       max_iter: 6
-    #       label: OMP Iter 6
-    #     - alg: OMP
-    #       max_iter: 8
-    #       label: OMP Iter 8
-    #     - alg: OMP
-    #       max_iter: 10
-    #       label: OMP Iter 10 # used in report
+          label: OMP (4) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 8
+          label: OMP (8) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 8
+            - name: OFDM_RE_ESTIMATE
+              value: true
+          label: OMP (8R) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 64
+          label: OMP (All) # used in report
+        - alg: Oracle_LS
+          label: Oracle LS
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 64
+    - name: "NMSE v.s. Pilot (SNR: 0 dB)"
+      test_num: 500
+      SNR: 0
+      pilot: [6:2:32]
+      # pilot_mode: percent # num (default) | percent
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 1
+          label: OMP (1) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 2
+          label: OMP (2) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 4
+          label: OMP (4) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 8
+          label: OMP (8) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 8
+            - name: OFDM_RE_ESTIMATE
+              value: true
+          label: OMP (8R) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 64
+          label: OMP (All) # used in report
+        - alg: Oracle_LS
+          label: Oracle LS
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 64
+    - name: "NMSE v.s. Pilot (SNR: 10 dB)"
+      test_num: 500
+      SNR: 10
+      pilot: [6:2:32]
+      # pilot_mode: percent # num (default) | percent
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 1
+          label: OMP (1) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 2
+          label: OMP (2) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 4
+          label: OMP (4) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 8
+          label: OMP (8) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 8
+            - name: OFDM_RE_ESTIMATE
+              value: true
+          label: OMP (8R) # used in report
+        - alg: OMP
+          max_iter: 6
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 64
+          label: OMP (All) # used in report
+        - alg: Oracle_LS
+          label: Oracle LS
+          macro:
+            - name: OFDM_ANGLE_EST_NUM
+              value: 64
   report:
-    name: MIMO_OMP_Report_Wideband
+    name: OFDM_mmWave_CE_OMP_Simulation
     format: [pdf, latex] # both compiled PDF and tex files
     plot: true # plot data
     table: false # do not print table
     latex:
-      command: xelatex # command to compile the report
+      command: pdflatex # command to compile the report
       UTF8: false # no need for UTF8 support with this setting

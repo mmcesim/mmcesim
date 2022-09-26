@@ -736,7 +736,7 @@ void Export::_reporting() {
          << "report_file << \"  Channel Sparsity: " << channel_sparsity << "\\n\";"
          << "report_file << \"  Off Grid: " << off_grid << "\\n\";"
          << "report_file << \"  Bandwidth: " << (freq != "narrow" ? "Wide" : "Narrow") << "band\\n\";";
-    if (freq != "narrow") _f() << "report_file << \"   Carriers: " << carriers << "\\n\";";
+    if (freq != "narrow") _f() << "report_file << \"  Carriers: " << carriers << "\\n\";";
     _f() << "report_file << \"\\n\";"
          << "tex_file << \"\\\\simsystem{"
          << Nx << "}{" << Ny << "}{" << BNx << "}{" << BNy << "}{" << GNx << "}{" << GNy << "}{"
