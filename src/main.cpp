@@ -48,6 +48,8 @@ int main(int argc, char* argv[]) {
             "style options (C++ only, with astyle)")
         ("lang,l", po::value<std::string>(&opt.lang),
             "export language or simulation backend")
+        ("value", po::value<std::string>(),
+            "value for configuration option")
         ("force,f", "force writing mode")
     ;
 
@@ -83,7 +85,7 @@ int main(int argc, char* argv[]) {
                       << "  sim [simulate]         run simulation\n"
                       << "  dbg [debug]            debug simulation settings\n"
                       << "  exp [export]           export code\n"
-                      << "  fmt [format]           format .sim configuration file\n"
+                      << "  config                 configure mmCEsim options\n"
                       << "  (Leave empty)          generic use\n" << std::endl;
             std::cout << visible << std::endl;
             return 0;
@@ -151,6 +153,8 @@ int main(int argc, char* argv[]) {
             std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
             return errorCode(Err::ASTYLE_ERROR);
         }
+    } else if (opt.cmd == "config") {
+        return 0;
     } else {
         errorExit(Err::UNKOWN_CMD);
     }
