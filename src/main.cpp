@@ -22,6 +22,7 @@
 #include "simulate.h"
 #include "export.h"
 #include "style.h"
+#include "config.h"
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
@@ -48,7 +49,7 @@ int main(int argc, char* argv[]) {
             "style options (C++ only, with astyle)")
         ("lang,l", po::value<std::string>(&opt.lang),
             "export language or simulation backend")
-        ("value", po::value<std::string>(),
+        ("value", po::value<std::string>(&opt.value),
             "value for configuration option")
         ("force,f", "force writing mode")
     ;
@@ -133,7 +134,7 @@ int main(int argc, char* argv[]) {
 
     if (vm.count("force")) opt.force = true;
 
-    if (!std::filesystem::exists(opt.input)) {
+    if (opt.cmd != "config" && !std::filesystem::exists(opt.input)) {
         opt.input += ".sim";
         if (!std::filesystem::exists(opt.input)) errorExit(Err::INPUT_NOT_EXISTS);
     }
@@ -154,6 +155,15 @@ int main(int argc, char* argv[]) {
             return errorCode(Err::ASTYLE_ERROR);
         }
     } else if (opt.cmd == "config") {
+        if (vm.count("value")) {
+            std::string msg;
+            if (!Config::edit(opt.input, opt.value, &msg)) {
+                std::cerr << "ERROR: " << msg;
+                return errorCode(Err::CONFIG_ERROR);
+            }
+        } else {
+            std::cout << Config::read(opt.input) << std::endl;
+        }
         return 0;
     } else {
         errorExit(Err::UNKOWN_CMD);

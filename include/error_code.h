@@ -39,6 +39,7 @@ enum class Err: int {
     TOO_MANY_TX,
     TOO_MANY_RX,
     ASTYLE_ERROR,
+    CONFIG_ERROR,
     CANNOT_COPY_FROM_INCLUDE,
     // warning
     VERSION_NOT_SPECIFIED = 200,
