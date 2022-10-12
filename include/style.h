@@ -14,7 +14,10 @@
 
 #include <iostream>
 #include <string>
+#pragma GCC diagnostic ignored "-Wc++11-narrowing"
+#pragma GCC diagnostic push
 #include <boost/process.hpp>
+#pragma GCC diagnostic pop
 #include "error_code.h"
 #include "utils.h"
 

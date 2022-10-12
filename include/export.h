@@ -26,6 +26,7 @@
 #include "export/keywords.h"
 #include "export/alg.h"
 #include "export/value_vec.h"
+#include "export/shared_info.h"
 #include "error_code.h"
 #include "read.h"
 #include "cli_options.h"

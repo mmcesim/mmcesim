@@ -14,7 +14,6 @@
 #include <boost/program_options.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/process.hpp>
 #include "cli_options.h"
 #include "error_code.h"
 #include "meta.h"
