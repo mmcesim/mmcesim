@@ -33,9 +33,11 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "disable yaml tools")
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "disable yaml contrib")
 
 add_subdirectory(ext/yaml-cpp)
+add_subdirectory(ext/fmt)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/ext/fmt/include
     ${Boost_INCLUDE_DIR}
 )
 
@@ -58,7 +60,7 @@ include(test/test.cmake)
 file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
 add_executable(mmcesim ${SOURCES})
 
-target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp)
+target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp fmt::fmt)
 if (USE_THREADS)
     target_link_libraries(mmcesim PRIVATE Threads::Threads)
 endif()

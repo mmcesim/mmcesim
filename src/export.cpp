@@ -1,6 +1,6 @@
 #include "export.h"
 
-Export::Export(CLI_Options& opt) : _opt(opt) {
+Export::Export(CLI_Options& opt) : _opt(opt), _s_info(nullptr) {
     std::tie(_config, _errors) = ReadConfig::read(opt.input);
     if (hasError(_errors)) {
         // The reading process already has errors not warnings,
@@ -26,8 +26,8 @@ Export::Export(CLI_Options& opt) : _opt(opt) {
     }
 }
 
-Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) 
-    : _opt(opt), _config(config), _errors(errors) {
+Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors, Shared_Info* const info) 
+    : _opt(opt), _config(config), _errors(errors), _s_info(info) {
     if (hasError(_errors)) {
         // The reading process already has errors not warnings,
         // so there is no need to export.
@@ -85,8 +85,8 @@ YAML_Errors Export::exportCode(CLI_Options& opt) {
     return ep.exportCode();
 }
 
-YAML_Errors Export::exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors) {
-    Export ep(opt, config, errors);
+YAML_Errors Export::exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors, Shared_Info* const info) {
+    Export ep(opt, config, errors, info);
     return ep.exportCode();
 }
 
@@ -252,6 +252,11 @@ void Export::_topComment() {
         _wComment() << "or\n";
         _wComment() << "$ clang++ " << _opt.output << " -std=c++17 -larmadillo -O3\n";
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
+        // set cpp compile command
+        if (_s_info) {
+            _s_info->backend = "cpp";
+            _s_info->src_compile_cmd = fmt::format("g++ {} -std=c++17 -larmadillo -O3", _opt.output);
+        }
     }
     _f() << "\n";
 }

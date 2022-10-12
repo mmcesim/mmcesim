@@ -10,3 +10,6 @@
 [submodule "mmcesim-gui"]
 	path = gui
 	url = https://github.com/mmcesim/mmcesim-gui.git
+[submodule "ext/fmt"]
+	path = ext/fmt
+	url = https://github.com/mmcesim/fmt.git

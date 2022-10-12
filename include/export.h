@@ -23,6 +23,7 @@
 #include <sstream>
 #include <regex>
 #include <boost/algorithm/string.hpp>
+#include <fmt/core.h>
 #include "export/keywords.h"
 #include "export/alg.h"
 #include "export/value_vec.h"
@@ -61,7 +62,8 @@ public:
 
     Export(CLI_Options& opt);
 
-    Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
+    Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors,
+        Shared_Info* const info = nullptr);
 
     ~Export();
 
@@ -69,7 +71,8 @@ public:
 
     static YAML_Errors exportCode(CLI_Options& opt);
 
-    static YAML_Errors exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors);
+    static YAML_Errors exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors,
+        Shared_Info* const info = nullptr);
 
 private:
     std::ofstream& _f();
@@ -141,6 +144,7 @@ private:
     YAML_Errors _errors;
     bool _already_error_before_export = false;
     std::ofstream* _f_ptr = nullptr;
+    Shared_Info* const _s_info;
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
     unsigned _max_test_num = 0;
