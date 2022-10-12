@@ -51,6 +51,7 @@ int main(int argc, char* argv[]) {
         ("value", po::value<std::string>(&opt.value),
             "value for configuration option")
         ("force,f", "force writing mode")
+        ("no-error-compile", "Do not raise error if simulation compiling fails")
     ;
 
     po::options_description hidden("Hidden options");
@@ -132,6 +133,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (vm.count("force")) opt.force = true;
+    if (vm.count("no-error-compile")) opt.no_error_compile = true;
 
     if (opt.cmd != "config" && !std::filesystem::exists(opt.input)) {
         opt.input += ".sim";
@@ -139,8 +141,17 @@ int main(int argc, char* argv[]) {
     }
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
-        auto&& errors = Export::exportCode(opt);
+        Shared_Info info;
+        auto&& errors = Export::exportCode(opt, &info);
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
+        if (int compile_result = Simulate::simulate(info)) {
+            if (opt.no_error_compile) {
+                std::cout << "Compiling Error with exit code " << compile_result << ".\n";
+            } else {
+                std::cerr << "ERROR: Simulation compiling error. Compiling exit with code " << compile_result << ".\n";
+                return errorCode(Err::COMPILE_ERROR);
+            }
+        }
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) {

@@ -60,7 +60,7 @@ public:
         UNDEF = 2048 ///< undefined
     };
 
-    Export(CLI_Options& opt);
+    Export(CLI_Options& opt, Shared_Info* const info = nullptr);
 
     Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors,
         Shared_Info* const info = nullptr);
@@ -69,7 +69,7 @@ public:
 
     YAML_Errors exportCode();
 
-    static YAML_Errors exportCode(CLI_Options& opt);
+    static YAML_Errors exportCode(CLI_Options& opt, Shared_Info* const info = nullptr);
 
     static YAML_Errors exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors,
         Shared_Info* const info = nullptr);

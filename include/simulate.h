@@ -12,11 +12,25 @@
 #ifndef _SIMULATE_H_
 #define _SIMULATE_H_
 
+#include <iostream>
+#include <string>
+#pragma GCC diagnostic ignored "-Wc++11-narrowing"
+#pragma GCC diagnostic push
+#include <boost/process.hpp>
+#pragma GCC diagnostic pop
 #include "export/shared_info.h"
 #include "utils.h"
 
 class Simulate {
+public:
+    Simulate(const Shared_Info& info);
 
+    int simulate() const;
+
+    static int simulate(const Shared_Info& info);
+
+private:
+    Shared_Info _s_info;
 };
 
 #endif

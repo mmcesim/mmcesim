@@ -1,6 +1,6 @@
 #include "export.h"
 
-Export::Export(CLI_Options& opt) : _opt(opt), _s_info(nullptr) {
+Export::Export(CLI_Options& opt, Shared_Info* const info) : _opt(opt), _s_info(info) {
     std::tie(_config, _errors) = ReadConfig::read(opt.input);
     if (hasError(_errors)) {
         // The reading process already has errors not warnings,
@@ -80,8 +80,8 @@ YAML_Errors Export::exportCode() {
     return _errors;
 }
 
-YAML_Errors Export::exportCode(CLI_Options& opt) {
-    Export ep(opt);
+YAML_Errors Export::exportCode(CLI_Options& opt, Shared_Info* const info) {
+    Export ep(opt, info);
     return ep.exportCode();
 }
 

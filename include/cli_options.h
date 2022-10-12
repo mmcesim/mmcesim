@@ -22,6 +22,7 @@ struct CLI_Options {
     std::string lang;
     std::string value;
     bool force = false;
+    bool no_error_compile = false;
 };
 
 #endif
