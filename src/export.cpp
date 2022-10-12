@@ -255,7 +255,7 @@ void Export::_topComment() {
         // set cpp compile command
         if (_s_info) {
             _s_info->backend = "cpp";
-            _s_info->src_compile_cmd = fmt::format("g++ {} -std=c++17 -larmadillo -O3", _opt.output);
+            _s_info->src_compile_cmd = fmt::format("{{}} {} -std=c++17 -larmadillo -O3 {{}}", _opt.output);
         }
     }
     _f() << "\n";
@@ -705,6 +705,7 @@ void Export::_reporting() {
     std::filesystem::path input_path(_opt.input);
     std::string sim_file = input_path.filename().replace_extension().string();
     std::string out_dir = input_path.parent_path().string();
+    if (out_dir == "") out_dir = ".";
 
     std::filesystem::create_directory(out_dir + "/_tex_report");
     std::filesystem::copy_file(appDir() + "/../include/mmcesim/tex/simreport.cls",

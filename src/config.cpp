@@ -53,6 +53,12 @@ std::string Config::read(const std::string& key) {
     return c[key];
 }
 
+std::string Config::read(const std::string& key, const std::string& default_val) {
+    Config c;
+    std::string val = c[key];
+    return val != "" ? val : default_val;
+}
+
 bool Config::edit(const std::string& key, const std::string& v, std::string* msg) {
     Config c;
     if (c.set(key, v)) {

@@ -18,7 +18,9 @@
 #pragma GCC diagnostic push
 #include <boost/process.hpp>
 #pragma GCC diagnostic pop
+#include <fmt/core.h>
 #include "export/shared_info.h"
+#include "config.h"
 #include "utils.h"
 
 class Simulate {

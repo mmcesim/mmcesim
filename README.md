@@ -42,7 +42,7 @@ Commands:
   sim [simulate]         run simulation
   dbg [debug]            debug simulation settings
   exp [export]           export code
-  fmt [format]           format .sim configuration file
+  config                 configure mmCEsim options
   (Leave empty)          generic use
 
 Allowed options:
@@ -54,6 +54,11 @@ Generic options:
 
 Configuration:
   -o [ --output ] arg    output file name
+  -s [ --style ] arg     style options (C++ only, with astyle)
+  -l [ --lang ] arg      export language or simulation backend
+  --value arg            value for configuration option
+  -f [ --force ]         force writing mode
+  --no-error-compile     Do not raise error if simulation compiling fails
 ```
 
 ## Build

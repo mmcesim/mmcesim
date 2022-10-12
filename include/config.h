@@ -39,6 +39,8 @@ public:
 
     static std::string read(const std::string& key);
 
+    static std::string read(const std::string& key, const std::string& default_val);
+
     static bool edit(const std::string& key, const std::string& v, std::string* msg);
 
 private:

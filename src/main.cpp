@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
         if (vm.count("value")) {
             std::string msg;
             if (!Config::edit(opt.input, opt.value, &msg)) {
-                std::cerr << "ERROR: " << msg;
+                std::cerr << "ERROR: " << msg << std::endl;
                 return errorCode(Err::CONFIG_ERROR);
             }
         } else {
