@@ -19,13 +19,35 @@ int Simulate::simulate() const {
         }
         compile_process.wait();
         int e = compile_process.exit_code();
-        if (e) std::cerr << "\nCompiling failed. Command: " << cmd << std::endl;
-        return e;
+        if (e) {
+            std::cerr << "\nCompiling failed. Command: " << cmd << std::endl;
+            return e;
+        }
+        else {
+            std::cout << "[mmcesim] simulate $ Code auto export finished.\n";
+            boost::process::ipstream is; //reading pipe-stream
+            boost::process::child simulate_process(
+                "./a.out",
+                boost::process::std_out > boost::process::null, // ignore output
+                boost::process::std_err > is                    // keep error message
+            );
+            while (simulate_process.running() && std::getline(is, line) && !line.empty()) {
+                std::cerr << line << "\n";
+            }
+            simulate_process.wait();
+            int e = simulate_process.exit_code();
+            if (e) {
+                std::cerr << "\nSimulation running failed. Command: ./a.out" << std::endl;
+                return e;
+            } else {
+                std::cout << "[mmcesim] simulate $ Simulation succeeded.\n";
+                return 0;
+            }
+        }
     } catch (const boost::process::process_error& e) {
         std::cerr << "\nCompiling failed. Command: " << cmd << std::endl;
         return -1;
     }
-    
 }
 
 int Simulate::simulate(const Shared_Info& info) {

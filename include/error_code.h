@@ -40,6 +40,7 @@ enum class Err: int {
     TOO_MANY_RX,
     ASTYLE_ERROR,
     COMPILE_ERROR,
+    SIMULATE_ERROR,
     CONFIG_ERROR,
     CANNOT_COPY_FROM_INCLUDE,
     // warning
@@ -78,6 +79,7 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::TOO_MANY_RX: return "Too many receivers.";
     case Err::ASTYLE_ERROR: return "Astyle formatting error.";
     case Err::COMPILE_ERROR: return "Simulation compilation error.";
+    case Err::SIMULATE_ERROR: return "Simulation running error.";
     case Err::CANNOT_COPY_FROM_INCLUDE: return "Cannot copy from include directory. Please check if directory 'include/mmcesim/copy' exists.";
     case Err::VERSION_NOT_SPECIFIED: return "Version string not specified. Assume as application version " + _MMCESIM_VER_STR + ".";
     default: return "Error!";

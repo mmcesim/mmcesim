@@ -45,3 +45,6 @@ cmake_install.cmake
 CPack*
 CTest*
 Makefile
+_data
+_tex_report
+/*.rpt
