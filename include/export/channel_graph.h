@@ -25,6 +25,22 @@ public:
 
     unsigned channelIndex(const std::string& id) const;
 
+    /**
+     * @brief Get the 'from' node index of channel
+     * 
+     * @param id The channel id
+     * @return (unsigned) the node index
+     */
+    unsigned chFromIndex(const std::string& id) const;
+
+    /**
+     * @brief Get the 'to' node index of channel
+     * 
+     * @param id The channel id
+     * @return (unsigned) the node index
+     */
+    unsigned chToIndex(const std::string& id) const;
+
     bool arrange();
 
 private:
@@ -41,5 +57,13 @@ public:
     std::vector<unsigned> Rx;
     std::vector<std::vector<unsigned>> paths;
 };
+
+inline unsigned Channel_Graph::chFromIndex(const std::string& id) const {
+    return from[channelIndex(id)];
+}
+
+inline unsigned Channel_Graph::chToIndex(const std::string& id) const {
+    return to[channelIndex(id)];
+}
 
 #endif

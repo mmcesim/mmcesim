@@ -342,19 +342,37 @@ void Export::_generateChannels() {
                  << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n";
         }
         _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n";
+        _f() << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
     }
     for (unsigned i = 0; i != _config["channels"].size(); ++i) {
-        _f() << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
+        auto&& ch = _config["channels"][i];
+        std::cout << "from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i] << "\n";
+        if (_channel_graph.from[i] > _channel_graph.nodes.size()) {
+            std::string err = fmt::format("Unknown 'from' node '{}' in channel '{}'!",
+                _asStr(ch["from"]), _asStr(ch["id"]));
+            std::cerr << "[mmcesim] export $ ERROR: " << err << '\n';
+            throw (err);
+        }
+        if (_channel_graph.to[i] > _channel_graph.nodes.size()) {
+            std::string err = fmt::format("Unknown 'to' node '{}' in channel '{}'!",
+                _asStr(ch["from"]), _asStr(ch["id"]));
+            std::cerr << "[mmcesim] export $ ERROR: " << err << '\n';
+            throw (err);
+        }
+        auto&& t_node = _config["nodes"][_channel_graph.from[i]];
+        auto&& r_node = _config["nodes"][_channel_graph.to[i]];
+        auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
+        auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
         bool gain_normal;
         std::string gain_param1, gain_param2;
         try {
-            std::tie(gain_normal, gain_param1, gain_param2) = _setChannelGains(_config["channels"][i]);
+            std::tie(gain_normal, gain_param1, gain_param2) = _setChannelGains(ch);
         } catch (const std::exception& e) {
             // TODO: error handling
             std::cout << "Setting Channel Gains Error!\n" << e.what() << "\n";
         }
-        std::string sparsity = _asStr(_config["channels"][i]["sparsity"]);
-        std::string channel_name = _asStr(_config["channels"][i]["id"]);
+        std::string sparsity = _asStr(ch["sparsity"]);
+        std::string channel_name = _asStr(ch["id"]);
         if (lang == Lang::CPP) {
             if (freq == "wide")
                 _f() << "cx_cube " << channel_name << " = mmce::wide_channel(" << carriers << ",";
@@ -367,11 +385,11 @@ void Export::_generateChannels() {
                  << gain_normal << "," << gain_param1 << "," << gain_param2 << ","
                  << off_grid
                  << ");"
-                 << channel_name << ".save(\"_data/" << channel_name << "\" + std::to_string(i) + \".bin\");}";
+                 << channel_name << ".save(\"_data/" << channel_name << "\" + std::to_string(i) + \".bin\");";
         }
     }
     if (lang == Lang::CPP) {
-        _f() << "return true;}}\n\n";
+        _f() << "}return true;}}\n\n";
     }
     // TODO: Generate channels.
 }
@@ -962,10 +980,10 @@ bool Export::_setCascadedChannel() {
         auto&& id = channel["id"];
         auto&& from = channel["from"];
         auto&& to = channel["to"];
-        if (_preCheck(id, DType::STRING)) return false;
-        if (_preCheck(id, DType::STRING)) return false;
-        if (_preCheck(id, DType::STRING)) return false;
-        if (_channel_graph.addChannel(id.as<std::string>(), from.as<std::string>(), to.as<std::string>())) return false;
+        if (!_preCheck(id, DType::STRING)) return false;
+        if (!_preCheck(from, DType::STRING)) return false;
+        if (!_preCheck(to, DType::STRING)) return false;
+        if (!_channel_graph.addChannel(id.as<std::string>(), from.as<std::string>(), to.as<std::string>())) return false;
     }
     if (_transmitters.size() > _MAX_TX) {
         YAML_Error e("Too many transmitters. In mmCEsim " + _MMCESIM_VER_STR +
@@ -977,6 +995,8 @@ bool Export::_setCascadedChannel() {
             " there can be at most " + std::to_string(_MAX_RX) + " receivers.", Err::TOO_MANY_RX);
         return false;
     }
+    _channel_graph.arrange();
+    std::cerr << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     return true;
 }
 
@@ -1049,21 +1069,26 @@ std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> Export::_
         GMx = GM_value_vec[0];
         GMy = GM_value_vec[1];
     }
-    auto&& beam_n = n["beam"];
     try {
-        std::string BM_str = beam_n.as<std::string>();
-        if (boost::algorithm::to_lower_copy(BM_str) == "same") {
-            BMx = Mx;
-            BMy = My;
-        } else {
+        auto&& beam_n = n["beam"];
+        try {
+            std::string BM_str = beam_n.as<std::string>();
+            if (boost::algorithm::to_lower_copy(BM_str) == "same") {
+                BMx = Mx;
+                BMy = My;
+            } else {
+                Value_Vec<size_t> BM_value_vec(beam_n, false, 1);
+                BMx = BM_value_vec[0];
+                BMy = BM_value_vec[1];
+            }
+        } catch (...) {
             Value_Vec<size_t> BM_value_vec(beam_n, false, 1);
             BMx = BM_value_vec[0];
             BMy = BM_value_vec[1];
         }
     } catch (...) {
-        Value_Vec<size_t> BM_value_vec(beam_n, false, 1);
-        BMx = BM_value_vec[0];
-        BMy = BM_value_vec[1];
+        BMx = Mx;
+        BMy = My;
     }
     return { Mx, My, GMx, GMy, BMx, BMy };
 }
