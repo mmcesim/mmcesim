@@ -14,14 +14,21 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include "utils.h"
 
 class Channel_Graph {
 public:
     bool addChannel(const std::string& id, const std::string& from, const std::string& to);
 
-    unsigned nodeIndex(const std::string& id);
+    unsigned nodeIndex(const std::string& id) const;
 
-    unsigned channelIndex(const std::string& id);
+    unsigned channelIndex(const std::string& id) const;
+
+    bool arrange();
+
+private:
+    void _formPaths(const std::vector<unsigned>& path);
 
 public:
     static constexpr const unsigned MAX_INDEX = -1;
@@ -32,6 +39,7 @@ public:
     std::vector<unsigned> to;
     std::vector<unsigned> Tx;
     std::vector<unsigned> Rx;
+    std::vector<std::vector<unsigned>> paths;
 };
 
 #endif
