@@ -28,6 +28,7 @@
 #include "export/alg.h"
 #include "export/value_vec.h"
 #include "export/shared_info.h"
+#include "export/channel_graph.h"
 #include "error_code.h"
 #include "read.h"
 #include "cli_options.h"
@@ -129,7 +130,7 @@ private:
 
     bool _loadALG();
 
-    bool _setTransmitterReceiver();
+    bool _setCascadedChannel();
 
     bool _setMaxTestNum();
 
@@ -152,6 +153,7 @@ private:
     std::string _received_signal;
     std::string _noise;
     std::string _beamforming_W, _beamforming_F;
+    Channel_Graph _channel_graph;
 
     const int _MAX_TX = 1;
     const int _MAX_RX = 1;

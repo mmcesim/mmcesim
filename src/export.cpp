@@ -1,3 +1,14 @@
+/**
+ * @file export.cpp
+ * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
+ * @brief Implementation of Export Class
+ * @version 0.1.0
+ * @date 2022-10-17
+ * 
+ * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
+ * 
+ */
+
 #include "export.h"
 
 Export::Export(CLI_Options& opt, Shared_Info* const info) : _opt(opt), _s_info(info) {
@@ -67,7 +78,7 @@ YAML_Errors Export::exportCode() {
     // do something
     _topComment();
     _beginning();
-    _setTransmitterReceiver();
+    _setCascadedChannel();
     _setMaxTestNum();
     _setVarNames();
     _generateChannels();
@@ -913,20 +924,39 @@ bool Export::_loadALG() {
     return true;
 }
 
-bool Export::_setTransmitterReceiver() {
+bool Export::_setCascadedChannel() {
     if (!_preCheck(_config["nodes"], DType::SEQ)) return false;
     auto&& nodes = _config["nodes"];
-    for (int i = 0; i != nodes.size(); ++i) {
-        auto node = nodes[i]["role"];
-        if (!_preCheck(node, DType::STRING | DType::UNDEF)) return false;
-        if (node.IsDefined()) {
-            if (auto s = boost::algorithm::to_lower_copy(node.as<std::string>());
+    for (int i = 0; static_cast<unsigned>(i) != nodes.size(); ++i) {
+        auto&& node = nodes[i];
+        auto&& role = node["role"];
+        auto&& id = node["id"];
+        if (!_preCheck(id, DType::STRING)) return false; // 'id' is required for any node
+        _channel_graph.nodes.push_back(id.as<std::string>());
+        if (!_preCheck(role, DType::STRING | DType::UNDEF)) return false;
+        if (role.IsDefined()) {
+            if (auto s = boost::algorithm::to_lower_copy(role.as<std::string>());
                 s == "transmitter" || s == "transmit" || s == "tx" || s == "t") {
                 _transmitters.push_back(i);
+                _channel_graph.Tx.push_back(i);
             } else if (s == "receiver" || s == "receive" || s == "rx" || s == "r") {
                 _receivers.push_back(i);
+                _channel_graph.Rx.push_back(i);
             }
         }
+    }
+    auto&& channels = _config["channels"];
+    if (!_preCheck(channels, DType::SEQ)) return false;
+    for (unsigned i = 0; i != channels.size(); ++i) {
+        // Load channel matrices.
+        auto&& channel = channels[i];
+        auto&& id = channel["id"];
+        auto&& from = channel["from"];
+        auto&& to = channel["to"];
+        if (_preCheck(id, DType::STRING)) return false;
+        if (_preCheck(id, DType::STRING)) return false;
+        if (_preCheck(id, DType::STRING)) return false;
+        if (_channel_graph.addChannel(id.as<std::string>(), from.as<std::string>(), to.as<std::string>())) return false;
     }
     if (_transmitters.size() > _MAX_TX) {
         YAML_Error e("Too many transmitters. In mmCEsim " + _MMCESIM_VER_STR +

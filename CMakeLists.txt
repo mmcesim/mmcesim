@@ -57,7 +57,23 @@ add_subdirectory(ext/astyle)
 
 include(test/test.cmake)
 
-file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+# file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+set(SOURCES
+    "src/config.cpp"
+    "src/export.cpp"
+    "src/format_yaml.cpp"
+    "src/main.cpp"
+    "src/read.cpp"
+    "src/simulate.cpp"
+    "src/style.cpp"
+    "src/export/alg_line.cpp"
+    "src/export/alg.cpp"
+    "src/export/calc.cpp"
+    "src/export/channel_graph.cpp"
+    "src/export/macro.cpp"
+    "src/export/type_track.cpp"
+    "src/export/type.cpp"
+)
 add_executable(mmcesim ${SOURCES})
 
 target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp fmt::fmt)
