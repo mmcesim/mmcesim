@@ -204,21 +204,27 @@ void Export::_setLang() {
 }
 
 std::tuple<bool, std::string, std::string> Export::_setChannelGains(const YAML::Node& n) {
-    if (auto gains = n["gains"]; _preCheck(gains, DType::MAP)) {
-        if (auto mode = boost::algorithm::to_lower_copy(_asStr(gains["mode"])); mode == "normal") {
-            std::string mean = _asStr(gains["mean"]);
-            std::string variance = _asStr(gains["variance"]);
-            return { true, mean, variance };
-        } else if (mode == "uniform") {
-            std::string min = _asStr(gains["min"]);
-            std::string max = _asStr(gains["max"]);
-            return { false, min, max };
+    std::cout << "Set Channel Gains!\n";
+    try {
+        if (auto&& gains = n["gains"]; _preCheck(gains, DType::MAP, false)) {
+            if (auto mode = boost::algorithm::to_lower_copy(_asStr(gains["mode"])); mode == "normal") {
+                std::string mean = _asStr(gains["mean"]);
+                std::string variance = _asStr(gains["variance"]);
+                return { true, mean, variance };
+            } else if (mode == "uniform") {
+                std::string min = _asStr(gains["min"]);
+                std::string max = _asStr(gains["max"]);
+                return { false, min, max };
+            }
+        } else if (_preCheck(n["node"], DType::UNDEF)) {
+            // default value if not specified
+            return { true, "0", "1" };
+        } else {
+            return { true, "0", "1" };
+            // throw("Channel gains not correctly set!");
         }
-    } else if (_preCheck(n["node"], DType::UNDEF)) {
-        // default value if not specified
-        return { true, "0", "1" };
-    } else {
-        throw("Channel gains not correctly set!");
+    } catch (...) {
+        // do nothing
     }
     return { true, "0", "1" };
 }
@@ -304,24 +310,11 @@ void Export::_generateChannels() {
         std::cerr << "No channel node defined!\n";
         // TODO: error handling here
     }
-    if (_config["channels"].size() != 1) {
-        std::cerr << "So far, no RIS is allowed.\n";
-        // TODO: for cascaded channel
-    }
-    bool gain_normal;
-    std::string gain_param1, gain_param2;
-    try {
-        std::tie(gain_normal, gain_param1, gain_param2) = _setChannelGains(_config["channels"][0]);
-    } catch (...) {
-        // TODO: error handling
-    }
     bool off_grid = true;
     if (_preCheck(_config["physics"]["off_grid"], DType::BOOL, false) &&
         !_config["physics"]["off_grid"].as<bool>()) {
         off_grid = false;
     }
-    std::string sparsity = _asStr(_config["channels"][0]["sparsity"]);
-    std::string channel_name = _asStr(_config["channels"][0]["id"]);
     std::string freq = "narrow";
     unsigned carriers = 1;
     if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) {
@@ -330,13 +323,13 @@ void Export::_generateChannels() {
     if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) {
         carriers = m.as<unsigned>();
     }
+    auto&& t_node = _config["nodes"][_transmitters[0]];
+    auto&& r_node = _config["nodes"][_receivers[0]];
+    auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
+    auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
         std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
-        auto&& t_node = _config["nodes"][_transmitters[0]];
-        auto&& r_node = _config["nodes"][_receivers[0]];
-        auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(r_node);
-        auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
         _f() << "std::filesystem::create_directory(\"_data\");\n"
              << (freq == "wide" ? "cx_cube " : "cx_mat ") << _noise;
         if (freq == "wide") {
@@ -348,20 +341,36 @@ void Export::_generateChannels() {
             _f() << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
                  << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n";
         }
-        _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n"
-             << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
-        if (freq == "wide")
-            _f() << "cx_cube " << channel_name << " = mmce::wide_channel(" << carriers << ",";
-        else _f() << "cx_mat " << channel_name << " = mmce::channel(";
-        _f() << Mx << "," << My << ","
-             << Nx << "," << Ny << ","
-             << GMx << "," << GMy << ","
-             << GNx << "," << GNy << ","
-             << sparsity << ","
-             << gain_normal << "," << gain_param1 << "," << gain_param2 << ","
-             << off_grid
-             << ");"
-             << channel_name << ".save(\"_data/" << channel_name << "\" + std::to_string(i) + \".bin\");}";
+        _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n";
+    }
+    for (unsigned i = 0; i != _config["channels"].size(); ++i) {
+        _f() << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
+        bool gain_normal;
+        std::string gain_param1, gain_param2;
+        try {
+            std::tie(gain_normal, gain_param1, gain_param2) = _setChannelGains(_config["channels"][i]);
+        } catch (const std::exception& e) {
+            // TODO: error handling
+            std::cout << "Setting Channel Gains Error!\n" << e.what() << "\n";
+        }
+        std::string sparsity = _asStr(_config["channels"][i]["sparsity"]);
+        std::string channel_name = _asStr(_config["channels"][i]["id"]);
+        if (lang == Lang::CPP) {
+            if (freq == "wide")
+                _f() << "cx_cube " << channel_name << " = mmce::wide_channel(" << carriers << ",";
+            else _f() << "cx_mat " << channel_name << " = mmce::channel(";
+            _f() << Mx << "," << My << ","
+                 << Nx << "," << Ny << ","
+                 << GMx << "," << GMy << ","
+                 << GNx << "," << GNy << ","
+                 << sparsity << ","
+                 << gain_normal << "," << gain_param1 << "," << gain_param2 << ","
+                 << off_grid
+                 << ");"
+                 << channel_name << ".save(\"_data/" << channel_name << "\" + std::to_string(i) + \".bin\");}";
+        }
+    }
+    if (lang == Lang::CPP) {
         _f() << "return true;}}\n\n";
     }
     // TODO: Generate channels.

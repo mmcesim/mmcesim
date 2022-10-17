@@ -1,0 +1,75 @@
+# single_RIS.sim
+# Single RIS Channel Estimation Test
+# Author: Wuqiong Zhao
+# Date: 2022-10-17
+
+version: 0.1.0
+meta:
+  title: Single RIS Channel Estimation Test
+  author: Wuqiong Zhao
+physics:
+  frequency: narrow
+  off_grid: true
+nodes:
+  - id: BS
+    role: receiver
+    size: [16, 4]
+    beam: [4, 2]
+    grid: same
+    beamforming:
+      variable: "F"
+  - id: UE
+    role: transmitter
+    size: 4
+    beam: 2
+    grid: same
+    beamforming:
+      variable: "W"
+  - id: RIS
+    size: [8, 8]
+    grid: same
+channels:
+  - id: G
+    from: RIS
+    to: BS
+    sparsity: 5
+  - id: R
+    from: UE
+    to: RIS
+    sparsity: 3
+sounding:
+  variables:
+    received: "y"
+    noise: "noise"
+    channel: "H"
+estimation: |
+  COMMENT Here starts estimation.
+simulation:
+  backend: cpp
+  jobs:
+  - name: "NMSE v.s. SNR (Pilot: 24)"
+    test_num: 200
+    SNR: [0:2:30]
+    SNR_mode: dB # dB (default) | linear
+    pilot: 24
+    # pilot_mode: percent # num (default) | percent
+    algorithms: # compare different languages
+      - alg: OMP
+        max_iter: 6
+        label: OMP
+      - alg: OMPL
+        params: "6 1"
+        label: OMPL-1
+      - alg: OMPL
+        params: "6 2"
+        label: OMPL-2
+      - alg: OMPL
+        params: "6 4"
+        label: OMPL-4
+      - alg: OMPL
+        params: "6 8"
+        label: OMPL-8
+      - alg: Oracle_LS
+        label: Oracle LS
+  report:
+    name: Single_RIS_Simulation

@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <sstream>
 #include <regex>
+#include <exception>
 #include <boost/algorithm/string.hpp>
 #include <fmt/core.h>
 #include "export/keywords.h"
