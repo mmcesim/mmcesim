@@ -510,9 +510,10 @@ void Export::_sounding() {
                      << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
                      << ", carriers_num, arma::fill::zeros);\n"
                      << "for (unsigned k = 0; k != carriers_num; ++k) {\n";
-                for (unsigned i = 1; i < _channel_graph.paths[0].size(); ++i) {
-                    // TODO: generate channel
-                }
+                if (!_channel_graph.paths.empty())
+                    for (unsigned i = 1; i < _channel_graph.paths[0].size(); ++i) {
+                        // TODO: generate channel
+                    }
                 _f() << "}\nfor (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
