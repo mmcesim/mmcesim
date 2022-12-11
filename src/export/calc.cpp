@@ -4,14 +4,14 @@
  * @brief Implementation of Calc Class
  * @version 0.1.0
  * @date 2022-08-20
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #include "export/calc.h"
-#include <iostream>
 #include <exception>
+#include <iostream>
 
 Type_Track type_track; // defined in export/type_track_global.h
 
@@ -20,24 +20,27 @@ Calc::Calc(const std::string& str) : _str(removeSpaceCopy(str)) {}
 std::string Calc::as(std::string lang, std::string* msg) const {
     if (_str.empty()) return "";
     std::string str = _str;
-    if (_changeOperator(str, lang, msg) &&
-        _changeFunction(str, lang, msg) &&
-        _changeSuperScript(str, lang, msg) &&
-        _changeSubScript(str, lang, nullptr, msg) &&
-        _changeParen(str, lang, msg)) {}
+    if (_changeOperator(str, lang, msg) && _changeFunction(str, lang, msg) && _changeSuperScript(str, lang, msg) &&
+        _changeSubScript(str, lang, nullptr, msg) && _changeParen(str, lang, msg)) {}
     return str;
 }
 
 #define LANG_CPP if (lang == "cpp") {
-#define LANG_PY } else if (lang == "py") {
-#define LANG_M } else if (lang == "matlab" || lang == "octave") {
-#define END_LANG } else throw("Unknown language " + lang + ".");
+#define LANG_PY                                                                                                        \
+    }                                                                                                                  \
+    else if (lang == "py") {
+#define LANG_M                                                                                                         \
+    }                                                                                                                  \
+    else if (lang == "matlab" || lang == "octave") {
+#define END_LANG                                                                                                       \
+    }                                                                                                                  \
+    else throw("Unknown language " + lang + ".");
 
 bool Calc::_changeOperator(std::string& str, std::string lang, std::string* msg) const {
     LANG_CPP
-        boost::replace_all(str, ".*", "%"); // element-wise multiplication
-        boost::replace_all(str, "./", "/"); // element-wise division
-        boost::replace_all(str, "@", "*"); // multiplication
+    boost::replace_all(str, ".*", "%"); // element-wise multiplication
+    boost::replace_all(str, "./", "/"); // element-wise division
+    boost::replace_all(str, "@", "*");  // multiplication
     END_LANG
     return true;
 }
@@ -49,96 +52,96 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
     // but the logic is right in replacing what you need
     // and should be safer.
     LANG_CPP
-        // arithmetic
-        _addArma(str, "expm1");
-        _addArma(str, "exp10");
-        _addArma(str, "exp2");
-        _addArma(str, "exp");
-        _addArma(str, "log1p");
-        _addArma(str, "log10");
-        _addArma(str, "log2");
-        _addArma(str, "log");
-        _addArma(str, "pow");
-        _addArma(str, "square");
-        _addArma(str, "sqrt");
-        _addArma(str, "floor");
-        _addArma(str, "ceil");
-        _addArma(str, "round");
-        _addArma(str, "trunc");
-        _addArma(str, "erf");
-        _addArma(str, "erfc");
-        _addArma(str, "tgamma");
-        _addArma(str, "lgamma");
-        _addArma(str, "abs");
-        _addArma(str, "cosh");
-        _addArma(str, "cos");
-        _addArma(str, "acosh");
-        _addArma(str, "acos");
-        _addArma(str, "sinh");
-        _addArma(str, "sinc");
-        _addArma(str, "sin");
-        _addArma(str, "asinh");
-        _addArma(str, "sinh");
-        _addArma(str, "tanh");
-        _addArma(str, "tan");
-        _addArma(str, "atanh");
-        _addArma(str, "atan2");
-        _addArma(str, "tanh");
-        _addArma(str, "inv");
-        _addArma(str, "conj");
-        _addArma(str, "pinv");
-        _addArma(str, "accu");
-        _addArma(str, "sum");
-        _addArma(str, "sign");
-        boost::replace_all(str, "\\sgn", "arma::sign");
-        // operations
-        _addArma(str, "min");
-        _addArma(str, "max");
-        _addArma(str, "index_min");
-        _addArma(str, "index_max");
-        _addArma(str, "sort_index");
-        _addArma(str, "reshape");
-        _addArma(str, "kron");
-        _addArma(str, "find");
-        _addArma(str, "repmat");
-        _addArma(str, "resize");
-        _addArma(str, "solve");
-        boost::replace_all(str, "\\range", "arma::regspace<uvec>");
-        // matrix initialization
-        _addMmce(str, "zeros");
-        _addMmce(str, "ones");
-        _addMmce(str, "set_size");
-        boost::replace_all(str, "\\vec", "arma::vectorise");
-        // mmCEsim defined functions
-        _addMmce(str, "dictionary");
-        _addMmce(str, "size");
-        _addMmce(str, "length");
-        _addMmce(str, "nmse");
-        _addMmce(str, "ismember");
-        boost::replace_all(str, "\\str", "std::string");
+    // arithmetic
+    _addArma(str, "expm1");
+    _addArma(str, "exp10");
+    _addArma(str, "exp2");
+    _addArma(str, "exp");
+    _addArma(str, "log1p");
+    _addArma(str, "log10");
+    _addArma(str, "log2");
+    _addArma(str, "log");
+    _addArma(str, "pow");
+    _addArma(str, "square");
+    _addArma(str, "sqrt");
+    _addArma(str, "floor");
+    _addArma(str, "ceil");
+    _addArma(str, "round");
+    _addArma(str, "trunc");
+    _addArma(str, "erf");
+    _addArma(str, "erfc");
+    _addArma(str, "tgamma");
+    _addArma(str, "lgamma");
+    _addArma(str, "abs");
+    _addArma(str, "cosh");
+    _addArma(str, "cos");
+    _addArma(str, "acosh");
+    _addArma(str, "acos");
+    _addArma(str, "sinh");
+    _addArma(str, "sinc");
+    _addArma(str, "sin");
+    _addArma(str, "asinh");
+    _addArma(str, "sinh");
+    _addArma(str, "tanh");
+    _addArma(str, "tan");
+    _addArma(str, "atanh");
+    _addArma(str, "atan2");
+    _addArma(str, "tanh");
+    _addArma(str, "inv");
+    _addArma(str, "conj");
+    _addArma(str, "pinv");
+    _addArma(str, "accu");
+    _addArma(str, "sum");
+    _addArma(str, "sign");
+    boost::replace_all(str, "\\sgn", "arma::sign");
+    // operations
+    _addArma(str, "min");
+    _addArma(str, "max");
+    _addArma(str, "index_min");
+    _addArma(str, "index_max");
+    _addArma(str, "sort_index");
+    _addArma(str, "reshape");
+    _addArma(str, "kron");
+    _addArma(str, "find");
+    _addArma(str, "repmat");
+    _addArma(str, "resize");
+    _addArma(str, "solve");
+    boost::replace_all(str, "\\range", "arma::regspace<uvec>");
+    // matrix initialization
+    _addMmce(str, "zeros");
+    _addMmce(str, "ones");
+    _addMmce(str, "set_size");
+    boost::replace_all(str, "\\vec", "arma::vectorise");
+    // mmCEsim defined functions
+    _addMmce(str, "dictionary");
+    _addMmce(str, "size");
+    _addMmce(str, "length");
+    _addMmce(str, "nmse");
+    _addMmce(str, "ismember");
+    boost::replace_all(str, "\\str", "std::string");
     END_LANG
     return true;
 }
 
 bool Calc::_changeSuperScript(std::string& str, std::string lang, std::string* msg) const {
     LANG_CPP
-        boost::replace_all(str, "^t", ".t()"); // transpose for a real matrix
-        boost::replace_all(str, "^{t}", ".t()"); // transpose for a real matrix
-        boost::replace_all(str, "^T", ".st()"); // transpose for a complex matrix
-        boost::replace_all(str, "^{T}", ".st()"); // transpose for a complex matrix
-        boost::replace_all(str, "^H", ".t()"); // conjugate transpose for a complex matrix
-        boost::replace_all(str, "^{H}", ".t()"); // conjugate transpose for a complex matrix
-        boost::replace_all(str, "^i", ".i()"); // inverse of a complex matrix
-        boost::replace_all(str, "^{i}", ".i()"); // inverse of a complex matrix
-        boost::replace_all(str, "^I", ".i()"); // inverse of a complex matrix
-        boost::replace_all(str, "^{I}", ".i()"); // inverse of a complex matrix
-        boost::replace_all(str, "^{-1}", ".i()"); // inverse of a complex matrix
-        boost::replace_all(str, "^*", ".t().st()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^{*}", ".t().st()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^\\star", ".t().st()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^{\\star}", ".t().st()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^\\ast", ".t().st()"); // conjugate of a complex matrix
-        boost::replace_all(str, "^{\\ast}", ".t().st()"); // conjugate of a complex matrix
+    boost::replace_all(str, "^t", ".t()");             // transpose for a real matrix
+    boost::replace_all(str, "^{t}", ".t()");           // transpose for a real matrix
+    boost::replace_all(str, "^T", ".st()");            // transpose for a complex matrix
+    boost::replace_all(str, "^{T}", ".st()");          // transpose for a complex matrix
+    boost::replace_all(str, "^H", ".t()");             // conjugate transpose for a complex matrix
+    boost::replace_all(str, "^{H}", ".t()");           // conjugate transpose for a complex matrix
+    boost::replace_all(str, "^i", ".i()");             // inverse of a complex matrix
+    boost::replace_all(str, "^{i}", ".i()");           // inverse of a complex matrix
+    boost::replace_all(str, "^I", ".i()");             // inverse of a complex matrix
+    boost::replace_all(str, "^{I}", ".i()");           // inverse of a complex matrix
+    boost::replace_all(str, "^{-1}", ".i()");          // inverse of a complex matrix
+    boost::replace_all(str, "^*", ".t().st()");        // conjugate of a complex matrix
+    boost::replace_all(str, "^{*}", ".t().st()");      // conjugate of a complex matrix
+    boost::replace_all(str, "^\\star", ".t().st()");   // conjugate of a complex matrix
+    boost::replace_all(str, "^{\\star}", ".t().st()"); // conjugate of a complex matrix
+    boost::replace_all(str, "^\\ast", ".t().st()");    // conjugate of a complex matrix
+    boost::replace_all(str, "^{\\ast}", ".t().st()");  // conjugate of a complex matrix
     LANG_PY
     LANG_M
     END_LANG
@@ -160,9 +163,9 @@ bool Calc::_changeSuperScript(std::string& str, std::string lang, std::string* m
 }
 
 bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::string* msg) const {
-    boost::replace_all(str, "_{}", ""); // meaning less contents
-    boost::replace_all(str, "_{:}", ""); // meaning less contents
-    boost::replace_all(str, "_{:,:}", ""); // meaning less contents
+    boost::replace_all(str, "_{}", "");      // meaning less contents
+    boost::replace_all(str, "_{:}", "");     // meaning less contents
+    boost::replace_all(str, "_{:,:}", "");   // meaning less contents
     boost::replace_all(str, "_{:,:,:}", ""); // meaning less contents
     for (size_t i = 0; i < str.size(); ++i) {
         if (str[i] == '_') {
@@ -183,10 +186,10 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                         continue;
                     } else i += 2; // skip '_{'
                     std::string dims[3];
-                    bool starts_from_1[3] = { false, false, false };
-                    int dim = 0;
-                    int result_dim = 0;
-                    int l_bracket = 0;
+                    bool starts_from_1[3] = {false, false, false};
+                    int dim               = 0;
+                    int result_dim        = 0;
+                    int l_bracket         = 0;
                     while (i < str.size()) {
                         char ch = str[i];
                         if (ch == ',') {
@@ -215,12 +218,12 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                     }
                     std::string subs;
                     std::string subs_buf;
-                    auto parseDim = [&] (int j) -> int8_t {
-                        int8_t d_buf = 0;
-                        size_t colon_pos = dims[j].find(':');
+                    auto parseDim = [&](int j) -> int8_t {
+                        int8_t d_buf       = 0;
+                        size_t colon_pos   = dims[j].find(':');
                         size_t bracket_pos = dims[j].find('{');
-                        bool has_colon = colon_pos != std::string::npos;
-                        bool has_bracket = bracket_pos != std::string::npos;
+                        bool has_colon     = colon_pos != std::string::npos;
+                        bool has_bracket   = bracket_pos != std::string::npos;
                         // size_t question_pos = dims[j].find('?');
                         // bool has_question = question_pos != std::string::npos;
                         subs_buf.clear();
@@ -233,10 +236,10 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                                 d_buf = 1;
                                 if (dims[j] == ":") {
                                     LANG_CPP
-                                        subs_buf += "arma::span::all";
+                                    subs_buf += "arma::span::all";
                                     LANG_PY
                                     LANG_M
-                                        subs_buf += ":";
+                                    subs_buf += ":";
                                     END_LANG
                                 } else {
                                     subs_buf += "arma::span(" + dims[j].substr(0, colon_pos) + "," +
@@ -264,13 +267,13 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                             result_dim = 1;
                         } else {
                             if (auto pd = parseDim(1); pd == 0) {
-                                subs = ".col(" + subs_buf + ")";
+                                subs       = ".col(" + subs_buf + ")";
                                 result_dim = 1;
                             } else if (pd == -1) {
-                                subs = ".cols(_as_uvec(" + subs_buf + "))";
+                                subs       = ".cols(_as_uvec(" + subs_buf + "))";
                                 result_dim = 2;
                             } else {
-                                subs = ".cols(" + subs_buf + ")";
+                                subs       = ".cols(" + subs_buf + ")";
                                 result_dim = 2;
                             }
                         }
@@ -285,10 +288,10 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                                 subs += ".row(" + subs_buf + ")";
                                 result_dim = 1;
                             } else if (pd == -1) {
-                                subs = ".rows(_as_uvec(" + subs_buf + "))";
+                                subs       = ".rows(_as_uvec(" + subs_buf + "))";
                                 result_dim = 2;
                             } else {
-                                subs = ".rows(" + subs_buf + ")";
+                                subs       = ".rows(" + subs_buf + ")";
                                 result_dim = 2;
                             }
                         }
@@ -300,13 +303,13 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                             result_dim = 2;
                         } else {
                             if (auto pd = parseDim(2); pd == 0) {
-                                subs = ".slice(" + subs_buf + ")";
+                                subs       = ".slice(" + subs_buf + ")";
                                 result_dim = 2;
                             } else if (pd == -1) {
-                                subs = ".slices(_as_uvec(" + subs_buf + "))";
+                                subs       = ".slices(_as_uvec(" + subs_buf + "))";
                                 result_dim = 3;
                             } else {
-                                subs = ".slices(" + subs_buf + ")";
+                                subs       = ".slices(" + subs_buf + ")";
                                 result_dim = 3;
                             }
                         }
@@ -336,8 +339,8 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
 
 bool Calc::_changeParen(std::string& str, std::string lang, std::string* msg) const {
     LANG_CPP
-        boost::replace_all(str, "{", "("); // element-wise multiplication
-        boost::replace_all(str, "}", ")"); // element-wise division
+    boost::replace_all(str, "{", "("); // element-wise multiplication
+    boost::replace_all(str, "}", ")"); // element-wise division
     END_LANG
     return true;
 }

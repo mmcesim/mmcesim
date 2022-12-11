@@ -4,9 +4,9 @@
  * @brief Implementation of Type_Track Class
  * @version 0.1.0
  * @date 2022-09-24
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #include "export/type_track.h"
@@ -43,12 +43,12 @@ void Type_Track::push(const std::string& var, const Type& type) {
 #ifdef _TYPE_TRACK_PRINT_INFO
     std::cout << "[Type Track] Push '" << var << "' of type '" << type.string() << "'" << std::endl;
 #endif
-    _types.push_back( { var, type } );
+    _types.push_back({var, type});
 }
 
 void Type_Track::push(const std::string& var, const std::string& type) {
 #ifdef _TYPE_TRACK_PRINT_INFO
     std::cout << "[Type Track] Push '" << var << "' of type " << type << std::endl;
 #endif
-    _types.push_back( { var, Type(type) } );
+    _types.push_back({var, Type(type)});
 }

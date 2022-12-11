@@ -4,24 +4,20 @@
  * @brief Implementation of Config Class
  * @version 0.1.0
  * @date 2022-09-28
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #include "config.h"
 
-Config::Config() {
-    _load();
-}
+Config::Config() { _load(); }
 
 std::string Config::operator[](const std::string& key) const noexcept {
     if (_config[key].IsDefined()) {
         try {
             return _config[key].as<std::string>();
-        } catch (...) {
-            return "";
-        }
+        } catch (...) { return ""; }
     } else return "";
 }
 
@@ -30,9 +26,7 @@ bool Config::set(const std::string& key, const std::string& v) noexcept {
         try {
             _config[key] = v;
             return true;
-        } catch (...) {
-            return false;
-        }
+        } catch (...) { return false; }
     } else return false;
 }
 
@@ -42,9 +36,7 @@ bool Config::write() const {
         try {
             f << _config;
             return true;
-        } catch (...) {
-            return false;
-        }
+        } catch (...) { return false; }
     } else return false;
 }
 
@@ -78,7 +70,5 @@ bool Config::_load() {
     try {
         _config = YAML::LoadFile(appDir() + "/.config");
         return true;
-    } catch (...) {
-        return false;
-    }
+    } catch (...) { return false; }
 }

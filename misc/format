@@ -1,0 +1,6 @@
+#!/bin/sh
+clang-format -i src/*.cpp
+clang-format -i src/export/*.cpp
+clang-format -i include/*.h
+clang-format -i include/export/*.h
+echo "Finished formatting 'mmcesim' project."

@@ -4,18 +4,16 @@
  * @brief Implementation of Alg Class
  * @version 0.1.0
  * @date 2022-07-27
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #include "export/type.h"
 
 Type::Type(const std::string& str) {
     switch (auto l = str.length()) {
-    case 0:
-        _data = Data::UNKNOWN;
-        break;
+    case 0: _data = Data::UNKNOWN; break;
     case 1:
         std::tie(_data, _dim) = _getData(str[0]);
         // If not specified, the dimension is 0 (as a scalar).
@@ -31,7 +29,7 @@ Type::Type(const std::string& str) {
             case '1': _dim = 1; break;
             case '2': _dim = 2; break;
             case '3': _dim = 3; break;
-            default:  _dim = -1;
+            default: _dim = -1;
             }
             has_number = true;
         } else {
@@ -48,9 +46,7 @@ Type::Type(const std::string& str) {
             has_number = false;
         }
         if (has_number) {
-            if (l >= 3) {
-                _suffix = _getSuffix(str[2]);
-            }
+            if (l >= 3) { _suffix = _getSuffix(str[2]); }
         } else {
             _suffix = _getSuffix(str[1]);
         }
@@ -95,30 +91,32 @@ std::string Type::string() const noexcept {
 
 std::tuple<Type::Data, Type::Dim> Type::_getData(char c) const noexcept {
     switch (tolower(c)) {
-    case 'c': return { Data::COMPLEX,  -1 };
-    case 'f': return { Data::FLOAT,    -1 };
-    case 'i': return { Data::INTEGER,  -1 };
-    case 'u': return { Data::UNSIGNED, -1 };
-    case 'b': return { Data::BOOL,     -1 };
-    case 's': return { Data::STRING,   -1 };
-    case 'h': return { Data::CHAR,     -1 };
-/*  case 'o': return { Data::OTHER,    -1 }; */
-    case 'v': return { Data::COMPLEX,   1 };
-    case 'r': return { Data::COMPLEX,   2 };
-    case 'm': return { Data::COMPLEX,   2 };
-    case 't': return { Data::COMPLEX,   3 };
-    case 'd': return { Data::FLOAT,     0 };
-    default:  return { Data::UNKNOWN,  -1 };
+    case 'c': return {Data::COMPLEX, -1};
+    case 'f': return {Data::FLOAT, -1};
+    case 'i': return {Data::INTEGER, -1};
+    case 'u': return {Data::UNSIGNED, -1};
+    case 'b': return {Data::BOOL, -1};
+    case 's': return {Data::STRING, -1};
+    case 'h':
+        return {Data::CHAR, -1};
+        /*  case 'o': return { Data::OTHER,    -1 }; */
+    case 'v': return {Data::COMPLEX, 1};
+    case 'r': return {Data::COMPLEX, 2};
+    case 'm': return {Data::COMPLEX, 2};
+    case 't': return {Data::COMPLEX, 3};
+    case 'd': return {Data::FLOAT, 0};
+    default: return {Data::UNKNOWN, -1};
     }
 }
 
 Type::Suffix Type::_getSuffix(char c) const noexcept {
     switch (tolower(c)) {
     case 'c': return Suffix::CONST_;
-    case 'r': return Suffix::REFERENCE_;
-/*  case 'v': return Suffix::VOLATILE_; */
-    case 0:   return Suffix::NONE;
-    default:  return Suffix::UNKNOWN;
+    case 'r':
+        return Suffix::REFERENCE_;
+        /*  case 'v': return Suffix::VOLATILE_; */
+    case 0: return Suffix::NONE;
+    default: return Suffix::UNKNOWN;
     }
 }
 

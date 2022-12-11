@@ -4,42 +4,42 @@
  * @brief Export mmCEsim Configuration to Other Programming Languages
  * @version 0.1.0
  * @date 2022-07-12
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _EXPORT_H_
 #define _EXPORT_H_
 
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-#include <type_traits>
-#include <ctime>
-#include <vector>
-#include <tuple>
-#include <algorithm>
-#include <sstream>
-#include <regex>
-#include <exception>
-#include <boost/algorithm/string.hpp>
-#include <fmt/core.h>
-#include "export/keywords.h"
-#include "export/alg.h"
-#include "export/value_vec.h"
-#include "export/shared_info.h"
-#include "export/channel_graph.h"
-#include "error_code.h"
-#include "read.h"
 #include "cli_options.h"
+#include "error_code.h"
+#include "export/alg.h"
+#include "export/channel_graph.h"
+#include "export/keywords.h"
+#include "export/shared_info.h"
+#include "export/value_vec.h"
+#include "read.h"
 #include "utils.h"
+#include <algorithm>
+#include <boost/algorithm/string.hpp>
+#include <ctime>
+#include <exception>
+#include <filesystem>
+#include <fmt/core.h>
+#include <fstream>
+#include <iostream>
+#include <regex>
+#include <sstream>
+#include <tuple>
+#include <type_traits>
+#include <vector>
 
 class Export {
-public:
+  public:
     /**
      * @brief Export language.
-     * 
+     *
      * Options are CPP, MATLAB, PYTHON and IPYNB.
      */
     enum class Lang {
@@ -50,22 +50,21 @@ public:
         IPYNB   ///< IPyNb with NumPy library
     } lang = Lang::CPP;
 
-    enum DType: unsigned {
-        INT = 1,     ///< int
-        DOUBLE = 2,  ///< double
-        STRING = 4,  ///< string
-        BOOL = 8,    ///< bool
-        CHAR = 16,   ///< map
-        SEQ = 32,    ///< sequence
-        MAP = 64,    ///< map
-        NUL = 1024,  ///< null
-        UNDEF = 2048 ///< undefined
+    enum DType : unsigned {
+        INT    = 1,    ///< int
+        DOUBLE = 2,    ///< double
+        STRING = 4,    ///< string
+        BOOL   = 8,    ///< bool
+        CHAR   = 16,   ///< map
+        SEQ    = 32,   ///< sequence
+        MAP    = 64,   ///< map
+        NUL    = 1024, ///< null
+        UNDEF  = 2048  ///< undefined
     };
 
     Export(CLI_Options& opt, Shared_Info* const info = nullptr);
 
-    Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors,
-        Shared_Info* const info = nullptr);
+    Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors, Shared_Info* const info = nullptr);
 
     ~Export();
 
@@ -74,9 +73,9 @@ public:
     static YAML_Errors exportCode(CLI_Options& opt, Shared_Info* const info = nullptr);
 
     static YAML_Errors exportCode(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& errors,
-        Shared_Info* const info = nullptr);
+                                  Shared_Info* const info = nullptr);
 
-private:
+  private:
     std::ofstream& _f();
 
     std::string _langStr() const;
@@ -96,7 +95,7 @@ private:
     // error message can be specified later
     bool _preCheck(const YAML::Node& node, unsigned allowed_type, bool mattered = true);
 
-    template<typename T>
+    template <typename T>
     T _as(const YAML::Node& n, bool mattered = true);
 
     std::string _asStr(const YAML::Node& n, bool mattered = true);
@@ -145,7 +144,7 @@ private:
     YAML::Node _config;
     YAML_Errors _errors;
     bool _already_error_before_export = false;
-    std::ofstream* _f_ptr = nullptr;
+    std::ofstream* _f_ptr             = nullptr;
     Shared_Info* const _s_info;
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
@@ -160,7 +159,7 @@ private:
     const int _MAX_RX = 1;
 };
 
-template<typename T>
+template <typename T>
 inline T Export::_as(const YAML::Node& n, bool mattered) {
     bool l;
     if (std::is_same_v<T, int>) {
@@ -181,9 +180,7 @@ inline T Export::_as(const YAML::Node& n, bool mattered) {
     }
 }
 
-inline std::ofstream& Export::_f() {
-    return *_f_ptr;
-}
+inline std::ofstream& Export::_f() { return *_f_ptr; }
 
 inline std::string Export::_langStr() const {
     if (lang == Lang::CPP) return "cpp";
@@ -233,13 +230,9 @@ inline std::string Export::_langCommentSymbol() const {
     else return "Impossible branch in \"Export::_langCommentSymbol()\"!";
 }
 
-inline void Export::_info(const std::string& str) const {
-    std::cout << "[mmCEsim] export $ " << str << std::endl;
-}
+inline void Export::_info(const std::string& str) const { std::cout << "[mmCEsim] export $ " << str << std::endl; }
 
-inline std::string Export::_asStr(const YAML::Node& n, bool mattered) {
-    return _as<std::string>(n, mattered);
-}
+inline std::string Export::_asStr(const YAML::Node& n, bool mattered) { return _as<std::string>(n, mattered); }
 
 inline void Export::_setLatestError(const std::string& str) {
     assert((!_errors.empty() && "Check if errors are empty when trying to edit the last record."));
@@ -253,7 +246,7 @@ inline bool Export::_isKeyword(const std::string& str) const {
     else return false; // though impossible here
 }
 
-// TODO: use this function in the future 
+// TODO: use this function in the future
 inline std::string Export::_asVarName(const std::string& str) const {
     if (_isKeyword(str)) return str + "_";
     else return str;

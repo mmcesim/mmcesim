@@ -4,9 +4,9 @@
  * @brief Utilities
  * @version 0.1.0
  * @date 2022-07-11
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _UTILS_H_
@@ -14,32 +14,28 @@
 
 #include <algorithm>
 #include <cctype>
-#include <string>
 #include <random>
-#include <vector>
 #include <sstream>
+#include <string>
+#include <vector>
 #ifndef __linux__
 #include <boost/dll/runtime_symbol_info.hpp>
 #else
 #include <libgen.h>       // dirname
-#include <unistd.h>       // readlink
 #include <linux/limits.h> // PATH_MAX
+#include <unistd.h>       // readlink
 #endif
 
 // https://stackoverflow.com/a/217605/15080514
 
 // trim from start (in place)
 static inline void ltrim(std::string& s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
 }
 
 // trim from end (in place)
 static inline void rtrim(std::string& s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
 }
 
 // trim from both ends (in place)
@@ -76,13 +72,12 @@ T strAs(const std::string& s) {
 
 /**
  * @brief Check if the string is an unsigned integer.
- * 
+ *
  * @param s the string
  * @note Ref: https://stackoverflow.com/a/4654718/15080514
  */
 static inline bool isUInt(const std::string& s) {
-    return !s.empty() && std::find_if(s.begin(), 
-        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+    return !s.empty() && std::find_if(s.begin(), s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
 
 // If the string is quoted with a character
@@ -105,16 +100,15 @@ static std::string removeQuote(const std::string& s) {
 
 // remove all white space in a string
 static inline std::string& removeSpaceInPlace(std::string& str) {
-    str.erase(std::remove_if(str.begin(), str.end(),
-        [](unsigned char x) { return std::isspace(x); }), str.end());
+    str.erase(std::remove_if(str.begin(), str.end(), [](unsigned char x) { return std::isspace(x); }), str.end());
     return str;
 }
 
 // remove all white space in a string and make a copy
 static inline std::string removeSpaceCopy(const std::string& str) {
     std::string new_str = str;
-    new_str.erase(std::remove_if(new_str.begin(), new_str.end(),
-        [](unsigned char x) { return std::isspace(x); }), new_str.end());
+    new_str.erase(std::remove_if(new_str.begin(), new_str.end(), [](unsigned char x) { return std::isspace(x); }),
+                  new_str.end());
     return new_str;
 }
 
@@ -122,14 +116,12 @@ static inline std::string removeSpaceCopy(const std::string& str) {
 static std::string stringVecAsString(const std::vector<std::string>& l, std::string div = " ") {
     if (l.empty()) return "";
     std::string str;
-    for (auto iter = l.cbegin(); iter != l.cend() - 1; ++iter) {
-        str += *iter + div;
-    }
+    for (auto iter = l.cbegin(); iter != l.cend() - 1; ++iter) { str += *iter + div; }
     return str + *(l.cend() - 1);
 }
 
 // check if STL container contains a value
-template<typename T>
+template <typename T>
 static inline bool contains(const T& container, const typename T::value_type value) {
     for (auto&& elem : container) {
         if (elem == value) return true;
@@ -144,8 +136,8 @@ static inline std::string appDir() {
     return boost::dll::program_location().remove_filename().string();
 #else
     char result[PATH_MAX] = {};
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    const char* path = "";
+    ssize_t count         = readlink("/proc/self/exe", result, PATH_MAX);
+    const char* path      = "";
     if (count != -1) path = dirname(result);
     return path;
 #endif
@@ -155,25 +147,23 @@ static inline std::string appDir() {
 // Reference: https://stackoverflow.com/a/24586587/15080514
 static std::string randomString(std::string::size_type length) {
     static auto& chrs = "0123456789"
-        "abcdefghijklmnopqrstuvwxyz"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                        "abcdefghijklmnopqrstuvwxyz"
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     thread_local static std::mt19937 rg{std::random_device{}()};
     thread_local static std::uniform_int_distribution<std::string::size_type> pick(0, sizeof(chrs) - 2);
     std::string s;
     s.reserve(length);
-    while (length--) {
-        s += chrs[pick(rg)];
-    }
+    while (length--) { s += chrs[pick(rg)]; }
     return s;
 }
 
 namespace mmce {
-    template<typename T>
-    static inline std::string to_string(const T& x) {
-        std::ostringstream str;
-        str << x;
-        return str.str();
-    }
+template <typename T>
+static inline std::string to_string(const T& x) {
+    std::ostringstream str;
+    str << x;
+    return str.str();
 }
+} // namespace mmce
 
 #endif

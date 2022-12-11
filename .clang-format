@@ -1,0 +1,19 @@
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true
+AlwaysBreakTemplateDeclarations: Yes
+# Custom Macro in export/alg.cpp
+MacroBlockBegin: '(SWITCH_FUNC)'
+MacroBlockEnd: '(END_SWITCH)'

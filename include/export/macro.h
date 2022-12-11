@@ -4,19 +4,19 @@
  * @brief ALG Macro
  * @version 0.1.0
  * @date 2022-09-13
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _EXPORT_MACRO_H_
 #define _EXPORT_MACRO_H_
 
-#include <string>
-#include <vector>
-#include <regex>
-#include <utility>
 #include "utils.h"
+#include <regex>
+#include <string>
+#include <utility>
+#include <vector>
 
 struct XY_Size {
     unsigned Tx = 0;

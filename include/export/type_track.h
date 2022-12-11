@@ -4,27 +4,27 @@
  * @brief Track data type of variables
  * @version 0.1.0
  * @date 2022-09-24
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _EXPORT_TYPE_TRACK_
 #define _EXPORT_TYPE_TRACK_
 
-#include <vector>
-#include <stack>
-#include <utility>
-#include <iostream>
-#include <stdexcept>
 #include "export/type.h"
+#include <iostream>
+#include <stack>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 #define _TYPE_TRACK_PRINT_INFO
 
 using Type_Pair = std::pair<std::string, Type>;
 
 class Type_Track {
-public:
+  public:
     Type operator[](const std::string& var);
 
     void operator++(int);
@@ -39,17 +39,13 @@ public:
 
     bool empty() const noexcept;
 
-private:
+  private:
     std::vector<Type_Pair> _types;
     std::stack<size_t> _scopes; // the index of the starting scope
 };
 
-inline size_t Type_Track::size() const noexcept {
-    return _types.size();
-}
+inline size_t Type_Track::size() const noexcept { return _types.size(); }
 
-inline bool Type_Track::empty() const noexcept {
-    return _types.empty();
-}
+inline bool Type_Track::empty() const noexcept { return _types.empty(); }
 
 #endif

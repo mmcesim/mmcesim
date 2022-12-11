@@ -4,27 +4,27 @@
  * @brief Make Calculation in Alg
  * @version 0.1.0
  * @date 2022-08-20
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _EXPORT_CALC_H_
 #define _EXPORT_CALC_H_
 
-#include <string>
-#include <boost/algorithm/string/replace.hpp>
-#include <tuple>
 #include "export/type_track_global.h"
 #include "utils.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <string>
+#include <tuple>
 
 class Calc {
-public:
+  public:
     Calc(const std::string& str);
 
     /**
      * @brief Convert the Alg CALC contents into a language command.
-     * 
+     *
      * @param lang Language ("cpp", "py", "matlab" or "octave").
      * @param msg Pointer to error message string.
      * @return (std::string) The converted string.
@@ -33,8 +33,7 @@ public:
 
     static std::string as(const std::string& str, std::string lang, std::string* msg = nullptr);
 
-private:
-
+  private:
     bool _changeOperator(std::string& str, std::string lang, std::string* msg = nullptr) const;
 
     bool _changeFunction(std::string& str, std::string lang, std::string* msg = nullptr) const;

@@ -4,9 +4,9 @@
  * @brief Implementation of Macro class.
  * @version 0.1.0
  * @date 2022-09-13
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #include "export/macro.h"
@@ -23,11 +23,11 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
     std::regex snr_db_re("`SNR_dB`");
     std::regex measurement_re("`MEASUREMENT`");
     std::string r = std::regex_replace(s, job_num_re, std::to_string(this->job_num));
-    r = std::regex_replace(r, job_cnt_re, std::to_string(job_cnt));
-    r = std::regex_replace(r, job_nmse_re, "NMSE" + std::to_string(job_cnt));
-    r = std::regex_replace(r, pilot_re, "pilot");
-    r = std::regex_replace(r, snr_db_re, "SNR_dB");
-    r = std::regex_replace(r, std::regex("`CARRIERS_NUM`"), "carriers_num");
+    r             = std::regex_replace(r, job_cnt_re, std::to_string(job_cnt));
+    r             = std::regex_replace(r, job_nmse_re, "NMSE" + std::to_string(job_cnt));
+    r             = std::regex_replace(r, pilot_re, "pilot");
+    r             = std::regex_replace(r, snr_db_re, "SNR_dB");
+    r             = std::regex_replace(r, std::regex("`CARRIERS_NUM`"), "carriers_num");
     if (_N.Tx > 0) r = std::regex_replace(r, std::regex("`SIZE.T.x`"), std::to_string(_N.Tx));
     if (_N.Ty > 0) r = std::regex_replace(r, std::regex("`SIZE.T.y`"), std::to_string(_N.Ty));
     if (_N.Rx > 0) r = std::regex_replace(r, std::regex("`SIZE.R.x`"), std::to_string(_N.Rx));
@@ -52,18 +52,14 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
     if (_N.t() > 0) {
         std::regex dictionary_x_re("`DICTIONARY.T`");
         r = std::regex_replace(r, dictionary_x_re,
-            "\\dictionary(" +
-            std::to_string(_N.Tx) + "," + std::to_string(_N.Ty) + "," +
-            std::to_string(_G.Tx) + "," + std::to_string(_G.Ty) + ")"
-        );
+                               "\\dictionary(" + std::to_string(_N.Tx) + "," + std::to_string(_N.Ty) + "," +
+                                   std::to_string(_G.Tx) + "," + std::to_string(_G.Ty) + ")");
     }
     if (_N.r() > 0) {
         std::regex dictionary_x_re("`DICTIONARY.R`");
         r = std::regex_replace(r, dictionary_x_re,
-            "\\dictionary(" +
-            std::to_string(_N.Rx) + "," + std::to_string(_N.Ry) + "," +
-            std::to_string(_G.Rx) + "," + std::to_string(_G.Ry) + ")"
-        );
+                               "\\dictionary(" + std::to_string(_N.Rx) + "," + std::to_string(_N.Ry) + "," +
+                                   std::to_string(_G.Rx) + "," + std::to_string(_G.Ry) + ")");
     }
     if (_B.r() > 0) r = std::regex_replace(r, measurement_re, "(pilot*" + std::to_string(_B.r()) + ")");
     if (job_cnt >= 0) {

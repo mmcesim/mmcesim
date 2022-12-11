@@ -4,28 +4,28 @@
  * @brief Program Command Line Options
  * @version 0.1.0
  * @date 2022-07-11
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
-#include <iostream>
-#include <filesystem>
-#include <boost/program_options.hpp>
-#include <boost/exception/diagnostic_information.hpp>
-#include <boost/algorithm/string.hpp>
 #include "cli_options.h"
-#include "error_code.h"
-#include "meta.h"
-#include "utils.h"
-#include "simulate.h"
-#include "export.h"
-#include "style.h"
 #include "config.h"
+#include "error_code.h"
+#include "export.h"
+#include "meta.h"
+#include "simulate.h"
+#include "style.h"
+#include "utils.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/exception/diagnostic_information.hpp>
+#include <boost/program_options.hpp>
+#include <filesystem>
+#include <iostream>
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#pragma warning (disable: 4244)
+#pragma warning(disable : 4244)
 #endif
 
 int main(int argc, char* argv[]) {
@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
 
     CLI_Options opt; // command line options
 
+    // clang-format off
     po::options_description generic("Generic options");
     generic.add_options()
         ("version,v", "print version string")
@@ -59,6 +60,7 @@ int main(int argc, char* argv[]) {
         ("command", po::value<std::string>(&opt.cmd)->required(), "command")
         ("input", po::value<std::string>(&opt.input)->required(), "input")
     ;
+    // clang-format on
 
     po::options_description cmdline_options;
     cmdline_options.add(generic).add(config).add(hidden);
@@ -74,11 +76,9 @@ int main(int argc, char* argv[]) {
     p.add("input", -1);
     po::variables_map vm;
     try {
-        po::store(po::command_line_parser(argc, argv).
-            options(cmdline_options).positional(p).run(), vm);
+        po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
         if (vm.count("help")) {
-            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR
-                      << "    (C) " << _MMCESIM_AUTHOR << '\n'
+            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "    (C) " << _MMCESIM_AUTHOR << '\n'
                       << _MMCESIM_DESCR << std::endl;
             std::cout << std::string(45, '=') << "\n" << std::endl;
             std::cout << "Usage: " << argv[0] << " <command> <input> [options]\n" << std::endl;
@@ -87,7 +87,8 @@ int main(int argc, char* argv[]) {
                       << "  dbg [debug]            debug simulation settings\n"
                       << "  exp [export]           export code\n"
                       << "  config                 configure mmCEsim options\n"
-                      << "  (Leave empty)          generic use\n" << std::endl;
+                      << "  (Leave empty)          generic use\n"
+                      << std::endl;
             std::cout << visible << std::endl;
             return 0;
         }
@@ -98,7 +99,7 @@ int main(int argc, char* argv[]) {
         }
 
         if (vm.count("gui")) {
-            std::string app_dir = appDir();
+            std::string app_dir  = appDir();
             std::string gui_path = app_dir.append("/mmcesim-gui");
 #ifdef __APPLE__
             // open GUI app without handling its result
@@ -111,8 +112,7 @@ int main(int argc, char* argv[]) {
             }
 #else
             // open GUI app without handling its result
-            if (!std::filesystem::exists(gui_path) &&
-                !std::filesystem::exists(gui_path + ".out") &&
+            if (!std::filesystem::exists(gui_path) && !std::filesystem::exists(gui_path + ".out") &&
                 !std::filesystem::exists(gui_path + ".exe")) {
                 std::cerr << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
 
             return 0; // open GUI app
         }
-    
+
         po::notify(vm);
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
@@ -155,9 +155,7 @@ int main(int argc, char* argv[]) {
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) {
-            for (auto&& err : errors) {
-                std::cerr << err.msg << '\n';
-            }
+            for (auto&& err : errors) { std::cerr << err.msg << '\n'; }
             errorExit(errors[0].ec);
         }
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {

@@ -4,25 +4,25 @@
  * @brief Read YAML Configuration
  * @version 0.1.0
  * @date 2022-07-11
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _READ_H_
 #define _READ_H_
 
+#include "error_code.h"
+#include "meta.h"
+#include "yaml.h"
+#include <iostream>
 #include <string>
 #include <tuple>
 #include <vector>
-#include <iostream>
-#include "yaml.h"
-#include "error_code.h"
-#include "meta.h"
 
 struct YAML_Error {
     int line = -1;
-    int col = -1;
+    int col  = -1;
     std::string msg;
     Err ec;
 
@@ -36,14 +36,14 @@ struct YAML_Error {
 using YAML_Errors = std::vector<YAML_Error>;
 
 class ReadConfig {
-public:
+  public:
     ReadConfig(const std::string& file);
 
     std::tuple<YAML::Node, YAML_Errors> read() const;
 
     static std::tuple<YAML::Node, YAML_Errors> read(const std::string& file);
 
-private:
+  private:
     std::string _file;
 };
 

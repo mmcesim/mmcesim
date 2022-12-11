@@ -8,32 +8,25 @@ int Simulate::simulate() const {
     std::string line;
     std::string cmd = fmt::format(_s_info.src_compile_cmd, Config::read("cpp", "g++"), Config::read("cppflags"));
     try {
-        boost::process::ipstream is; //reading pipe-stream
-        boost::process::child compile_process(
-            cmd,
-            boost::process::std_out > boost::process::null, // ignore output
-            boost::process::std_err > is                    // keep error message
+        boost::process::ipstream is; // reading pipe-stream
+        boost::process::child compile_process(cmd,
+                                              boost::process::std_out > boost::process::null, // ignore output
+                                              boost::process::std_err > is                    // keep error message
         );
-        while (compile_process.running() && std::getline(is, line) && !line.empty()) {
-            std::cerr << line << "\n";
-        }
+        while (compile_process.running() && std::getline(is, line) && !line.empty()) { std::cerr << line << "\n"; }
         compile_process.wait();
         int e = compile_process.exit_code();
         if (e) {
             std::cerr << "\nCompiling failed. Command: " << cmd << std::endl;
             return e;
-        }
-        else {
+        } else {
             std::cout << "[mmcesim] simulate $ Code auto export finished.\n";
-            boost::process::ipstream is; //reading pipe-stream
-            boost::process::child simulate_process(
-                "./a.out",
-                boost::process::std_out > boost::process::null, // ignore output
-                boost::process::std_err > is                    // keep error message
+            boost::process::ipstream is; // reading pipe-stream
+            boost::process::child simulate_process("./a.out",
+                                                   boost::process::std_out > boost::process::null, // ignore output
+                                                   boost::process::std_err > is                    // keep error message
             );
-            while (simulate_process.running() && std::getline(is, line) && !line.empty()) {
-                std::cerr << line << "\n";
-            }
+            while (simulate_process.running() && std::getline(is, line) && !line.empty()) { std::cerr << line << "\n"; }
             simulate_process.wait();
             int e = simulate_process.exit_code();
             if (e) {

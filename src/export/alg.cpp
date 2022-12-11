@@ -4,24 +4,24 @@
  * @brief Implementation of class Alg
  * @version 0.1.0
  * @date 2022-07-25
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #include "export/alg.h"
 
-Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
-    bool fail_fast, bool add_comment, bool add_semicolon)
+Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, bool fail_fast, bool add_comment,
+         bool add_semicolon)
     : _macro(macro), _failed(false), _job_cnt(job_cnt), _add_semicolon(add_semicolon), _add_comment(add_comment) {
     std::string str_replaced_macro = macro.replaceMacro(str, job_cnt, alg_cnt);
     std::stringstream ss(str_replaced_macro);
     std::string line;
     std::string unterminated_line = "";
-    Alg_Lines::size_type line_no = 0;
+    Alg_Lines::size_type line_no  = 0;
     while (std::getline(ss, line, '\n')) { // separate by newline
         ++line_no;
-        trim(line); // remove the whitespace around it.
+        trim(line);                 // remove the whitespace around it.
         if (line.empty()) continue; // skip empty line
         // bool unterminated_here = *(line.end() - 1) == '\\';
         if (*(line.end() - 1) == '\\') {
@@ -54,35 +54,43 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt,
 }
 
 #define SWITCH_FUNC if (false) {
-#define CASE(_func_name__) } else if (func == _func_name__) {
-#define DEFAULT } else {
+#define CASE(_func_name__)                                                                                             \
+    }                                                                                                                  \
+    else if (func == _func_name__) {
+#define DEFAULT                                                                                                        \
+    }                                                                                                                  \
+    else {
 #define END_SWITCH }
-#define LANG_CPP if (lang == "cpp") {
-#define LANG_PY } else if (lang == "py") {
-#define LANG_M } else if (lang == "matlab" || lang == "octave") {
-#define END_LANG } else throw("Unknown language " + lang + ".");
-#define ERROR(msg) _errors.push_back({msg, _raw_strings[i], _line_nos[i]})
+#define LANG_CPP   if (lang == "cpp") {
+#define LANG_PY                                                                                                        \
+    }                                                                                                                  \
+    else if (lang == "py") {
+#define LANG_M                                                                                                         \
+    }                                                                                                                  \
+    else if (lang == "matlab" || lang == "octave") {
+#define END_LANG                                                                                                       \
+    }                                                                                                                  \
+    else throw("Unknown language " + lang + ".");
+#define ERROR(msg)   _errors.push_back({msg, _raw_strings[i], _line_nos[i]})
 #define WARNING(msg) _warnings.push_back({msg, _raw_strings[i], _line_nos[i]})
-#define INDENT _indent(_indent_size)
-#define _m(_str__) _macro.replaceMacro(_str__, _job_cnt, _alg_cnt)
-#define _mi(_i__) _m(line.params(_i__).value)
-#define _ms(_s__) _m(line[_s__])
+#define INDENT       _indent(_indent_size)
+#define _m(_str__)   _macro.replaceMacro(_str__, _job_cnt, _alg_cnt)
+#define _mi(_i__)    _m(line.params(_i__).value)
+#define _ms(_s__)    _m(line[_s__])
 
 // Apply keys and check repeated/unknown keys.
-#define APPLY_KEYS(_func_name__) \
-    if (!_applyKey(line, keys)) \
-        ERROR(std::string("More parameters than expected in '") + _func_name__ + "'."); \
-    if (line.hasRepeatedKey()) \
-        ERROR(std::string("Repeated key in '") + _func_name__ + "'."); \
-    if (line.hasUnknownKey(keys)) \
-        ERROR(std::string("Unkown key in '") + _func_name__ + "'.");
+#define APPLY_KEYS(_func_name__)                                                                                       \
+    if (!_applyKey(line, keys)) ERROR(std::string("More parameters than expected in '") + _func_name__ + "'.");        \
+    if (line.hasRepeatedKey()) ERROR(std::string("Repeated key in '") + _func_name__ + "'.");                          \
+    if (line.hasUnknownKey(keys)) ERROR(std::string("Unkown key in '") + _func_name__ + "'.");
 
 bool Alg::write(std::ofstream& f, const std::string& lang) {
-    size_t indent_cnt = 0; // used for Python and MATLAB.
+    size_t indent_cnt = 0;                    // used for Python and MATLAB.
     for (int i = 0; i < _lines.size(); ++i) { // use i because sometimes it will be -1 before adding 1.
-        Alg_Line line = _lines[i];
+        Alg_Line line           = _lines[i];
         const std::string& func = line.func();
         std::cout << "func: '" << func << "'\n";
+        // clang-format off
         SWITCH_FUNC
             // function no end
             CASE ("BRANCH")
@@ -617,6 +625,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             DEFAULT
                 // if (_add_semicolon) f << ";";
         END_SWITCH
+        // clang-format on
         if (_add_comment) {
             if (func != "COMMENT") _wComment(f, lang, " ") << _raw_strings[i] << '\n';
         }
@@ -627,13 +636,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 i = _branch_line - 1;
             }
             LANG_CPP
-                f << "}";
+            f << "}";
             END_LANG
             try {
                 type_track--;
             } catch (const std::out_of_range& e) {
-                std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
-                          << ": " << e.what() << std::endl; 
+                std::cerr << "ERROR: " << __FILE__ << " " << __LINE__ << ": " << e.what() << std::endl;
             }
         }
     }
@@ -667,9 +675,10 @@ std::string Alg::inlineCalc(const std::string& s, const std::string& lang) {
 }
 
 std::ofstream& Alg::_wComment(std::ofstream& f, const std::string& lang, const std::string& before) {
-    f << before 
-      << ((lang == "cpp") ? "// " :
-          (lang == "py" || lang == "ipynb") ? "# " :
-          (lang == "matlab" || lang == "octave") ? "% " : "");
+    f << before
+      << ((lang == "cpp")                          ? "// "
+          : (lang == "py" || lang == "ipynb")      ? "# "
+          : (lang == "matlab" || lang == "octave") ? "% "
+                                                   : "");
     return f;
 }

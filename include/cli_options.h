@@ -4,9 +4,9 @@
  * @brief Storage of Command Line Options
  * @version 0.1.0
  * @date 2022-07-11
- * 
+ *
  * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _CLI_OPTIONS_H_
@@ -21,7 +21,7 @@ struct CLI_Options {
     std::string style;
     std::string lang;
     std::string value;
-    bool force = false;
+    bool force            = false;
     bool no_error_compile = false;
 };
 
