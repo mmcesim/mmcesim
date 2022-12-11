@@ -546,8 +546,13 @@ void Export::_sounding() {
             // TODO: transmit pilots!
             if (freq == "wide") {
                 _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
-                     << "cx_cube " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>() << ";"
-                     << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
+                     << ", carriers_num, arma::fill::zeros);\n"
+                     << "for (unsigned k = 0; k != carriers_num; ++k) {\n";
+                for (unsigned i = 1; i < _channel_graph.paths[0].size(); ++i) {
+                    // TODO: generate channel
+                }
+                _f() << "}\nfor (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
                      << "for (uword k = 0; k != carriers_num; ++k) {"

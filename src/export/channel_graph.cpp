@@ -44,7 +44,11 @@ bool Channel_Graph::arrange() {
     if (Tx.empty() || Rx.empty()) return false;
     try {
         _formPaths({});
-        return true;
+        if (paths.empty()) {
+            std::cerr << "[mmcesim] export $ ERROR: There is no valid path in the cascaded channel.\n";
+            return false;
+        }
+        else return true;
     } catch (...) {
         std::cerr << "[mmcesim] export $ ERROR: There are loops in the cascaded channel.\n";
         return false;

@@ -45,6 +45,7 @@ cmake_install.cmake
 CPack*
 CTest*
 Makefile
+*.dSYM
 _data
 _tex_report
 /*.rpt

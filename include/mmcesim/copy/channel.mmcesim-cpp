@@ -65,7 +65,7 @@ namespace mmce {
         const vec _0_My = linspace(0, double(My - 1), My) / My;
         const vec _0_Nx = linspace(0, double(Nx - 1), Nx) / Nx;
         const vec _0_Ny = linspace(0, double(Ny - 1), Ny) / Ny;
-        cx_mat H(M, N, arma::fill::zeros);
+        cx_mat H(N, M, arma::fill::zeros);
 
         uvec index1 = randperm_s(GMx, L);
         uvec index2 = randperm_s(GMy, L);
@@ -98,7 +98,7 @@ namespace mmce {
                 const cx_vec b2 = std::sqrt(1.0 / Ny) * exp(-1i * _2pi * _0_Ny * steering_Ny[index4[l]]);
                 b = kron(b1, b2);
             }
-            H += alpha[l] * a * b.t();
+            H += alpha[l] * b * a.t();
         }
         return std::sqrt((double)M * N / L) * H;
     }
@@ -138,7 +138,7 @@ namespace mmce {
         const vec _0_My = linspace(0, double(My - 1), My) / My;
         const vec _0_Nx = linspace(0, double(Nx - 1), Nx) / Nx;
         const vec _0_Ny = linspace(0, double(Ny - 1), Ny) / Ny;
-        cx_cube H(M, N, K, arma::fill::zeros);
+        cx_cube H(N, M, K, arma::fill::zeros);
 
         uvec index1 = randperm_s(GMx, L);
         uvec index2 = randperm_s(GMy, L);
@@ -172,7 +172,7 @@ namespace mmce {
                     const cx_vec b2 = std::sqrt(1.0 / Ny) * exp(-1i * _2pi * _0_Ny * steering_Ny[index4[l]]);
                     b = kron(b1, b2);
                 }
-                H.slice(k) += alpha[l] * a * b.t();
+                H.slice(k) += alpha[l] * b * a.t();
             }
         }
         return std::sqrt((double)M * N / L) * H;
