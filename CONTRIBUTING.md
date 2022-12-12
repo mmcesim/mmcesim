@@ -30,7 +30,7 @@ Please run [^1]
 ```
 to format the code before committing.
 
-[^1]: Approximate permission is needed.
+[^1]: Appropriate permission is needed.
 On a Unix (Linux and macOS) system, you may use `chmod +x ./misc/format`.
 
 ## Other Ways You can Contribute to mmCEsim
