@@ -9,11 +9,11 @@
 
 CLI & GUI Application for Millimeter Wave Channel Estimation Simulation
 
-> This application is currently under active development.
+> **Note** This application is currently under active development.
 
 ## Citation
 Find mmCEsim useful to your research?
-You may consider citing it:
+You may consider citing it[^1]:
 
 > [1] W. Zhao, “mmCEsim: Tasked-oriented millimeter wave channel estimation,” *Zenodo*, Jul. 2022, doi: [10.5281/zenodo.6912824](https://doi.org/10.5281/zenodo.6912824).
 ```bib
@@ -27,7 +27,7 @@ You may consider citing it:
   note    = {doi: \href{https://doi.org/10.5281/zenodo.6912824}{10.5281/zenodo.6912824}}
 }
 ```
-<sup>In `bibtex`, the `note` field may not be necessary. It should only be used when the `doi` field does not show (for example IEEEtran style).</sup>
+[^1]: In `bibtex`, the `note` field may not be necessary. It should only be used when the `doi` field does not show (for example IEEEtran style).
 
 ## Usage
 ```
@@ -60,6 +60,10 @@ Configuration:
   -f [ --force ]         force writing mode
   --no-error-compile     Do not raise error if simulation compiling fails
 ```
+
+## Contributing
+You are welcome to contribute to mmCEsim.
+More information is available in [CONTRIBUTING](CONTRIBUTING.md).
 
 ## Build
 | TinyTeX-mmCEsim | MinGW-mmCEsim |
