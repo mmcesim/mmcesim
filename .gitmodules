@@ -13,6 +13,3 @@
 [submodule "ext/fmt"]
 	path = ext/fmt
 	url = https://github.com/mmcesim/fmt.git
-[submodule "misc/mmcesim-doxygen"]
-	path = misc/doxygen
-	url = https://github.com/mmcesim/mmcesim-doxygen.git
