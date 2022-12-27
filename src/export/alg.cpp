@@ -89,7 +89,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
     for (int i = 0; i < _lines.size(); ++i) { // use i because sometimes it will be -1 before adding 1.
         Alg_Line line           = _lines[i];
         const std::string& func = line.func();
-        std::cout << "func: '" << func << "'\n";
+        line.print();
         // clang-format off
         SWITCH_FUNC
             // function no end

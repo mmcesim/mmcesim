@@ -17,7 +17,9 @@
 #include <algorithm>
 #include <cassert>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
+#include <stack>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -186,10 +188,27 @@ class Alg_Line {
      */
     bool isEnd() const noexcept;
 
+    /**
+     * @brief Print Alg_Line contents (including return values, function names and parameters).
+     *
+     * @details This is mostly used in internal debugging.
+     * @param out The output stream.
+     * @return (std::ostream&) The output stream.
+     */
+    std::ostream& print(std::ostream& out = std::cout) const;
+
   private:
     /**
-     * @brief Find the first occupance of character in string
-     *        that is not an escape or within quotes.
+     * @brief Find the first occupance of substring in string that is not an escape or within quotes.
+     *
+     * @param s string
+     * @param cs the substring to find
+     * @return (std::string::size_type) The index of the found substring. Return s.size() if not found.
+     */
+    std::string::size_type _findChars(const std::string& s, std::string cs) const noexcept;
+
+    /**
+     * @brief Find the first occupance of character in string that is not an escape or within quotes.
      *
      * @param s string
      * @param c the character to find
@@ -299,5 +318,29 @@ inline bool Alg_Line::setKey(std::vector<Param_Type>::size_type index, const std
 inline bool Alg_Line::needsEnd() const noexcept { return isFuncNeedsEnd(_func); }
 
 inline bool Alg_Line::isEnd() const noexcept { return isFuncIsEnd(_func); }
+
+inline std::ostream& Alg_Line::print(std::ostream& out) const {
+    out << "* FUNCTION: " << _func << '\n';
+    out << "* PARAMS:\n";
+    for (auto&& p : _params) out << "   > {" << p.key << "}={" << p.value << "}::{" << p.type << "}\n";
+    out << "* RETURN:\n";
+    for (auto&& r : _returns) out << "   > {" << r.name << "}::{" << r.type << "}\n";
+    out << std::flush;
+    return out;
+}
+
+inline std::string::size_type Alg_Line::_findChar(const std::string& s, char c) const noexcept {
+    return _findChars(s, std::string(1, c));
+}
+
+/**
+ * @brief Print Alg_Line contents (including return values, function names and parameters).
+ *
+ * @details This is mostly used in internal debugging. It internally called function 'print'.
+ * @param out The output stream.
+ * @param line The Alg_Line Object.
+ * @return (std::ostream&) The output stream.
+ */
+static inline std::ostream& operator<<(std::ostream& out, const Alg_Line& line) { return line.print(out); }
 
 #endif

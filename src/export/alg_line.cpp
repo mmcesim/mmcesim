@@ -21,10 +21,10 @@ Alg_Line::Alg_Line(const std::string& str) {
     // Now we need to tell whether this is assign '=' or parameter '='.
     bool eq_is_assign = false;
     std::string buf;
-    if ((str.length() >= 2 && str.substr(0, 2) == "IF") ||
-        (str.length() >= 3 && (str.substr(0, 3) == "FOR" || str.substr(0, 3) == "END" || str.substr(0, 3) == "CPP")) ||
-        (str.length() >= 4 && (str.substr(0, 4) == "LOOP" || str.substr(0, 4) == "ELIF")) ||
-        (str.length() >= 5 && str.substr(0, 5) == "WHILE") || (str.length() >= 7 && str.substr(0, 7) == "FOREVER")) {
+    if ((s.length() >= 2 && s.substr(0, 2) == "IF") ||
+        (s.length() >= 3 && (s.substr(0, 3) == "FOR" || s.substr(0, 3) == "END" || s.substr(0, 3) == "CPP")) ||
+        (s.length() >= 4 && (s.substr(0, 4) == "LOOP" || s.substr(0, 4) == "ELIF")) ||
+        (s.length() >= 5 && s.substr(0, 5) == "WHILE") || (s.length() >= 7 && s.substr(0, 7) == "FOREVER")) {
         eq_is_assign = false;
     } else {
         if (eq_index != s.size()) {
@@ -78,41 +78,57 @@ Alg_Line::Alg_Line(const std::string& str) {
     std::vector<std::string> unprocessed_func_params;
     std::stringstream ss_returns(s_returns);
     while (ss_returns >> buf) { unprocessed_returns.push_back(buf); }
-    std::stringstream ss_params(s_func_params);
-    while (ss_params >> buf) {
-        assert(buf.size() > 0 && "The buf normally will not take empty string");
-        if (char c = buf[0], end_c = *(buf.cend() - 1); (c == '$' || c == '\'' || c == '"') && c != end_c) {
-            // Here starts the search to the end of the pair.
-            // Also check the last character is because the quote may be closed
-            // in this exact token.
-            char next_char;
-            bool found_pair_end = false;
-            while (!ss_params.eof()) {
-                next_char = ss_params.get();
-                // If the next character is not the ending pair character,
-                // simply add this to the string.
-                buf += next_char;
-                if (next_char == c) {
-                    found_pair_end = true;
-                    unprocessed_func_params.push_back(buf);
-                    break;
-                }
+    std::stack<char> st;
+    buf.clear();
+    for (size_t i = 0; i < s_func_params.length(); ++i) {
+        char t = st.empty() ? 0 : st.top();
+        char c = s_func_params[i];
+        if (t == '\\') {
+            st.pop();
+            if (!st.empty() && st.top() == '"' || st.top() == '\'') {
+                if (c == 'n') buf += '\n';
+                else if (c == '"') buf += '"';
+                else if (c == 't') buf += '\t';
+                else if (c == 'r') buf += '\r';
+                else if (c == '0') buf += '\0';
+                else if (c == '$') buf += '$';
+                else throw std::runtime_error("Invalid escape.");
+            } else {
+                // This is just an ALG function staring indication, not a real escape.
+                buf += '\\';
+                buf += c;
             }
-            if (!found_pair_end) {
-                // If it goes here, it means there is an unclosed pair.
-                // So we make a complaint here.
-                std::cerr << std::string("Unclosed pair '") + c + "'\n";
-                throw std::runtime_error(std::string("Unclosed pair '") + c + "'");
+        } else if (t == '"') {
+            if (c == '\\') st.push('\\');
+            else if (c == '"') {
+                st.pop();
+                buf += '"';
+            } else buf += c;
+        } else if (t == '$') {
+            if (c == '\\') st.push('\\');
+            else if (c == '$') {
+                st.pop();
+                buf += '$';
+            } else buf += c;
+        } else if (isspace(c)) {
+            if (!buf.empty()) {
+                unprocessed_func_params.push_back(buf);
+                buf.clear();
             }
-        } else {
-            unprocessed_func_params.push_back(buf);
-        }
+        } else if (c == '"') {
+            st.push('"');
+            buf += '"';
+        } else if (c == '$') {
+            st.push('$');
+            buf += '$';
+        } else buf += c;
     }
+    if (!buf.empty()) unprocessed_func_params.push_back(buf);
     _processReturns(unprocessed_returns);
     _processFuncParams(unprocessed_func_params);
 }
 
-std::string::size_type Alg_Line::_findChar(const std::string& s, char c) const noexcept {
+std::string::size_type Alg_Line::_findChars(const std::string& s, std::string cs) const noexcept {
     std::string::size_type iter = s.size();
     bool has_double_quote       = false;
     bool has_single_quote       = false;
@@ -122,7 +138,7 @@ std::string::size_type Alg_Line::_findChar(const std::string& s, char c) const n
         if (e == '\'' && !is_escape) has_single_quote = !has_single_quote;
         else if (e == '"' && !is_escape) has_double_quote = !has_double_quote;
         else if (e == '$' && !is_escape) has_dollar = !has_dollar;
-        else if (e == c && !is_escape && !has_single_quote && !has_double_quote && !has_dollar) {
+        else if (contains(cs, e) && !is_escape && !has_single_quote && !has_double_quote && !has_dollar) {
             // Since C++11, std::string is contiguous.
             iter = &e - &s[0];
             break;
