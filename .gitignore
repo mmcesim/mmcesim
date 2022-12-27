@@ -48,4 +48,5 @@ Makefile
 *.dSYM
 _data
 _tex_report
+misc/_doxygen
 /*.rpt
