@@ -157,7 +157,20 @@ static std::string randomString(std::string::size_type length) {
     return s;
 }
 
+/**
+ * @brief Utilities specified for mmCEsim
+ *
+ * @details This is used because this is in violation to the normal std namespace.
+ */
 namespace mmce {
+/**
+ * @brief Change a number to string.
+ *
+ * @details This is useful because we do not want trailing 0 for a float number conversion.
+ * @tparam T The number data type.
+ * @param x The number.
+ * @return (std::string) The converted string.
+ */
 template <typename T>
 static inline std::string to_string(const T& x) {
     std::ostringstream str;
