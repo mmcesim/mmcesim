@@ -27,6 +27,11 @@ static std::vector<std::string> valid_configs = {"latex", "cpp", "cppflags"};
  */
 class Config {
   public:
+    /**
+     * @brief Construct a new Config object
+     *
+     * This is a default constructor.
+     */
     Config();
 
     std::string operator[](const std::string& key) const noexcept;
