@@ -23,7 +23,7 @@
 
 /**
  * @brief Style (format) generated code.
- * 
+ *
  * @details This class will call child process from 'astyle'.
  */
 class Style {
