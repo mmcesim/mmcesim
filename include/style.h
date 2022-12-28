@@ -21,6 +21,11 @@
 #include "error_code.h"
 #include "utils.h"
 
+/**
+ * @brief Style (format) generated code.
+ * 
+ * @details This class will call child process from 'astyle'.
+ */
 class Style {
   public:
     Style(const std::string& file_name, const std::string& options);
