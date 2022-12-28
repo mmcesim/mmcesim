@@ -20,6 +20,11 @@
 
 static std::vector<std::string> valid_configs = {"latex", "cpp", "cppflags"};
 
+/**
+ * @brief User configuration.
+ *
+ * @details Provide read and write portal.
+ */
 class Config {
   public:
     Config();
