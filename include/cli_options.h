@@ -14,6 +14,11 @@
 
 #include <string>
 
+/**
+ * @brief Command line options.
+ *
+ * @details This struct stores some CLI options from the user input.
+ */
 struct CLI_Options {
     std::string cmd;
     std::string input;
