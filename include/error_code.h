@@ -91,8 +91,8 @@ static inline std::string errorMsg(const Err& e) noexcept {
  * @brief Check if the error code corresponds to an error.
  *
  * @param e Error code (class Err).
- * @return true This is not an error.
- * @return false This is a real error.
+ * @retval true This is not an error.
+ * @retval false This is a real error.
  */
 static inline bool isError(const Err& e) noexcept { return errorCode(e) >= 100 && errorCode(e) < 200; }
 
@@ -100,8 +100,8 @@ static inline bool isError(const Err& e) noexcept { return errorCode(e) >= 100 &
  * @brief Check if the error code corresponds to a warning.
  *
  * @param e Error code (class Err).
- * @return true This is not a warning.
- * @return false This is a real warning.
+ * @retval true This is not a warning.
+ * @retval false This is a real warning.
  */
 static inline bool isWarning(const Err& e) noexcept { return errorCode(e) >= 200; }
 
@@ -111,8 +111,8 @@ static inline bool isWarning(const Err& e) noexcept { return errorCode(e) >= 200
  * This is used to check if it is Err::SUCCESS.
  *
  * @param e Error code (class Err).
- * @return true This is success.
- * @return false This is not success.
+ * @retval true This is success.
+ * @retval false This is not success.
  */
 static inline bool isSuccess(const Err& e) noexcept { return e == Err::SUCCESS; }
 

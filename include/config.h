@@ -34,8 +34,25 @@ class Config {
      */
     Config();
 
+    /**
+     * @brief Read the key.
+     *
+     * @param key The key.
+     * @return (std::string) The value.
+     */
     std::string operator[](const std::string& key) const noexcept;
 
+    /**
+     * @brief Set the key value.
+     *
+     * @details It will only set the key value when the key exists. Return false if the key does not exist.
+     *          No exception will be raised in this function,
+     *          but it will return false if there is error when setting the key.
+     * @param key The key.
+     * @param v The value.
+     * @retval true Successfully set the key.
+     * @retval false Failed to set the key.
+     */
     bool set(const std::string& key, const std::string& v) noexcept;
 
     size_t size() const noexcept;

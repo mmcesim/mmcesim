@@ -123,8 +123,8 @@ class Alg_Line {
      * Normally, the function 'setKey' needs to be called first
      * so that parameters specified by locations can be found as well.
      * @param key The key string to check.
-     * @return true Parameter variables contain this key.
-     * @return false Parameter variables do not contain this key.
+     * @retval true Parameter variables contain this key.
+     * @retval false Parameter variables do not contain this key.
      */
     bool hasKey(const std::string& key) const noexcept;
 
@@ -132,16 +132,16 @@ class Alg_Line {
      * @brief Check if parameters have unknown keys.
      *
      * @param keys All valid keys.
-     * @return true All keys of parameters are valid.
-     * @return false There exist unknown keys.
+     * @retval true All keys of parameters are valid.
+     * @retval false There exist unknown keys.
      */
     bool hasUnknownKey(const std::vector<std::string>& keys) const noexcept;
 
     /**
      * @brief Check if parameters have repeated keys.
      *
-     * @return true The parameters have repeated keys.
-     * @return false The parameters do not have repeated keys.
+     * @retval true The parameters have repeated keys.
+     * @retval false The parameters do not have repeated keys.
      */
     bool hasRepeatedKey() const noexcept;
 
@@ -157,8 +157,8 @@ class Alg_Line {
      * normally this method should be called after 'setKey'.
      * @param key The key string to check.
      * @param keys The required keys if key exists.
-     * @return true The key is not valid.
-     * @return false The key is valid.
+     * @retval true The key is not valid.
+     * @retval false The key is valid.
      */
     bool isValidKey(const std::string& key, const std::vector<std::string>& keys) const noexcept;
 
@@ -167,24 +167,24 @@ class Alg_Line {
      *
      * @param index The parameter index.
      * @param key The key string to assign.
-     * @return true The parameter does not have key previously.
-     * @return false The parameter has key before.
+     * @retval true The parameter does not have key previously.
+     * @retval false The parameter has key before.
      */
     bool setKey(std::vector<Param_Type>::size_type index, const std::string& key);
 
     /**
      * @brief Test whether the function name needs an 'end'
      *
-     * @return true The function needs 'end'. ('IF', 'ELSE', 'LOOP', etc.)
-     * @return false The function does need 'end'.
+     * @retval true The function needs 'end'. ('IF', 'ELSE', 'LOOP', etc.)
+     * @retval false The function does need 'end'.
      */
     bool needsEnd() const noexcept;
 
     /**
      * @brief Test whether the function name serves as an 'end'.
      *
-     * @return true The function serves as 'end'. ('END', 'ELSE', etc.)
-     * @return false The function does not serve as 'end'.
+     * @retval true The function serves as 'end'. ('END', 'ELSE', etc.)
+     * @retval false The function does not serve as 'end'.
      */
     bool isEnd() const noexcept;
 

@@ -31,17 +31,24 @@ class Style {
     Style(const std::string& file_name, const std::string& options);
 
     /**
-     * @brief Call the astyle child process to style the generated Verilog code.
+     * @brief Call the astyle child process to style the generated C++ code.
      *
-     * @return int (Exit code of 'astyle'.)
+     * @return (int) Exit code of 'astyle'.
      */
     int style() const;
 
+    /**
+     * @brief Call the astyle child process to style the generated C++ code.
+     *
+     * @param file_name The generated C++ file name to be formatted.
+     * @param options The 'astyle' format options.
+     * @return (int) Exit code of 'astyle'.
+     */
     static int style(const std::string& file_name, const std::string& options);
 
   private:
-    std::string _file_name;
-    std::string _options;
+    std::string _file_name; ///< The generated C++ file name to be formatted.
+    std::string _options;   ///< The 'astyle' format options.
 };
 
 #endif
