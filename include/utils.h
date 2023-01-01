@@ -5,7 +5,7 @@
  * @version 0.1.0
  * @date 2022-07-11
  *
- * @copyright Copyright (c) 2022 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 

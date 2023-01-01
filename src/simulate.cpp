@@ -1,3 +1,14 @@
+/**
+ * @file simulate.cpp
+ * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
+ * @brief Implementation of Simulate Class
+ * @version 0.1.0
+ * @date 2023-01-01
+ *
+ * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ *
+ */
+
 #include "simulate.h"
 
 Simulate::Simulate(const Shared_Info& info) : _s_info(info) {}
