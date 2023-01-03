@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.1.0
- * @date 2022-10-17
+ * @date 2023-01-03
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -443,7 +443,7 @@ void Export::_sounding() {
             auto&& pilot = job["pilot"];
             Value_Vec<double> SNR_vec(SNR, true);
             Value_Vec<unsigned> pilot_vec(pilot, true);
-            bool has_loop = true;
+            bool has_loop = true; // i.e. SNR varies and/or pilot varies
             if (SNR_vec.size() > 1) {
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(" << SNR_vec.size() << ", "
                      << job["algorithms"].size() << ");"
@@ -509,11 +509,19 @@ void Export::_sounding() {
                 _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
                      << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
                      << ", carriers_num, arma::fill::zeros);\n"
+                     << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
                      << "for (unsigned k = 0; k != carriers_num; ++k) {\n";
-                if (!_channel_graph.paths.empty())
-                    for (unsigned i = 1; i < _channel_graph.paths[0].size(); ++i) {
-                        // TODO: generate channel
+                if (!_channel_graph.paths.empty()) {
+                    for (unsigned i = 0; i < _channel_graph.pathsNum(); ++i) {
+                        auto&& path = _channel_graph.paths[i];
+                        _f() << "_cascaded_channel_tmp = " << _channel_graph.channels[path[0]] << ".slice(k);\n";
+                        for (unsigned j = 1; j < path.size(); ++j)
+                            _f() << "_cascaded_channel_tmp *= " << _channel_graph.channels[path[j]] << ".slice(k);\n";
+                        _f() << _cascaded_channel << ".slice(k) += _cascaded_channel_tmp;\n";
                     }
+                } else {
+                    // Give some error or warning I assume?
+                }
                 _f() << "}\nfor (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
@@ -527,8 +535,20 @@ void Export::_sounding() {
                      << BNx * BNy * BMx * BMy << "-1), k) = _y;}}\n";
             } else {
                 _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
-                     << "cx_mat " << _cascaded_channel << " = " << _config["channels"][0]["id"].as<std::string>() << ";"
-                     << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "cx_mat " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
+                     << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
+                if (!_channel_graph.paths.empty()) {
+                    for (unsigned i = 0; i < _channel_graph.pathsNum(); ++i) {
+                        auto&& path = _channel_graph.paths[i];
+                        _f() << "_cascaded_channel_tmp = " << _channel_graph.channels[path[0]] << ";\n";
+                        for (unsigned j = 1; j < path.size(); ++j)
+                            _f() << "_cascaded_channel_tmp *= " << _channel_graph.channels[path[j]] << ";\n";
+                        _f() << _cascaded_channel << " += _cascaded_channel_tmp;\n";
+                    }
+                } else {
+                    // Give some error or warning I assume?
+                }
+                _f() << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
                      << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
@@ -936,8 +956,11 @@ bool Export::_setCascadedChannel() {
                      Err::TOO_MANY_RX);
         return false;
     }
-    _channel_graph.arrange();
+    if (!_channel_graph.arrange()) {
+        // Errors during arranging channel graph.
+    }
     std::cerr << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
+    std::cerr << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;
 }
 

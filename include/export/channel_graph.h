@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Graph Analysis for Complex Cascaded Channels
  * @version 0.1.0
- * @date 2022-10-17
+ * @date 2023-01-03
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -41,10 +41,25 @@ class Channel_Graph {
      */
     unsigned chToIndex(const std::string& id) const;
 
+    unsigned pathsNum() const noexcept;
+
     bool arrange();
 
   private:
+    /**
+     * @brief Form paths based on the current frontier.
+     * 
+     * @param path The current paths.
+     */
     void _formPaths(const std::vector<unsigned>& path);
+
+    /**
+     * @brief Validate paths.
+     * 
+     * @details This removes all paths that does not terminate in the Rx.
+     * @note This is not used anymore since everything is handled well in _formPaths now.
+     */
+    void _validatePaths();
 
   public:
     static constexpr const unsigned MAX_INDEX = -1;
@@ -61,5 +76,7 @@ class Channel_Graph {
 inline unsigned Channel_Graph::chFromIndex(const std::string& id) const { return from[channelIndex(id)]; }
 
 inline unsigned Channel_Graph::chToIndex(const std::string& id) const { return to[channelIndex(id)]; }
+
+inline unsigned Channel_Graph::pathsNum() const noexcept { return paths.size(); }
 
 #endif
