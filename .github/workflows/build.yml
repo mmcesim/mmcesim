@@ -7,7 +7,7 @@ env:
   NINJA_VERSION: 1.11.1
   BUILD_TYPE: Release
   CCACHE_VERSION: 4.7.3
-  BOOST_VERSION: 1.79.0
+  BOOST_VERSION: 1.81.0
 
 jobs:
   build:
