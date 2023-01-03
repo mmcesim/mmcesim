@@ -48,14 +48,14 @@ class Channel_Graph {
   private:
     /**
      * @brief Form paths based on the current frontier.
-     * 
+     *
      * @param path The current paths.
      */
     void _formPaths(const std::vector<unsigned>& path);
 
     /**
      * @brief Validate paths.
-     * 
+     *
      * @details This removes all paths that does not terminate in the Rx.
      * @note This is not used anymore since everything is handled well in _formPaths now.
      */
