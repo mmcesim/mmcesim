@@ -38,7 +38,7 @@ jobs:
           }
         - {
             name: "macOS Latest Clang",
-            os: macos-latest,
+            os: macos-12,
             architecture: arm,
             cc: "clang", cxx: "clang++"
           }
