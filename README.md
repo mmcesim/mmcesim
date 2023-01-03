@@ -10,6 +10,7 @@
 CLI & GUI Application for Millimeter Wave Channel Estimation Simulation
 
 > **Note** This application is currently under active development.
+> The task-oriented method will be published after the patent is accepted.
 
 ## Citation
 Find mmCEsim useful to your research?
