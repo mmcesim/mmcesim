@@ -3,8 +3,8 @@ name: Build mmCEsim CLI
 on: [push, pull_request]
 
 env:
-  CMAKE_VERSION: 3.21.1
-  NINJA_VERSION: 1.10.2
+  CMAKE_VERSION: 3.24.3
+  NINJA_VERSION: 1.11.1
   BUILD_TYPE: Release
   CCACHE_VERSION: 4.7.3
   BOOST_VERSION: 1.79.0
