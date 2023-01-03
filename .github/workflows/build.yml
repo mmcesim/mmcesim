@@ -6,7 +6,7 @@ env:
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
   BUILD_TYPE: Release
-  CCACHE_VERSION: 4.4
+  CCACHE_VERSION: 4.7.3
   BOOST_VERSION: 1.79.0
 
 jobs:
@@ -197,7 +197,7 @@ jobs:
       shell: cmake -P {0}
       run: |
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        echo "timestamp=${current_date}" >> $GITHUB_OUTPUT
+        file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
     - name: ccache cache files
       if: ${{ runner.os != 'Windows' }}
       uses: actions/cache@v3.2.2
