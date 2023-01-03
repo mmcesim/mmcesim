@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with: 
+        submodules: recursive
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
