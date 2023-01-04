@@ -60,7 +60,7 @@ bool Channel_Graph::arrange() {
 void Channel_Graph::_formPaths(const std::vector<unsigned>& path) {
     if (path.empty()) {
         for (unsigned i = 0; i != channels.size(); ++i) {
-            if (contains(Tx, from[i])) _formPaths({i});
+            if (contains(Tx, from[i])) _formPaths({ i });
         }
     } else {
         unsigned frontier = to[*(path.end() - 1)];

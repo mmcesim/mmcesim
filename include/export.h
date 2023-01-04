@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Export mmCEsim Configuration to Other Programming Languages
  * @version 0.1.0
- * @date 2022-07-12
+ * @date 2023-01-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -60,6 +60,17 @@ class Export {
         MAP    = 64,   ///< map
         NUL    = 1024, ///< null
         UNDEF  = 2048  ///< undefined
+    };
+
+    /**
+     * @brief Role of each node.
+     *
+     * RIS is the default role.
+     */
+    enum class NodeRole {
+        Tx,  ///< transmitter
+        Rx,  ///< receiver,
+        RIS, ///< RIS/IRS
     };
 
     Export(CLI_Options& opt, Shared_Info* const info = nullptr);
@@ -134,10 +145,41 @@ class Export {
 
     bool _setMaxTestNum();
 
+    /**
+     * @brief Set the variable names defined by users.
+     *
+     * @retval true Success.
+     * @retval false Failure.
+     */
     bool _setVarNames();
+
+    /**
+     * @brief Generate RIS reflection matrices.
+     *
+     * @details To generate the RIS reflection matrices (i.e. the passive beamforming at the RIS),
+     *          four parameters should be known:
+     *            -# Pilot;
+     *            -# Beam Number at the Tx;
+     *            -# RIS size;
+     *            -# The variable names.
+     *          The first two are necessary because we need to calculate the number of RIS reflection patterns;
+     *          The variable names are also needed since we need to generate those definitions.\n
+     *          The pilot can be directly written as 'pilot';
+     *          The size of RIS can be obtained in the list;
+     *          The variable names are listed in _beamforming_RIS.
+     * @param Nt_B The beam number at the transmitter (Tx).
+     */
+    void _generateReflection(unsigned Nt_B);
 
     unsigned _getTestNum(const YAML::Node& n);
 
+    /**
+     * @brief Get the size of the node (Tx/Rx/RIS).
+     *
+     * @param n The node.
+     * @return (std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned>) The size.
+     *         The five elements are: Mx, My, GMx, GMy, BMx, BMy.
+     */
     std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> _getSize(const YAML::Node& n);
 
     CLI_Options& _opt;
@@ -153,6 +195,7 @@ class Export {
     std::string _received_signal;
     std::string _noise;
     std::string _beamforming_W, _beamforming_F;
+    std::vector<std::string> _beamforming_RIS;
     Channel_Graph _channel_graph;
 
     const int _MAX_TX = 1;
@@ -173,11 +216,9 @@ inline T Export::_as(const YAML::Node& n, bool mattered) {
     } else if (std::is_same_v<T, char>) {
         l = _preCheck(n, DType::CHAR, mattered);
     }
-    if (l) {
-        return n.as<T>();
-    } else {
-        throw("Invalid!");
-    }
+    if (l) return n.as<T>();
+    else if (mattered) throw("Invalid!");
+    else return T();
 }
 
 inline std::ofstream& Export::_f() { return *_f_ptr; }

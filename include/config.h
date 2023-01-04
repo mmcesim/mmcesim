@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-static std::vector<std::string> valid_configs = {"latex", "cpp", "cppflags"};
+static std::vector<std::string> valid_configs = { "latex", "cpp", "cppflags" };
 
 /**
  * @brief User configuration.

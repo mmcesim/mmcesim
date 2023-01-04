@@ -1,7 +1,7 @@
 # single_RIS.sim
 # Single RIS Channel Estimation Test
 # Author: Wuqiong Zhao
-# Date: 2022-10-17
+# Date: 2023-01-04
 
 version: 0.1.0
 meta:
@@ -28,6 +28,15 @@ nodes:
   - id: RIS
     size: [8, 8]
     grid: same
+    beamforming:
+      variable: "Psi" # RIS reflection pattern
+      scheme: custom # This can be omitted if the formula is specified.
+      formula: |
+        # Available temporary variables will include SIZE, GRID, etc.
+        # And the size of Psi (type 'm', i.e. 'c2') is SIZE * TIMES
+        # where `TIMES` is the macro (of scope 1 and 2) for the number of phase shift in one sounding.
+        Psi = \randn(SIZE, TIMES) # wait, \randn has not been implemented in mmCEsim yet.
+        Psi = Psi / \abs(Psi)
 channels:
   - id: G
     from: RIS

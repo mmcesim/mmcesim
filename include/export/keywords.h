@@ -72,7 +72,8 @@ static std::array CPP_Keywords = {
     std::string("pthread_mutexattr_t"), std::string("pthread_once_t"), std::string("pthread_rwlock_t"),
     std::string("pthread_rwlockattr_t"), std::string("pthread_key_t"),
     // Armadillo
-    std::string("armadillo"), std::string("arma")};
+    std::string("armadillo"), std::string("arma")
+};
 
 // MATLAB / Octave keywords
 // Use command "iskeyword"
@@ -82,7 +83,8 @@ static std::array MATLAB_Keywords = {
     std::string("continue"),  std::string("else"),     std::string("elseif"),     std::string("end"),
     std::string("for"),       std::string("function"), std::string("global"),     std::string("if"),
     std::string("otherwise"), std::string("parfor"),   std::string("persistent"), std::string("return"),
-    std::string("spmd"),      std::string("switch"),   std::string("try"),        std::string("while")};
+    std::string("spmd"),      std::string("switch"),   std::string("try"),        std::string("while")
+};
 
 // Python keywords
 // import keyword
@@ -98,6 +100,7 @@ static std::array PY_Keywords = {
     std::string("raise"), std::string("return"), std::string("try"), std::string("while"), std::string("with"),
     std::string("yield"),
     // NumPy
-    std::string("numpy"), std::string("np")};
+    std::string("numpy"), std::string("np")
+};
 
 #endif

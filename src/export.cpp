@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.1.0
- * @date 2023-01-03
+ * @date 2023-01-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -213,23 +213,23 @@ std::tuple<bool, std::string, std::string> Export::_setChannelGains(const YAML::
             if (auto mode = boost::algorithm::to_lower_copy(_asStr(gains["mode"])); mode == "normal") {
                 std::string mean     = _asStr(gains["mean"]);
                 std::string variance = _asStr(gains["variance"]);
-                return {true, mean, variance};
+                return { true, mean, variance };
             } else if (mode == "uniform") {
                 std::string min = _asStr(gains["min"]);
                 std::string max = _asStr(gains["max"]);
-                return {false, min, max};
+                return { false, min, max };
             }
         } else if (_preCheck(n["node"], DType::UNDEF)) {
             // default value if not specified
-            return {true, "0", "1"};
+            return { true, "0", "1" };
         } else {
-            return {true, "0", "1"};
+            return { true, "0", "1" };
             // throw("Channel gains not correctly set!");
         }
     } catch (...) {
         // do nothing
     }
-    return {true, "0", "1"};
+    return { true, "0", "1" };
 }
 
 void Export::_topComment() {
@@ -391,16 +391,16 @@ void Export::_algorithms() {
     Macro macro;
     macro._cascaded_channel         = _cascaded_channel;
     macro.job_num                   = jobs.size();
-    macro._N                        = {Nx, Ny, Mx, My};
-    macro._B                        = {BNx, BNy, BMx, BMy};
-    macro._G                        = {GNx, GNy, GMx, GMy};
+    macro._N                        = { Nx, Ny, Mx, My };
+    macro._B                        = { BNx, BNy, BMx, BMy };
+    macro._G                        = { GNx, GNy, GMx, GMy };
     auto&& common_custom_macro_node = _config["macro"];
     if (_preCheck(common_custom_macro_node, DType::SEQ, false)) {
         for (auto&& macro_pair : common_custom_macro_node) {
             bool in_alg        = false;
             auto&& in_alg_node = macro_pair["in_alg"];
             if (_preCheck(in_alg_node, DType::BOOL, false)) { in_alg = in_alg_node.as<bool>(); }
-            if (!in_alg) { macro.custom.push_back({_asStr(macro_pair["name"]), _asStr(macro_pair["value"])}); }
+            if (!in_alg) { macro.custom.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) }); }
         }
     }
     // load preamble
@@ -493,6 +493,7 @@ void Export::_sounding() {
                  << "randn<cube>(" << Mx * My << ", " << BMx * BMy << ", pilot / " << BNx * BNy
                  << ") + 1i * randn<cube>(" << Mx * My << ", " << BMx * BMy << ", pilot / " << BNx * BNy << ");\n"
                  << _beamforming_F << ".each_slice([](cx_mat& X){return normalise(X,2,0);});\n\n";
+            _generateReflection(BNx * BNy);
             _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
             for (auto&& channel : _config["channels"]) {
                 // Load channel matrices.
@@ -562,9 +563,9 @@ void Export::_sounding() {
             Macro macro;
             macro._cascaded_channel = _cascaded_channel;
             macro.job_num           = jobs.size();
-            macro._N                = {Nx, Ny, Mx, My};
-            macro._B                = {BNx, BNy, BMx, BMy};
-            macro._G                = {GNx, GNy, GMx, GMy};
+            macro._N                = { Nx, Ny, Mx, My };
+            macro._B                = { BNx, BNy, BMx, BMy };
+            macro._G                = { GNx, GNy, GMx, GMy };
             for (size_t i = 0; i != macro.job_num; ++i) {
                 auto&& job_algs = jobs[i]["algorithms"];
                 macro.alg_num.push_back(job_algs.size());
@@ -605,7 +606,7 @@ void Export::_sounding() {
                     auto&& custom_macro_node = alg["macro"];
                     if (_preCheck(custom_macro_node, DType::SEQ, false)) {
                         for (auto&& macro_pair : custom_macro_node) {
-                            alg_custom_.push_back({_asStr(macro_pair["name"]), _asStr(macro_pair["value"])});
+                            alg_custom_.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) });
                         }
                     }
                     alg_custom.push_back(alg_custom_);
@@ -617,9 +618,9 @@ void Export::_sounding() {
                         auto&& in_alg_node = macro_pair["in_alg"];
                         if (_preCheck(in_alg_node, DType::BOOL, false)) { in_alg = in_alg_node.as<bool>(); }
                         if (in_alg) {
-                            macro.custom_in_alg.push_back({_asStr(macro_pair["name"]), _asStr(macro_pair["value"])});
+                            macro.custom_in_alg.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) });
                         } else {
-                            macro.custom.push_back({_asStr(macro_pair["name"]), _asStr(macro_pair["value"])});
+                            macro.custom.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) });
                         }
                     }
                 }
@@ -989,13 +990,59 @@ bool Export::_setVarNames() {
     try {
         _noise = _asStr(_config["sounding"]["variables"]["noise"]);
     } catch (...) { _noise = "n"; }
-    try {
-        _beamforming_F = _asStr(_config["nodes"][_transmitters[0]]["beamforming"]["variable"]);
-    } catch (...) { _beamforming_F = "F"; }
-    try {
-        _beamforming_W = _asStr(_config["nodes"][_receivers[0]]["beamforming"]["variable"]);
-    } catch (...) { _beamforming_W = "W"; }
+    std::string buf;
+    unsigned RIS_cnt = 0;
+    for (unsigned i = 0; i != _config["nodes"].size(); ++i) {
+        auto&& n   = _config["nodes"][i];
+        NodeRole t = contains(_transmitters, i) ? NodeRole::Tx : contains(_receivers, i) ? NodeRole::Rx : NodeRole::RIS;
+        try {
+            buf = _asStr(n["beamforming"]["variable"]);
+        } catch (...) { buf = t == NodeRole::Tx ? "F" : t == NodeRole::Rx ? "W" : fmt::format("Psi{}", RIS_cnt); }
+        if (t == NodeRole::Tx) _beamforming_F = buf;
+        else if (t == NodeRole::Rx) _beamforming_W = buf;
+        else _beamforming_RIS.push_back(buf);
+    }
     return true;
+}
+
+void Export::_generateReflection(unsigned Nt_B) {
+    unsigned cnt = 0;
+    for (unsigned i = 0; i != _config["nodes"].size(); ++i) {
+        if (contains(_transmitters, i) || contains(_receivers, i)) continue;
+        std::string var                             = _beamforming_RIS[cnt++];
+        auto&& n                                    = _config["nodes"][i];
+        auto [Mx, My, GMx, GMy, _unused1, _unused2] = _getSize(n);
+        // maybe later we can check the value of _unused1 and _unused2
+        // to give a warning to users that they should not set the beam size for the RIS.
+        unsigned size = Mx * My;
+        unsigned grid = GMx * GMy;
+        if (lang == Lang::CPP) {
+            _f() << "cx_mat " << var << "(" << size << ", pilot / " << Nt_B << ", arma::fill::zeros);\n"
+                 << "{\nunsigned SIZE = " << size << ";\n"
+                 << "unsigned GRID = " << grid << ";\n"
+                 << "unsigned SIZE_x = " << Mx << ";\n"
+                 << "unsigned SIZE_y = " << My << ";\n"
+                 << "unsigned GRID_x = " << GMx << ";\n"
+                 << "unsigned GRID_y = " << GMy << ";\n"
+                 << "unsigned TIMES = pilot / " << Nt_B << ";\n";
+        }
+        std::string scheme = "auto";
+        std::cerr << "alive finally" << std::endl;
+        scheme = boost::algorithm::to_lower_copy(_asStr(n["beamforming"]["scheme"], false));
+        if (scheme == "custom") {
+            std::string formula;
+            try {
+                formula = _asStr(n["beamforming"]["formula"]);
+            } catch (...) {
+                std::cerr << "Empty formula body for custom RIS beamforming." << std::endl;
+                // TODO: error handling
+            }
+            std::cerr << "Formula content: \n" << formula << std::endl;
+            Alg alg(formula);
+            alg.write(_f(), _langStr());
+        }
+        if (lang == Lang::CPP) _f() << "}\n";
+    }
 }
 
 std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> Export::_getSize(const YAML::Node& n) {
@@ -1044,5 +1091,5 @@ std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> Export::_
         BMx = Mx;
         BMy = My;
     }
-    return {Mx, My, GMx, GMy, BMx, BMy};
+    return { Mx, My, GMx, GMy, BMx, BMy };
 }

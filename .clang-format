@@ -14,6 +14,9 @@ AllowShortLoopsOnASingleLine: true
 AlignConsecutiveMacros: true
 AlignConsecutiveAssignments: true
 AlwaysBreakTemplateDeclarations: Yes
+Cpp11BracedListStyle: false
+SpacesInLineCommentPrefix:
+  Minimum: 1
 # Custom Macro in export/alg.cpp
 MacroBlockBegin: '(SWITCH_FUNC)'
 MacroBlockEnd: '(END_SWITCH)'

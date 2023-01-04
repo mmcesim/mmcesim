@@ -19,6 +19,15 @@
 
 class Channel_Graph {
   public:
+    /**
+     * @brief Add channel from configuration to the channel graph.
+     *
+     * @param id The channel id.
+     * @param from The from node of the channel.
+     * @param to The to mode of the channel.
+     * @retval true The channel is successfully added.
+     * @retval false There channel fails to be added correctly.
+     */
     bool addChannel(const std::string& id, const std::string& from, const std::string& to);
 
     unsigned nodeIndex(const std::string& id) const;

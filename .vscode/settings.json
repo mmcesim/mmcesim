@@ -4,12 +4,14 @@
     "doxdocgen.generic.authorName": "Wuqiong Zhao",
     "cSpell.words": [
         "astyle",
+        "beamforming",
         "doxygen",
         "DTYPE",
         "ipstream",
         "IPYNB",
         "MIMO",
         "MMCESIM",
+        "randn",
         "uword",
         "xelatex"
     ],

@@ -31,7 +31,7 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
         // Note that this count starts from 0.
         YAML_Error err(e.msg, e.mark.line, e.mark.column);
         errors.push_back(err);
-        return {config, errors}; // already loading error, just return error
+        return { config, errors }; // already loading error, just return error
     }
     YAML::Node _compiled;
     if (auto ver = config["version"]; ver.IsDefined()) {
@@ -39,7 +39,7 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
         std::replace(ver_str.begin(), ver_str.end(), '.', ','); // 0.1.0 -> 0,1,0
         try {
             _compiled["versions"] = YAML::Load(std::string("[") + ver_str + "]"); // [0,1,0]
-        } catch (...) { return {config, errors}; }
+        } catch (...) { return { config, errors }; }
         if (_compiled["versions"].size() == 3) {
             _compiled["version"] = _compiled["versions"][0].as<int>() * 0x10000 +
                                    _compiled["versions"][1].as<int>() * 0x100 +
@@ -51,7 +51,7 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
         } else {
             YAML_Error err(Err::VERSION_STRING_ERROR);
             errors.push_back(err);
-            return {config, errors};
+            return { config, errors };
         }
     } else {
         YAML_Error err(Err::VERSION_NOT_SPECIFIED);
@@ -62,7 +62,7 @@ std::tuple<YAML::Node, YAML_Errors> ReadConfig::read() const {
         _compiled["version"] = _MMCESIM_VER;
         config["_compiled"]  = _compiled;
     }
-    return {config, errors};
+    return { config, errors };
 }
 
 std::tuple<YAML::Node, YAML_Errors> ReadConfig::read(const std::string& file) {

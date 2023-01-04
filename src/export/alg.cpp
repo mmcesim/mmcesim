@@ -46,7 +46,7 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, b
             } catch (const std::runtime_error& e) {
                 if (fail_fast) break;
                 _failed = true;
-                _errors.push_back({e.what(), s, line_no});
+                _errors.push_back({ e.what(), s, line_no });
             }
             unterminated_line.clear();
         }
@@ -71,8 +71,8 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, b
 #define END_LANG                                                                                                       \
     }                                                                                                                  \
     else throw("Unknown language " + lang + ".");
-#define ERROR(msg)   _errors.push_back({msg, _raw_strings[i], _line_nos[i]})
-#define WARNING(msg) _warnings.push_back({msg, _raw_strings[i], _line_nos[i]})
+#define ERROR(msg)   _errors.push_back({ msg, _raw_strings[i], _line_nos[i] })
+#define WARNING(msg) _warnings.push_back({ msg, _raw_strings[i], _line_nos[i] })
 #define INDENT       _indent(_indent_size)
 #define _m(_str__)   _macro.replaceMacro(_str__, _job_cnt, _alg_cnt)
 #define _mi(_i__)    _m(line.params(_i__).value)

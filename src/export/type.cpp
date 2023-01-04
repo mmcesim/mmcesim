@@ -91,21 +91,21 @@ std::string Type::string() const noexcept {
 
 std::tuple<Type::Data, Type::Dim> Type::_getData(char c) const noexcept {
     switch (tolower(c)) {
-    case 'c': return {Data::COMPLEX, -1};
-    case 'f': return {Data::FLOAT, -1};
-    case 'i': return {Data::INTEGER, -1};
-    case 'u': return {Data::UNSIGNED, -1};
-    case 'b': return {Data::BOOL, -1};
-    case 's': return {Data::STRING, -1};
+    case 'c': return { Data::COMPLEX, -1 };
+    case 'f': return { Data::FLOAT, -1 };
+    case 'i': return { Data::INTEGER, -1 };
+    case 'u': return { Data::UNSIGNED, -1 };
+    case 'b': return { Data::BOOL, -1 };
+    case 's': return { Data::STRING, -1 };
     case 'h':
-        return {Data::CHAR, -1};
+        return { Data::CHAR, -1 };
         /*  case 'o': return { Data::OTHER,    -1 }; */
-    case 'v': return {Data::COMPLEX, 1};
-    case 'r': return {Data::COMPLEX, 2};
-    case 'm': return {Data::COMPLEX, 2};
-    case 't': return {Data::COMPLEX, 3};
-    case 'd': return {Data::FLOAT, 0};
-    default: return {Data::UNKNOWN, -1};
+    case 'v': return { Data::COMPLEX, 1 };
+    case 'r': return { Data::COMPLEX, 2 };
+    case 'm': return { Data::COMPLEX, 2 };
+    case 't': return { Data::COMPLEX, 3 };
+    case 'd': return { Data::FLOAT, 0 };
+    default: return { Data::UNKNOWN, -1 };
     }
 }
 

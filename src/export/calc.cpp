@@ -186,7 +186,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                         continue;
                     } else i += 2; // skip '_{'
                     std::string dims[3];
-                    bool starts_from_1[3] = {false, false, false};
+                    bool starts_from_1[3] = { false, false, false };
                     int dim               = 0;
                     int result_dim        = 0;
                     int l_bracket         = 0;
