@@ -391,6 +391,7 @@ void Export::_algorithms() {
     auto&& jobs = _config["simulation"]["jobs"];
     Macro macro;
     macro._cascaded_channel         = _cascaded_channel;
+    macro.beamforming               = _beamforming;
     macro.job_num                   = jobs.size();
     macro._N                        = { Nx, Ny, Mx, My };
     macro._B                        = { BNx, BNy, BMx, BMy };
@@ -401,7 +402,7 @@ void Export::_algorithms() {
             bool in_alg        = false;
             auto&& in_alg_node = macro_pair["in_alg"];
             if (_preCheck(in_alg_node, DType::BOOL, false)) { in_alg = in_alg_node.as<bool>(); }
-            if (!in_alg) { macro.custom.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) }); }
+            if (!in_alg) { macro.custom[_asStr(macro_pair["name"])] = _asStr(macro_pair["value"]); }
         }
     }
     // load preamble
@@ -573,6 +574,7 @@ void Export::_sounding() {
             }
             Macro macro;
             macro._cascaded_channel = _cascaded_channel;
+            macro.beamforming       = _beamforming;
             macro.job_num           = jobs.size();
             macro._N                = { Nx, Ny, Mx, My };
             macro._B                = { BNx, BNy, BMx, BMy };
@@ -629,9 +631,9 @@ void Export::_sounding() {
                         auto&& in_alg_node = macro_pair["in_alg"];
                         if (_preCheck(in_alg_node, DType::BOOL, false)) { in_alg = in_alg_node.as<bool>(); }
                         if (in_alg) {
-                            macro.custom_in_alg.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) });
+                            macro.custom_in_alg[_asStr(macro_pair["name"])] = _asStr(macro_pair["value"]);
                         } else {
-                            macro.custom.push_back({ _asStr(macro_pair["name"]), _asStr(macro_pair["value"]) });
+                            macro.custom[_asStr(macro_pair["name"])] = _asStr(macro_pair["value"]);
                         }
                     }
                 }
@@ -1041,6 +1043,10 @@ void Export::_generateReflection(unsigned Nt_B) {
         std::string scheme = "auto";
         std::cerr << "alive finally" << std::endl;
         scheme = boost::algorithm::to_lower_copy(_asStr(n["beamforming"]["scheme"], false));
+        Macro macro;
+        macro._cascaded_channel = _cascaded_channel;
+        macro.beamforming       = _beamforming;
+        // macro.
         if (scheme == "custom") {
             std::string formula;
             try {
@@ -1050,7 +1056,7 @@ void Export::_generateReflection(unsigned Nt_B) {
                 // TODO: error handling
             }
             std::cerr << "Formula content: \n" << formula << std::endl;
-            Alg alg(formula);
+            Alg alg(formula, macro);
             alg.write(_f(), _langStr());
         }
         if (lang == Lang::CPP) _f() << "}\n";

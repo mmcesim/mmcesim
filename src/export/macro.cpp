@@ -74,16 +74,18 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
                     r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
                 }
             }
-            for (auto&& pair : custom_in_alg) {
+            for (const auto& [key, val] : custom_in_alg) {
                 std::cout << "Replacing user's in_alg custom macro.\n";
-                r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
+                r = std::regex_replace(r, std::regex("`" + key + "`"), val);
             }
         }
     }
     r = std::regex_replace(r, std::regex("`VERSION`"), std::to_string(_MMCESIM_VER));
-    for (auto&& pair : custom) {
+    r = std::regex_replace(r, std::regex("`CAS_CH`"), _cascaded_channel);
+    for (const auto& [key, val] : beamforming) r = std::regex_replace(r, std::regex("`BF\\[" + key + "\\]`"), val);
+    for (const auto& [key, val] : custom) {
         std::cout << "Replacing user's custom macro.\n";
-        r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);
+        r = std::regex_replace(r, std::regex("`" + key + "`"), val);
     }
     return r;
 }

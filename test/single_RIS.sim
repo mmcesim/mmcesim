@@ -37,6 +37,9 @@ nodes:
         # where `TIMES` is the macro (of scope 1 and 2) for the number of phase shift in one sounding.
         Psi = \randn(SIZE, TIMES)
         Psi = Psi / \abs(Psi)
+        # Test Macro Here:
+        # CAS_CH: `CAS_CH`
+        # BF[RIS]: `BF[RIS]`
 channels:
   - id: G
     from: RIS
