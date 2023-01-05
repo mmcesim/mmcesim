@@ -35,7 +35,7 @@ nodes:
         # Available temporary variables will include SIZE, GRID, etc.
         # And the size of Psi (type 'm', i.e. 'c2') is SIZE * TIMES
         # where `TIMES` is the macro (of scope 1 and 2) for the number of phase shift in one sounding.
-        Psi = \randn(SIZE, TIMES) # wait, \randn has not been implemented in mmCEsim yet.
+        Psi = \randn(SIZE, TIMES)
         Psi = Psi / \abs(Psi)
 channels:
   - id: G

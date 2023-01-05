@@ -1,159 +1,167 @@
 // Generate dictionaries.
 namespace mmce {
-    cx_mat dictionary(uword Mx, uword My, uword GMx, uword GMy) {
-        double d = 0.5; // antenna spacing
-        if (My == 1 && GMy == 1) { // ULA
-            cx_mat F = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) *
-                d * (2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t() - 1.0));
-            return F;
-        } else { // UPA
-            cx_mat Fx = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) *
-                d * (2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t() - 1.0));
-            cx_mat Fy = std::sqrt(1.0 / My) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(My - 1), My) *
-                d * (2.0 / GMy * arma::linspace(0, double(GMy - 1), GMy).t() -1.0));
-            return arma::kron(Fx, Fy);
-        }
-    }
-
-    template<typename T>
-    inline uword size(const arma::Cube<T>& a, uword dim) {
-        if (dim == 0) return a.n_rows;
-        else if (dim == 1) return a.n_cols;
-        else if (dim == 2) return a.n_slices;
-        else return 0;
-    }
-
-    template<typename T>
-    inline uword size(const arma::Mat<T>& a, uword dim) {
-        if (dim == 0) return a.n_rows;
-        else if (dim == 1) return a.n_cols;
-        else return 0;
-    }
-
-    template<typename T>
-    inline uword size(const arma::Col<T>& a, uword dim) {
-        return a.n_rows;
-    }
-
-    template<typename T>
-    inline uword length(const T& a) {
-        return a.n_elem;
-    }
-
-    template<typename T1, typename T2>
-    inline bool ismember(const T1& elem, const T2& container) {
-        for (auto&& container_elem : container) {
-            if (elem == container_elem) return true;
-        }
-        return false;
-    }
-
-    template<typename T1, typename T2>
-    inline double nmse(const T1& H_hat, const T2& H) {
-        return arma::accu(arma::pow(arma::abs(H_hat - H), 2)) / arma::accu(arma::pow(arma::abs(H), 2));
-    }
-
-    inline cx_vec zeros(uword d1) {
-        return arma::zeros<cx_vec>(d1);
-    }
-
-    inline cx_mat zeros(uword d1, uword d2) {
-        return arma::zeros<cx_mat>(d1, d2);
-    }
-
-    inline cx_cube zeros(uword d1, uword d2, uword d3) {
-        return arma::zeros<cx_cube>(d1, d2, d3);
-    }
-
-    // iomanip center field
-    // Reference: https://stackoverflow.com/a/14861289
-    template<typename charT, typename traits = std::char_traits<charT> >
-    class center_helper {
-        std::basic_string<charT, traits> str_;
-    public:
-        center_helper(std::basic_string<charT, traits> str) : str_(str) {}
-        template<typename a, typename b>
-        friend std::basic_ostream<a, b>& operator<<(std::basic_ostream<a, b>& s, const center_helper<a, b>& c);
-    };
-
-    template<typename charT, typename traits = std::char_traits<charT> >
-    center_helper<charT, traits> centered(std::basic_string<charT, traits> str) {
-        return center_helper<charT, traits>(str);
-    }
-
-    // redeclare for std::string directly so we can support anything that implicitly converts to std::string
-    center_helper<std::string::value_type, std::string::traits_type> centered(const std::string& str) {
-        return center_helper<std::string::value_type, std::string::traits_type>(str);
-    }
-
-    template<typename T>
-    void set_size(T& x, unsigned size) {
-        x.set_size(size);
-    }
-
-    template<typename charT, typename traits>
-    std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& s, const center_helper<charT, traits>& c) {
-        std::streamsize w = s.width();
-        if (w > c.str_.length()) {
-            std::streamsize left = (w + c.str_.length()) / 2;
-            s.width(left);
-            s << c.str_;
-            s.width(w - left);
-            s << "";
-        } else {
-            s << c.str_;
-        }
-        return s;
-    }
-    // END of iomanip center field
-
-    template<typename T>
-    inline std::string to_string(const T& x) {
-        std::ostringstream str;
-        str << x;
-        return str.str();
-    }
-
-    void reportTable(std::ofstream& f, const std::string& col1label,
-        const std::vector<std::string>& labels, const std::vector<std::string>& col1,
-        const mat& m, const std::string& prefix = "  ") {
-        unsigned alg_num = labels.size();
-        std::string div_line(12, '-');
-        f << prefix << std::setw(12) << centered(col1label);
-        for (unsigned i = 0; i != alg_num; ++i) {
-            f << '|' << std::setw(14) << centered(to_string(labels[i]));
-            div_line += "+--------------";
-        }
-        f << "\n" << prefix << div_line << "\n";
-        for (uword i = 0; i != m.n_rows; ++i) {
-            f << prefix << std::setw(12) << centered(col1[i]);
-            for (uword j = 0; j != alg_num; ++j) {
-                f << '|' << std::setw(14) << centered(to_string(m(i, j)));
-            }
-            f << "\n";
-        }
-    }
-
-    void reportData(std::ofstream& f, const std::string& col1label,
-        const std::vector<std::string>& labels, const std::vector<std::string>& col1,
-        const mat& m) {
-        unsigned alg_num = labels.size();
-        f << "{" << col1label << "}";
-        for (uword i = 0; i != alg_num; ++i) {
-            f << "\t{" << labels[i] << "}";
-        }
-        f << "\n";
-        for (uword i = 0; i != m.n_rows; ++i) {
-            f << "{" << col1[i] << "}";
-            for (uword j = 0; j != alg_num; ++j) {
-                f << "\t" << m(i, j);
-            }
-            f << "\n";
-        }
+cx_mat dictionary(uword Mx, uword My, uword GMx, uword GMy) {
+    double d = 0.5;            // antenna spacing
+    if (My == 1 && GMy == 1) { // ULA
+        cx_mat F = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) * d *
+                                                   (2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t() - 1.0));
+        return F;
+    } else { // UPA
+        cx_mat Fx = std::sqrt(1.0 / Mx) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(Mx - 1), Mx) * d *
+                                                    (2.0 / GMx * arma::linspace(0, double(GMx - 1), GMx).t() - 1.0));
+        cx_mat Fy = std::sqrt(1.0 / My) * arma::exp(-1.0i * _2pi * arma::linspace(0, double(My - 1), My) * d *
+                                                    (2.0 / GMy * arma::linspace(0, double(GMy - 1), GMy).t() - 1.0));
+        return arma::kron(Fx, Fy);
     }
 }
 
-template<typename T>
+template <typename T>
+inline uword size(const arma::Cube<T>& a, uword dim) {
+    if (dim == 0) return a.n_rows;
+    else if (dim == 1) return a.n_cols;
+    else if (dim == 2) return a.n_slices;
+    else return 0;
+}
+
+template <typename T>
+inline uword size(const arma::Mat<T>& a, uword dim) {
+    if (dim == 0) return a.n_rows;
+    else if (dim == 1) return a.n_cols;
+    else return 0;
+}
+
+template <typename T>
+inline uword size(const arma::Col<T>& a, uword dim) {
+    return a.n_rows;
+}
+
+template <typename T>
+inline uword length(const T& a) {
+    return a.n_elem;
+}
+
+template <typename T1, typename T2>
+inline bool ismember(const T1& elem, const T2& container) {
+    for (auto&& container_elem : container) {
+        if (elem == container_elem) return true;
+    }
+    return false;
+}
+
+template <typename T1, typename T2>
+inline double nmse(const T1& H_hat, const T2& H) {
+    return arma::accu(arma::pow(arma::abs(H_hat - H), 2)) / arma::accu(arma::pow(arma::abs(H), 2));
+}
+
+inline cx_vec randn(uword d1) { return std::sqrt(0.5) * cx_vec(arma::randn<vec>(d1), arma::randn<vec>(d1)); }
+
+inline cx_mat randn(uword d1, uword d2) {
+    return std::sqrt(0.5) * cx_mat(arma::randn<mat>(d1, d2), arma::randn<mat>(d1, d2));
+}
+
+inline cx_cube randn(uword d1, uword d2, uword d3) {
+    return std::sqrt(0.5) * cx_cube(arma::randn<cube>(d1, d2, d3), arma::randn<cube>(d1, d2, d3));
+}
+
+inline cx_vec randu(uword d1) { return std::sqrt(0.5) * cx_vec(arma::randu<vec>(d1), arma::randu<vec>(d1)); }
+
+inline cx_mat rand(uword d1, uword d2) {
+    return std::sqrt(0.5) * cx_mat(arma::randu<mat>(d1, d2), arma::randu<mat>(d1, d2));
+}
+
+inline cx_cube randu(uword d1, uword d2, uword d3) {
+    return std::sqrt(0.5) * cx_cube(arma::randu<cube>(d1, d2, d3), arma::randu<cube>(d1, d2, d3));
+}
+
+inline cx_vec zeros(uword d1) { return arma::zeros<cx_vec>(d1); }
+
+inline cx_mat zeros(uword d1, uword d2) { return arma::zeros<cx_mat>(d1, d2); }
+
+inline cx_cube zeros(uword d1, uword d2, uword d3) { return arma::zeros<cx_cube>(d1, d2, d3); }
+
+// iomanip center field
+// Reference: https://stackoverflow.com/a/14861289
+template <typename charT, typename traits = std::char_traits<charT>>
+class center_helper {
+    std::basic_string<charT, traits> str_;
+
+  public:
+    center_helper(std::basic_string<charT, traits> str) : str_(str) {}
+    template <typename a, typename b>
+    friend std::basic_ostream<a, b>& operator<<(std::basic_ostream<a, b>& s, const center_helper<a, b>& c);
+};
+
+template <typename charT, typename traits = std::char_traits<charT>>
+center_helper<charT, traits> centered(std::basic_string<charT, traits> str) {
+    return center_helper<charT, traits>(str);
+}
+
+// redeclare for std::string directly so we can support anything that implicitly converts to std::string
+center_helper<std::string::value_type, std::string::traits_type> centered(const std::string& str) {
+    return center_helper<std::string::value_type, std::string::traits_type>(str);
+}
+
+template <typename T>
+void set_size(T& x, unsigned size) {
+    x.set_size(size);
+}
+
+template <typename charT, typename traits>
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& s,
+                                              const center_helper<charT, traits>& c) {
+    std::streamsize w = s.width();
+    if (w > c.str_.length()) {
+        std::streamsize left = (w + c.str_.length()) / 2;
+        s.width(left);
+        s << c.str_;
+        s.width(w - left);
+        s << "";
+    } else {
+        s << c.str_;
+    }
+    return s;
+}
+// END of iomanip center field
+
+template <typename T>
+inline std::string to_string(const T& x) {
+    std::ostringstream str;
+    str << x;
+    return str.str();
+}
+
+void reportTable(std::ofstream& f, const std::string& col1label, const std::vector<std::string>& labels,
+                 const std::vector<std::string>& col1, const mat& m, const std::string& prefix = "  ") {
+    unsigned alg_num = labels.size();
+    std::string div_line(12, '-');
+    f << prefix << std::setw(12) << centered(col1label);
+    for (unsigned i = 0; i != alg_num; ++i) {
+        f << '|' << std::setw(14) << centered(to_string(labels[i]));
+        div_line += "+--------------";
+    }
+    f << "\n" << prefix << div_line << "\n";
+    for (uword i = 0; i != m.n_rows; ++i) {
+        f << prefix << std::setw(12) << centered(col1[i]);
+        for (uword j = 0; j != alg_num; ++j) { f << '|' << std::setw(14) << centered(to_string(m(i, j))); }
+        f << "\n";
+    }
+}
+
+void reportData(std::ofstream& f, const std::string& col1label, const std::vector<std::string>& labels,
+                const std::vector<std::string>& col1, const mat& m) {
+    unsigned alg_num = labels.size();
+    f << "{" << col1label << "}";
+    for (uword i = 0; i != alg_num; ++i) { f << "\t{" << labels[i] << "}"; }
+    f << "\n";
+    for (uword i = 0; i != m.n_rows; ++i) {
+        f << "{" << col1[i] << "}";
+        for (uword j = 0; j != alg_num; ++j) { f << "\t" << m(i, j); }
+        f << "\n";
+    }
+}
+} // namespace mmce
+
+template <typename T>
 inline auto _as_uvec(const T& x) {
     if constexpr (std::is_arithmetic_v<std::remove_cv_t<std::remove_reference_t<T>>>) {
         arma::uvec v = { static_cast<uword>(x) };

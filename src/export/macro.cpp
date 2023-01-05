@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Macro class.
  * @version 0.1.0
- * @date 2022-09-13
+ * @date 2023-01-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -80,6 +80,7 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
             }
         }
     }
+    r = std::regex_replace(r, std::regex("`VERSION`"), std::to_string(_MMCESIM_VER));
     for (auto&& pair : custom) {
         std::cout << "Replacing user's custom macro.\n";
         r = std::regex_replace(r, std::regex("`" + pair.first + "`"), pair.second);

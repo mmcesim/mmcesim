@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief ALG Macro
  * @version 0.1.0
- * @date 2022-09-13
+ * @date 2023-01-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,7 +12,9 @@
 #ifndef _EXPORT_MACRO_H_
 #define _EXPORT_MACRO_H_
 
+#include "meta.h"
 #include "utils.h"
+#include <map>
 #include <regex>
 #include <string>
 #include <utility>
@@ -37,6 +39,7 @@ struct Macro {
     std::vector<std::vector<std::vector<std::pair<std::string, std::string>>>> alg_custom;
     std::vector<std::pair<std::string, std::string>> custom;
     std::vector<std::pair<std::string, std::string>> custom_in_alg;
+    std::map<std::string, std::string> beamforming;
     std::string _cascaded_channel;
     XY_Size _N, _B, _G;
 

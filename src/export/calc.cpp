@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Calc Class
  * @version 0.1.0
- * @date 2022-08-20
+ * @date 2023-01-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -110,6 +110,8 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
     // matrix initialization
     _addMmce(str, "zeros");
     _addMmce(str, "ones");
+    _addMmce(str, "randn");
+    _addMmce(str, "randu");
     _addMmce(str, "set_size");
     boost::replace_all(str, "\\vec", "arma::vectorise");
     // mmCEsim defined functions

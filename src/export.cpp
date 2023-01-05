@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.1.0
- * @date 2023-01-04
+ * @date 2023-01-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -274,8 +274,9 @@ void Export::_topComment() {
         _wComment() << "or just link to Armadillo library with whatever compiler you have.\n";
         // set cpp compile command
         if (_s_info) {
-            _s_info->backend         = "cpp";
-            _s_info->src_compile_cmd = fmt::format("{{}} {} -std=c++17 -larmadillo -O3 {{}}", _opt.output);
+            _s_info->backend = "cpp";
+            _s_info->src_compile_cmd =
+                fmt::format("{{}} {} -std=c++17 -larmadillo -{}3 {{}}", _opt.output, _s_info->dbg ? "g" : "O");
         }
     }
     _f() << "\n";
@@ -510,24 +511,29 @@ void Export::_sounding() {
                 _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
                      << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
                      << ", carriers_num, arma::fill::zeros);\n"
-                     << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
-                     << "for (unsigned k = 0; k != carriers_num; ++k) {\n";
+                     << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
+                _f() << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
+                     << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
+                     << "for (uword k = 0; k != carriers_num; ++k) {";
                 if (!_channel_graph.paths.empty()) {
-                    for (unsigned i = 0; i < _channel_graph.pathsNum(); ++i) {
+                    auto&& to    = _channel_graph.to;
+                    auto&& nodes = _channel_graph.nodes;
+                    for (unsigned i = 0; i != _channel_graph.pathsNum(); ++i) {
                         auto&& path = _channel_graph.paths[i];
-                        _f() << "_cascaded_channel_tmp = " << _channel_graph.channels[path[0]] << ".slice(k);\n";
-                        for (unsigned j = 1; j < path.size(); ++j)
+                        _f() << "_cascaded_channel_tmp = " << _channel_graph.channels[*(path.end() - 1)]
+                             << ".slice(k);\n";
+                        for (unsigned j = path.size() - 1; j != 0;) {
+                            _f() << "_cascaded_channel_tmp *= arma::diagmat(" << _beamforming[nodes[to[path[--j]]]]
+                                 << ".col(t));\n";
                             _f() << "_cascaded_channel_tmp *= " << _channel_graph.channels[path[j]] << ".slice(k);\n";
+                        }
                         _f() << _cascaded_channel << ".slice(k) += _cascaded_channel_tmp;\n";
                     }
                 } else {
                     // Give some error or warning I assume?
                 }
-                _f() << "}\nfor (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
-                     << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
-                     << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
-                     << "for (uword k = 0; k != carriers_num; ++k) {"
-                     << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".slice(k).as_col();\n"
+                _f() << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".slice(k).as_col();\n"
                      << "cx_vec this_noise = " << _noise << ".slice(test_n).col(k);\n"
                      << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
                      << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
@@ -537,22 +543,27 @@ void Export::_sounding() {
             } else {
                 _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
                      << "cx_mat " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
-                     << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
+                     << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
+                     << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
+                     << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n";
                 if (!_channel_graph.paths.empty()) {
-                    for (unsigned i = 0; i < _channel_graph.pathsNum(); ++i) {
+                    auto&& to    = _channel_graph.to;
+                    auto&& nodes = _channel_graph.nodes;
+                    for (unsigned i = 0; i != _channel_graph.pathsNum(); ++i) {
                         auto&& path = _channel_graph.paths[i];
-                        _f() << "_cascaded_channel_tmp = " << _channel_graph.channels[path[0]] << ";\n";
-                        for (unsigned j = 1; j < path.size(); ++j)
+                        _f() << "_cascaded_channel_tmp = " << _channel_graph.channels[*(path.end() - 1)] << ";\n";
+                        for (unsigned j = path.size() - 1; j != 0;) {
+                            _f() << "_cascaded_channel_tmp *= arma::diagmat(" << _beamforming[nodes[to[path[--j]]]]
+                                 << ".col(t));\n";
                             _f() << "_cascaded_channel_tmp *= " << _channel_graph.channels[path[j]] << ";\n";
+                        }
                         _f() << _cascaded_channel << " += _cascaded_channel_tmp;\n";
                     }
                 } else {
                     // Give some error or warning I assume?
                 }
-                _f() << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
-                     << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
-                     << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
-                     << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
+                _f() << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
                      << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
                      << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
                      << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
@@ -1001,6 +1012,7 @@ bool Export::_setVarNames() {
         if (t == NodeRole::Tx) _beamforming_F = buf;
         else if (t == NodeRole::Rx) _beamforming_W = buf;
         else _beamforming_RIS.push_back(buf);
+        _beamforming[_asStr(n["id"])] = buf;
     }
     return true;
 }

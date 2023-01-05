@@ -1,7 +1,7 @@
 /**
  * @file style.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
- * @brief Implementation of style class.
+ * @brief Implementation of Style class.
  * @version 0.1.0
  * @date 2022-07-17
  *

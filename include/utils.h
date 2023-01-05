@@ -19,11 +19,11 @@
 #include <string>
 #include <vector>
 #ifndef __linux__
-#include <boost/dll/runtime_symbol_info.hpp>
+#    include <boost/dll/runtime_symbol_info.hpp>
 #else
-#include <libgen.h>       // dirname
-#include <linux/limits.h> // PATH_MAX
-#include <unistd.h>       // readlink
+#    include <libgen.h>       // dirname
+#    include <linux/limits.h> // PATH_MAX
+#    include <unistd.h>       // readlink
 #endif
 
 // https://stackoverflow.com/a/217605/15080514

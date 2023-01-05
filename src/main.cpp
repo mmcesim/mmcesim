@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.1.0
- * @date 2022-07-11
+ * @date 2023-01-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -24,8 +24,8 @@
 #include <iostream>
 
 #ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#pragma warning(disable : 4244)
+#    define _CRT_SECURE_NO_WARNINGS
+#    pragma warning(disable : 4244)
 #endif
 
 int main(int argc, char* argv[]) {
@@ -144,6 +144,24 @@ int main(int argc, char* argv[]) {
         Shared_Info info;
         auto&& errors = Export::exportCode(opt, &info);
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
+        if (int compile_result = Simulate::simulate(info)) {
+            if (opt.no_error_compile) {
+                std::cout << "Compiling Error with exit code " << compile_result << ".\n";
+            } else {
+                std::cerr << "ERROR: Simulation compiling error. Compiling exit with code " << compile_result << ".\n";
+                return errorCode(Err::COMPILE_ERROR);
+            }
+        }
+    } else if (opt.cmd == "dbg" || opt.cmd == "debug") {
+        Shared_Info info;
+        info.dbg      = true;
+        auto&& errors = Export::exportCode(opt, &info);
+        if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
+        // Let's style it so it looks better when debugging.
+        if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
+            std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+            return errorCode(Err::ASTYLE_ERROR);
+        }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
                 std::cout << "Compiling Error with exit code " << compile_result << ".\n";

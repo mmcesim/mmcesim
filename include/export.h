@@ -29,6 +29,7 @@
 #include <fmt/core.h>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <regex>
 #include <sstream>
 #include <tuple>
@@ -69,7 +70,7 @@ class Export {
      */
     enum class NodeRole {
         Tx,  ///< transmitter
-        Rx,  ///< receiver,
+        Rx,  ///< receiver
         RIS, ///< RIS/IRS
     };
 
@@ -162,6 +163,7 @@ class Export {
      *            -# Beam Number at the Tx;
      *            -# RIS size;
      *            -# The variable names.
+     *
      *          The first two are necessary because we need to calculate the number of RIS reflection patterns;
      *          The variable names are also needed since we need to generate those definitions.\n
      *          The pilot can be directly written as 'pilot';
@@ -196,6 +198,7 @@ class Export {
     std::string _noise;
     std::string _beamforming_W, _beamforming_F;
     std::vector<std::string> _beamforming_RIS;
+    std::map<std::string, std::string> _beamforming;
     Channel_Graph _channel_graph;
 
     const int _MAX_TX = 1;

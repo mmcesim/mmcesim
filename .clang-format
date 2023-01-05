@@ -15,6 +15,7 @@ AlignConsecutiveMacros: true
 AlignConsecutiveAssignments: true
 AlwaysBreakTemplateDeclarations: Yes
 Cpp11BracedListStyle: false
+IndentPPDirectives: AfterHash
 SpacesInLineCommentPrefix:
   Minimum: 1
 # Custom Macro in export/alg.cpp
