@@ -1,0 +1,23 @@
+on: [push]
+
+jobs:
+  run_mmcesim:
+    if: github.repository_owner == 'mmcesim'
+    runs-on: ubuntu-latest
+    name: Test Tag
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run mmCEsim Action
+        uses: mmcesim/run-mmcesim-action@v0.0.1
+        id: run
+        with:
+          version: ${{ github.ref_name }}
+          source: src/mmcesim/test/single_RIS
+      - name: Check Contents
+        run: cat "${{ steps.run.outputs.src }}"
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: "Run mmCEsim Action"
+          path: "${{ steps.run.outputs.src }}"
