@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with: 
+      with:
         submodules: recursive
 
     - name: Download Ninja and CMake
@@ -88,7 +88,7 @@ jobs:
         endif()
 
     # - name: Build yaml-cpp (Unix)
-    #   if: ${{ runner.os != 'Windows' }} 
+    #   if: ${{ runner.os != 'Windows' }}
     #   shell: bash
     #   run: |
     #     git clone https://github.com/mmcesim/yaml-cpp.git
@@ -101,7 +101,7 @@ jobs:
     #     cd ../..
 
     # - name: Build yaml-cpp (Windows)
-    #   if: ${{ runner.os == 'Windows' }} 
+    #   if: ${{ runner.os == 'Windows' }}
     #   shell: bash
     #   run: |
     #     vcpkg install yaml-cpp --triplet x64-windows
@@ -116,7 +116,7 @@ jobs:
 #        path: ${{env.GITHUB_WORKSPACE}}/boost/boost
 #        # Use the version as the key to only cache the correct version
 #        key: boost-${{env.BOOST_VERSION}}
-#        
+#
 #    - name: Set Boost path (cache)
 #      if: steps.cache-boost.outputs.cache-hit == 'true'
 #      run: |
@@ -125,7 +125,7 @@ jobs:
 
     # Actual install step (only runs if the cache is empty)
     - name: Install boost (Linux)
-      if: ${{ runner.os == 'Linux' }} 
+      if: ${{ runner.os == 'Linux' }}
       uses: MarkusJx/install-boost@v2.4.3
       id: install-boost-ubuntu
       with:
@@ -134,7 +134,7 @@ jobs:
         platform_version: 20.04
 
     - name: Install boost (macOS)
-      if: ${{ runner.os == 'macOS' }} 
+      if: ${{ runner.os == 'macOS' }}
       uses: MarkusJx/install-boost@v2.4.3
       id: install-boost-mac
       with:
@@ -151,7 +151,7 @@ jobs:
         boost_version: ${{env.BOOST_VERSION}}
         platform_version: 2022
         toolset: msvc
- 
+
 #    - name: Install boost (Windows MinGW)
 #      if: ${{ runner.os == 'Windows' && matrix.config.cc == 'gcc' }}
 #      uses: MarkusJx/install-boost@v2.4.3
@@ -170,7 +170,7 @@ jobs:
 #      if: ${{ runner.os == 'Windows' && matrix.config.cc == 'gcc' }}
 #      run: |
 #        echo "BOOST_ROOT=${{ steps.install-boost-mingw.outputs.BOOST_ROOT }}" >> $env:GITHUB_ENV
-       
+
     - name: Boost add path (Linux)
       if: ${{ runner.os == 'Linux' }}
       run: |
