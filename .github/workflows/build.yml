@@ -200,7 +200,7 @@ jobs:
         file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
     - name: ccache cache files
       if: ${{ runner.os != 'Windows' }}
-      uses: actions/cache@v3.2.2
+      uses: actions/cache@v3.2.3
       with:
         path: .ccache
         key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
