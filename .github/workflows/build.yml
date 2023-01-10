@@ -172,7 +172,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
-              -D CMAKE_INSTALL_PREFIX=usr/mmcesim
+              -D CMAKE_INSTALL_PREFIX=usr\mmcesim
             RESULT_VARIABLE result
           )
         else()
@@ -265,7 +265,7 @@ jobs:
     - name: Pack (Linux)
       if: ${{ runner.os == 'Linux' }}
       working-directory: usr/mmcesim
-      run: cmake -E tar cfv ../../${{ matrix.config.artifact }} --format=tgz .
+      run: cmake -E tar czfv ../../${{ matrix.config.artifact }} .
 
     - name: Pack (Windows and macOS)
       if: ${{ runner.os != 'Linux' }}
