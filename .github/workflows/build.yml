@@ -39,7 +39,7 @@ jobs:
         - {
             name: "macOS Latest Clang",
             os: macos-12,
-            architecture: x64,
+            architecture: arm,
             cc: "clang", cxx: "clang++"
           }
 
@@ -87,22 +87,6 @@ jobs:
           )
         endif()
 
-    # Retrieve the cache, uses cache@v2
-#    - name: Cache boost
-#      uses: actions/cache@v2
-#      id: cache-boost
-#      with:
-#        # Set the default path as the path to cache
-#        path: ${{env.GITHUB_WORKSPACE}}/boost/boost
-#        # Use the version as the key to only cache the correct version
-#        key: boost-${{env.BOOST_VERSION}}
-#
-#    - name: Set Boost path (cache)
-#      if: steps.cache-boost.outputs.cache-hit == 'true'
-#      run: |
-#        set(ENV{BOOST_ROOT}, ${{env.GITHUB_WORKSPACE}}/boost/boost)
-#
-
     # Actual install step (only runs if the cache is empty)
     - name: Install boost (Linux)
       if: ${{ runner.os == 'Linux' }}
@@ -115,12 +99,8 @@ jobs:
 
     - name: Install boost (macOS)
       if: ${{ runner.os == 'macOS' }}
-      uses: MarkusJx/install-boost@v2.4.3
       id: install-boost-mac
-      with:
-        # Set the boost version (required)
-        boost_version: ${{env.BOOST_VERSION}}
-        platform_version: 12
+      run: brew install boost
 
     - name: Install boost (Windows MSVC)
       if: ${{ runner.os == 'Windows' && matrix.config.cc == 'cl' }}
@@ -150,21 +130,11 @@ jobs:
 #      if: ${{ runner.os == 'Windows' && matrix.config.cc == 'gcc' }}
 #      run: |
 #        echo "BOOST_ROOT=${{ steps.install-boost-mingw.outputs.BOOST_ROOT }}" >> $env:GITHUB_ENV
-
     - name: Boost add path (Linux)
       if: ${{ runner.os == 'Linux' }}
       run: |
         echo "BOOST_ROOT=${{ steps.install-boost-ubuntu.outputs.BOOST_ROOT }}" >> $GITHUB_ENV
-    - name: Boost add path (macOS)
-      if: ${{ runner.os == 'macOS' }}
-      run: |
-        echo "BOOST_ROOT=${{ steps.install-boost-mac.outputs.BOOST_ROOT }}" >> $GITHUB_ENV
-    - name: Boost add path (cache)
-      if: steps.cache-boost.outputs.cache-hit == 'true'
-      run: |
-        set(ENV{BOOST_ROOT} ${{env.GITHUB_WORKSPACE}}/boost/boost/boost-${{env.BOOST_VERSION}})
-        set(ENV{BOOST_INCLUDEDIR} ${{env.GITHUB_WORKSPACE}}/boost/boost/boost-${{env.BOOST_VERSION}}/include)
-        set(ENV{BOOST_LIBRARYDIR} ${{env.GITHUB_WORKSPACE}}/boost/boost/boost-${{env.BOOST_VERSION}}/lib)
+
     - name: Download ccache
       id: ccache
       shell: cmake -P {0}
