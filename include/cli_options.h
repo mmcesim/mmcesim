@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Storage of Command Line Options
  * @version 0.1.0
- * @date 2022-07-11
+ * @date 2023-01-10
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -27,6 +27,7 @@ struct CLI_Options {
     std::string lang;
     std::string value;
     bool force            = false;
+    bool verbose          = false;
     bool no_error_compile = false;
 };
 

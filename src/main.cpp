@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.1.0
- * @date 2023-01-05
+ * @date 2023-01-10
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -52,6 +52,7 @@ int main(int argc, char* argv[]) {
         ("value", po::value<std::string>(&opt.value),
             "value for configuration option")
         ("force,f", "force writing mode")
+        ("verbose,V", "print additional information")
         ("no-error-compile", "Do not raise error if simulation compiling fails")
     ;
 
@@ -78,14 +79,14 @@ int main(int argc, char* argv[]) {
     try {
         po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
         if (vm.count("help")) {
-            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "    (C) " << _MMCESIM_AUTHOR << '\n'
+            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "  (C) 2022-2023 " << _MMCESIM_AUTHOR << '\n'
                       << _MMCESIM_DESCR << std::endl;
             std::cout << std::string(45, '=') << "\n" << std::endl;
             std::cout << "Usage: " << argv[0] << " <command> <input> [options]\n" << std::endl;
             std::cout << "Commands:\n"
-                      << "  sim [simulate]         run simulation\n"
-                      << "  dbg [debug]            debug simulation settings\n"
-                      << "  exp [export]           export code\n"
+                      << "  sim [ simulate ]       run simulation\n"
+                      << "  dbg [ debug ]          debug simulation settings\n"
+                      << "  exp [ export ]         export code\n"
                       << "  config                 configure mmCEsim options\n"
                       << "  (Leave empty)          generic use\n"
                       << std::endl;
@@ -133,6 +134,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (vm.count("force")) opt.force = true;
+    if (vm.count("verbose")) opt.verbose = true;
     if (vm.count("no-error-compile")) opt.no_error_compile = true;
 
     if (opt.cmd != "config" && !std::filesystem::exists(opt.input)) {
