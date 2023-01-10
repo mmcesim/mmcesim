@@ -40,6 +40,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/ext/fmt/include
     ${Boost_INCLUDE_DIR}
 )
+link_directories(${Boost_LIBRARY_DIRS})
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
