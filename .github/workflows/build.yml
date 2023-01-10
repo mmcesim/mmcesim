@@ -169,6 +169,7 @@ jobs:
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -G Ninja
               -D CMAKE_MAKE_PROGRAM=ninja
+              -D CMAKE_INSTALL_PREFIX=usr/mmcesim
             RESULT_VARIABLE result
           )
         else()
@@ -181,6 +182,7 @@ jobs:
               -D CMAKE_MAKE_PROGRAM=ninja
               -D CMAKE_C_COMPILER_LAUNCHER=ccache
               -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+              -D CMAKE_INSTALL_PREFIX=usr/mmcesim
             RESULT_VARIABLE result
           )
         endif()
@@ -253,6 +255,9 @@ jobs:
           message("::error::${test_results}")
           message(FATAL_ERROR "Running tests failed!")
         endif()
+
+    - name: Install Strip
+      run: cmake --install build --strip
 
     - name: Pack
       working-directory: usr/mmcesim

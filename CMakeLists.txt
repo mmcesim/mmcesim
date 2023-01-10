@@ -1,7 +1,13 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.13)
 project(mmCEsim VERSION 0.1.0)
 
-option(MMCESIM_BUILD_GUI "Build mmCEsim GUI App with Qt" OFF)
+option(MMCESIM_BUILD_ASTYLE "Build astyle Code Formatter"   ON )
+option(MMCESIM_BUILD_GUI    "Build mmCEsim GUI App with Qt" OFF)
+
+# Default as Release
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+endif()
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_NO_WARN_NEW_VERSIONS ON)
@@ -54,7 +60,9 @@ if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS -Wno-error=narrowing)
 endif()
 
-add_subdirectory(ext/astyle)
+if (MMCESIM_BUILD_ASTYLE)
+    add_subdirectory(ext/astyle)
+endif()
 
 include(test/test.cmake)
 
@@ -86,23 +94,34 @@ if (MMCESIM_BUILD_GUI)
     add_subdirectory(gui)
 endif()
 
-# install to ./usr/mmcesim
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/bin/ DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim/bin)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim/ DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim/include/mmcesim)
-install(FILES README.md DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim)
-install(FILES doc/mmCEsim-doc.pdf DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim)
-# if (APPLE)
-#     install(
-#         FILES ${CMAKE_SOURCE_DIR}/misc/mac_trust_app.sh
-#         DESTINATION ${CMAKE_SOURCE_DIR}/usr/lnsammse
-#         RENAME trust_app.sh
-#     )
-#     install(
-#         FILES ${CMAKE_SOURCE_DIR}/misc/mac_install_notice.txt
-#         DESTINATION ${CMAKE_SOURCE_DIR}/usr/lnsammse
-#         RENAME "[README]\ RUN\ trust_app.sh\ BEFORE\ USING\ APP.txt"
-#     )
-# endif()
+list(APPEND MMCESIM_DOCS
+    README.md
+    doc/mmCEsim-doc.pdf
+)
+
+if (WIN32)
+    set(pf86 "PROGRAMFILES(x86)")
+    set(prog_files $ENV{${pf86}})
+    if (NOT ${prog_files})
+        set(prog_files $ENV{PROGRAMFILES})
+    endif()
+    install(TARGETS mmcesim DESTINATION "${prog_files}/mmCEsim/bin")
+    install(FILES ${MMCESIM_DOCS} DESTINATION "${prog_files}/mmCEsim/doc")
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim DESTINATION "${prog_files}/mmCEsim/include/mmcesim")
+elseif (APPLE)
+    # install to the default /usr/local/bin because of SIP restrictions
+    install(TARGETS mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+    install(FILES ${MMCESIM_DOCS} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc/mmcesim")
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
+else ()
+    # change default to /usr/bin, the same as package installs
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX "/usr")
+    endif()
+    install(TARGETS mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+    install(FILES ${MMCESIM_DOCS} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc/mmcesim")
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/include")
+endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
