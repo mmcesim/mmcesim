@@ -86,6 +86,24 @@ if (MMCESIM_BUILD_GUI)
     add_subdirectory(gui)
 endif()
 
+# install to ./usr/mmcesim
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/bin/ DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim/bin)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim/ DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim/include/mmcesim)
+install(FILES README.md DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim)
+install(FILES doc/mmCEsim-doc.pdf DESTINATION ${CMAKE_SOURCE_DIR}/usr/mmcesim)
+# if (APPLE)
+#     install(
+#         FILES ${CMAKE_SOURCE_DIR}/misc/mac_trust_app.sh
+#         DESTINATION ${CMAKE_SOURCE_DIR}/usr/lnsammse
+#         RENAME trust_app.sh
+#     )
+#     install(
+#         FILES ${CMAKE_SOURCE_DIR}/misc/mac_install_notice.txt
+#         DESTINATION ${CMAKE_SOURCE_DIR}/usr/lnsammse
+#         RENAME "[README]\ RUN\ trust_app.sh\ BEFORE\ USING\ APP.txt"
+#     )
+# endif()
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
