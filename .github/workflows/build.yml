@@ -17,31 +17,22 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Windows Latest MSVC",
-            os: windows-latest,
-            architecture: x86_64,
-            cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-          }
-#        - {
-#            name: "Windows Latest MinGW", artifact: "Windows-MinGW.7z",
-#            os: windows-latest,
-#            architecture: x86_64,
-#            cc: "gcc", cxx: "g++"
-#          }
-        - {
-            name: "Ubuntu Latest GCC",
-            os: ubuntu-latest,
-            architecture: x64,
-            cc: "gcc", cxx: "g++"
-          }
-        - {
-            name: "macOS Latest Clang",
-            os: macos-12,
-            architecture: arm,
-            cc: "clang", cxx: "clang++"
-          }
+        - name: "Windows"
+          os: windows-latest
+          architecture: x86_64
+          cc: "cl"
+          cxx: "cl"
+          environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+        - name: "Linux"
+          os: ubuntu-latest
+          architecture: x64
+          cc: "gcc"
+          cxx: "g++"
+        - name: "macOS"
+          os: macos-12
+          architecture: arm
+          cc: "clang"
+          cxx: "clang++"
 
     steps:
     - uses: actions/checkout@v3
@@ -102,7 +93,7 @@ jobs:
       id: install-boost-mac
       run: brew install boost
 
-    - name: Install boost (Windows MSVC)
+    - name: Install boost (Windows)
       if: ${{ runner.os == 'Windows' && matrix.config.cc == 'cl' }}
       uses: MarkusJx/install-boost@v2.4.3
       id: install-boost-msvc
@@ -112,24 +103,11 @@ jobs:
         platform_version: 2022
         toolset: msvc
 
-#    - name: Install boost (Windows MinGW)
-#      if: ${{ runner.os == 'Windows' && matrix.config.cc == 'gcc' }}
-#      uses: MarkusJx/install-boost@v2.4.3
-#      id: install-boost-mingw
-#      with:
-#        # Set the boost version (required)
-#        boost_version: ${{env.BOOST_VERSION}}
-#        platform_version: 2022
-#        toolset: mingw
-
-    - name: Boost add path (Windows MSVC)
+    - name: Boost add path (Windows)
       if: ${{ runner.os == 'Windows' && matrix.config.cc == 'cl' }}
       run: |
         echo "BOOST_ROOT=${{ steps.install-boost-msvc.outputs.BOOST_ROOT }}" >> $env:GITHUB_ENV
-#    - name: Boost add path (Windows MinGW)
-#      if: ${{ runner.os == 'Windows' && matrix.config.cc == 'gcc' }}
-#      run: |
-#        echo "BOOST_ROOT=${{ steps.install-boost-mingw.outputs.BOOST_ROOT }}" >> $env:GITHUB_ENV
+
     - name: Boost add path (Linux)
       if: ${{ runner.os == 'Linux' }}
       run: |
@@ -142,12 +120,14 @@ jobs:
         set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
         file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+
     - name: Prepare ccache timestamp
       id: ccache_cache_timestamp
       shell: cmake -P {0}
       run: |
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
         file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
+
     - name: ccache cache files
       if: ${{ runner.os != 'Windows' }}
       uses: actions/cache@v3.2.3
@@ -156,6 +136,7 @@ jobs:
         key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
           ${{ matrix.config.name }}-ccache-
+
     - name: Configure
       shell: cmake -DBOOST_ROOT=path -P {0}
       env:
@@ -206,6 +187,7 @@ jobs:
         if (NOT result EQUAL 0)
           message(FATAL_ERROR "Bad exit status")
         endif()
+
     - name: Build
       shell: cmake -P {0}
       run: |
@@ -242,6 +224,7 @@ jobs:
           message("::error::${error_message}")
           message(FATAL_ERROR "Build failed")
         endif()
+
     - name: ccache statistics
       shell: cmake -P {0}
       run: |
@@ -249,6 +232,7 @@ jobs:
         set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
         set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
         execute_process(COMMAND ccache -s)
+
     - name: Run tests
       shell: cmake -P {0}
       run: |
@@ -269,3 +253,13 @@ jobs:
           message("::error::${test_results}")
           message(FATAL_ERROR "Running tests failed!")
         endif()
+
+    - name: Pack
+      working-directory: usr/mmcesim
+      run: cmake -E tar cfv ../../${{ matrix.config.artifact }} --format=zip .
+
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        path: ./${{ matrix.config.artifact }}
+        name: ${{ matrix.config.artifact }}
