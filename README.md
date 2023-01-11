@@ -2,8 +2,8 @@
 ![Code Size](https://img.shields.io/github/languages/code-size/mmcesim/mmcesim)
 ![Total Lines](https://img.shields.io/tokei/lines/github/mmcesim/mmcesim)
 [![License](https://img.shields.io/github/license/mmcesim/mmcesim)](LICENSE)
-![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)
-![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)
+[![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)](https://github.com/mmcesim/mmcesim/releases/latest)
+[![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases/latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6912824.svg)](https://doi.org/10.5281/zenodo.6912824)
 <!-- ![Twitter](https://img.shields.io/twitter/follow/mmcesim?style=social) -->
 
@@ -33,7 +33,7 @@ You may consider citing it[^1]:
 ## Usage
 ```
 $ ./mmcesim -h
-mmCEsim 0.1.0  (C) 2022-2023 Wuqiong Zhao
+mmCEsim 0.1.1  (C) 2022-2023 Wuqiong Zhao
 Millimeter Wave Channel Estimation Simulation
 =============================================
 
