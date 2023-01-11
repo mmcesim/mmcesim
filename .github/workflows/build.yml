@@ -297,7 +297,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        name: mmCEsim ${{ github.ref }}
+        name: mmCEsim ${{ github.ref_name }}
         append_body: true
         body_path: misc/release_note.md
         body: |

@@ -2,7 +2,7 @@
 
 ## This script builds and packs mmCEsim CLI for macOS with ARM architecture.
 ## This is useful since there is no ARM support for macOS on Github Actions.
-## The binary will be installed to /usr/mmcesim, as in GitHub Actions.
+## The binary will be installed to ./usr/mmcesim, as in GitHub Actions.
 
 #------------------------------
 # Definition
@@ -25,6 +25,7 @@ cd ..
 mkdir publish
 cd ${mmCEsim_install_dir}
 cmake -E tar cfv ../../publish/mmCEsim-CLI-macOS-${mmCEsim_arch}.zip --format=zip .
+
 #------------------------------
 # Finish
 #------------------------------
