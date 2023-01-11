@@ -2,7 +2,7 @@
  * @file type_track_global.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Global Access of Type Track
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2022-09-24
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

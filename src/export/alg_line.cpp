@@ -2,7 +2,7 @@
  * @file alg_line.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2022-07-24
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

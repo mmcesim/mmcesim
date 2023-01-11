@@ -9,7 +9,7 @@
 %% Version: 0.0.1
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{simreport}[2022/09/05 Simulation Report]
+\ProvidesClass{simreport}[2023/01/11 Simulation Report]
 \RequirePackage[T1]{fontenc}
 
 %% Class and Options
@@ -47,7 +47,7 @@
 \if\@@mmcesim1
   \logo{fig/mmCEsim_logo_256.png}
   \simapp{mmCEsim}
-  \version{0.1.0}
+  \version{0.1.1}
 \fi
 
 % additional height for footer on the first page
@@ -312,6 +312,7 @@
       \item Web Application: \url{https://app.mmcesim.org}
       \item Blog: \url{https://blog.mmcesim.org}
       \item Publications: \url{https://pub.mmcesim.org}
+      \item Dev Documentation: \url{https://dev.mmcesim.org}
       \item GitHub Organization: \url{https://github.com/mmcesim}
       \item Twitter: \url{https://twitter.com/mmcesim}
       \item VS Code Extension: \url{https://marketplace.visualstudio.com/items?itemName=mmcesim.mmcesim}

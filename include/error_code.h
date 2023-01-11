@@ -2,7 +2,7 @@
  * @file error_code.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Error Codes (Including Warnings)
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2022-07-12
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

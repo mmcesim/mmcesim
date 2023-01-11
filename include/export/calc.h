@@ -2,7 +2,7 @@
  * @file calc.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Make Calculation in Alg
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2022-08-20
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

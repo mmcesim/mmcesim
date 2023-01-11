@@ -2,7 +2,7 @@
  * @file channel_graph.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Channel_Graph Class
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2023-01-03
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

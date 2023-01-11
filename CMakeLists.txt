@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(mmCEsim VERSION 0.1.0)
+project(mmCEsim VERSION 0.1.1)
 
 option(MMCESIM_BUILD_ASTYLE  "Build astyle Code Formatter"             ON )
 option(MMCESIM_BUILD_GUI     "Build mmCEsim GUI App with Qt"           OFF)

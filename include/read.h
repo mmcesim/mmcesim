@@ -2,7 +2,7 @@
  * @file read.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Read YAML Configuration
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2022-07-11
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

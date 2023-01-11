@@ -2,7 +2,7 @@
  * @file cli_options.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Storage of Command Line Options
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2023-01-10
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

@@ -2,7 +2,7 @@
  * @file style.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Style class.
- * @version 0.1.0
+ * @version 0.1.1
  * @date 2022-07-17
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
