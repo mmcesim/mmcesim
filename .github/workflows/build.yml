@@ -18,20 +18,20 @@ jobs:
       matrix:
         config:
         - name: "Windows"
-          artifact: "mmCEsim-CLI-Windows.zip"
+          artifact: "mmCEsim-CLI-Windows-x86.zip"
           os: windows-latest
           architecture: x86_64
           cc: "cl"
           cxx: "cl"
           environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
         - name: "Linux"
-          artifact: "mmCEsim-CLI-Linux.tar.gz"
+          artifact: "mmCEsim-CLI-Linux-x86.tar.gz"
           os: ubuntu-latest
           architecture: x64
           cc: "gcc"
           cxx: "g++"
         - name: "macOS"
-          artifact: "mmCEsim-CLI-macOS.zip"
+          artifact: "mmCEsim-CLI-macOS-x64.zip"
           os: macos-12
           architecture: arm
           cc: "clang"
@@ -186,6 +186,7 @@ jobs:
               -D CMAKE_C_COMPILER_LAUNCHER=ccache
               -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
               -D CMAKE_INSTALL_PREFIX=usr/mmcesim
+              -D MMCESIM_APPLE_COPY_SH=ON
             RESULT_VARIABLE result
           )
         endif()
@@ -294,7 +295,7 @@ jobs:
         release_name: mmCEsim ${{ github.ref }}
         body: Automatic build for mmCEsim CLI.
         draft: false
-        prerelease: false
+        prerelease: contains(github.ref, 'alpha') || contains(github.ref, 'beta')
 
     - name: Store Release url
       run: |
@@ -314,13 +315,13 @@ jobs:
       matrix:
         config:
           - name: "Windows"
-            artifact: "mmCEsim-CLI-Windows.zip"
+            artifact: "mmCEsim-CLI-Windows-x86.zip"
             os: windows-latest
           - name: "Linux"
-            artifact: "mmCEsim-CLI-Linux.tar.gz"
+            artifact: "mmCEsim-CLI-Linux-x86.tar.gz"
             os: ubuntu-latest
           - name: "macOS"
-            artifact: "mmCEsim-CLI-macOS.zip"
+            artifact: "mmCEsim-CLI-macOS-x64.zip"
             os: macos-12
     needs: release
 
