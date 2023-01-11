@@ -285,6 +285,11 @@ jobs:
     needs: build
 
     steps:
+    - uses: actions/checkout@v3
+      name: Checkout
+      with:
+        submodules: recursive
+
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
@@ -292,12 +297,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: mmCEsim ${{ github.ref }}
+        name: mmCEsim ${{ github.ref }}
+        append_body: true
+        body_path: misc/release_note.md
         body: |
-          > **Note** x86 and x64 binaries are built automatically by GitHub Actions;
-          > The macOS arm binary is built manually on macOS with M1 chip.
+          > **Note** x86 and x64 binaries are built automatically by GitHub Actions; The macOS arm binary is built manually on macOS with M1 chip.
         draft: false
-        prerelease: contains(github.ref, 'alpha')
+        prerelease: ${{ contains(github.ref, 'alpha') }}
+        files: doc/mmCEsim-doc.pdf
 
     - name: Store Release url
       run: |
