@@ -50,3 +50,5 @@ _data
 _tex_report
 misc/_doxygen
 /*.rpt
+usr
+publish
