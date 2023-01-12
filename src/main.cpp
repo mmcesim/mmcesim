@@ -23,6 +23,8 @@
 #include <filesystem>
 #include <iostream>
 
+#include "term.h"
+
 #ifdef _MSC_VER
 #    define _CRT_SECURE_NO_WARNINGS
 #    pragma warning(disable : 4244)
@@ -53,7 +55,8 @@ int main(int argc, char* argv[]) {
             "value for configuration option")
         ("force,f", "force writing mode")
         ("verbose,V", "print additional information")
-        ("no-error-compile", "Do not raise error if simulation compiling fails")
+        ("no-error-compile", "do not raise error if simulation compiling fails")
+        ("no-term-color", "disable colorful terminal contents")
     ;
 
     po::options_description hidden("Hidden options");
@@ -136,6 +139,7 @@ int main(int argc, char* argv[]) {
     if (vm.count("force")) opt.force = true;
     if (vm.count("verbose")) opt.verbose = true;
     if (vm.count("no-error-compile")) opt.no_error_compile = true;
+    if (vm.count("no-term-color")) Term::disable();
 
     if (opt.cmd != "config" && !std::filesystem::exists(opt.input)) {
         opt.input += ".sim";

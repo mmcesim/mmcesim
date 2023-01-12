@@ -60,7 +60,8 @@ Configuration:
   --value arg            value for configuration option
   -f [ --force ]         force writing mode
   -V [ --verbose ]       print additional information
-  --no-error-compile     Do not raise error if simulation compiling fails
+  --no-error-compile     do not raise error if simulation compiling fails
+  --no-term-color        disable colorful terminal contents
 ```
 
 ## Contributing

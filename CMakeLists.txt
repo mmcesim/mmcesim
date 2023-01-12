@@ -76,6 +76,7 @@ set(SOURCES
     "src/read.cpp"
     "src/simulate.cpp"
     "src/style.cpp"
+    "src/term.cpp"
     "src/export/alg_line.cpp"
     "src/export/alg.cpp"
     "src/export/calc.cpp"
