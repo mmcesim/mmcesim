@@ -17,21 +17,21 @@
 
 /**
  * @brief Terminal option.
- * 
+ *
  * This will be directly used in ostream.
  */
 class TermOpt {
   public:
     /**
      * @brief Construct a new TermOpt object.
-     * 
+     *
      * @param val The ANSI color code in string.
      */
     TermOpt(const std::string& val) : v(val) {}
 
     /**
      * @brief Construct a new TermOpt object.
-     * 
+     *
      * @param val The ANSI color code in const char*.
      */
     TermOpt(const char* val) : v(val) {}
@@ -45,7 +45,7 @@ class TermOpt {
 
 /**
  * @brief Use the TermOpt in ostream.
- * 
+ *
  * @param out The ostream.
  * @param opt The TermOpt object with configuration.
  * @return (std::ostream&) The ostream.
@@ -57,27 +57,23 @@ static inline std::ostream& operator<<(std::ostream& out, const TermOpt& opt) {
 
 /**
  * @brief Combine two TermOpt configurations.
- * 
+ *
  * @param o1 The first TermOpt configuration.
  * @param o2 The second TermOpt configuration.
  * @return (TermOpt) The added result.
  */
-static inline TermOpt operator+(const TermOpt& o1, const TermOpt& o2) {
-    return o1.v + ";" + o2.v;
-}
+static inline TermOpt operator+(const TermOpt& o1, const TermOpt& o2) { return o1.v + ";" + o2.v; }
 
 /**
  * @brief Combine two TermOpt configurations.
- * 
+ *
  * This is the same as operator+.
  * @note This should be used with caution since the priority is lower than the << operator.
  * @param o1 The first TermOpt configuration.
  * @param o2 The second TermOpt configuration.
  * @return (TermOpt) The added result.
  */
-static inline TermOpt operator|(const TermOpt& o1, const TermOpt& o2) {
-    return o1 + o2;
-}
+static inline TermOpt operator|(const TermOpt& o1, const TermOpt& o2) { return o1 + o2; }
 
 /**
  * @brief Control terminal colors and styles.
@@ -89,13 +85,13 @@ class Term {
 
     /**
      * @brief Disable terminal color and style.
-     * 
+     *
      */
     static void disable();
 
     /**
      * @brief Enable terminal color and style.
-     * 
+     *
      * The color and style is on by default.
      */
     static void enable();
