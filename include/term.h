@@ -101,22 +101,22 @@ class Term {
     static inline TermOpt BG_WHITE   = "47";
     static inline TermOpt BG_DEFAULT = "49";
     static inline TermOpt RESET      = "0";
-    static inline TermOpt BF         = "1";  /** bold/bright */
-    static inline TermOpt DIM        = "2";  /** dim (faint) */
-    static inline TermOpt IT         = "3";  /** italic */
-    static inline TermOpt UL         = "4";  /** underline */
-    static inline TermOpt BLINK      = "5";  /** slow blink (150 times/min) */
-    static inline TermOpt INV        = "7";  /** inverse FG and BG */
-    static inline TermOpt OFF_BF     = "21"; /** off bold/bright */
-    static inline TermOpt OFF_DIM    = "22"; /** dim (faint) */
-    static inline TermOpt OFF_IT     = "23"; /** italic */
-    static inline TermOpt OFF_UL     = "24"; /** off underline */
-    static inline TermOpt OFF_BLINK  = "25"; /** off slow blink (150 times/min) */
-    static inline TermOpt OFF_INV    = "27"; /** off inverse FG and BG */
+    static inline TermOpt BF         = "1";  /**< bold/bright */
+    static inline TermOpt DIM        = "2";  /**< dim (faint) */
+    static inline TermOpt IT         = "3";  /**< italic */
+    static inline TermOpt UL         = "4";  /**< underline */
+    static inline TermOpt BLINK      = "5";  /**< slow blink (150 times/min) */
+    static inline TermOpt INV        = "7";  /**< inverse FG and BG */
+    static inline TermOpt OFF_BF     = "21"; /**< off bold/bright */
+    static inline TermOpt OFF_DIM    = "22"; /**< dim (faint) */
+    static inline TermOpt OFF_IT     = "23"; /**< italic */
+    static inline TermOpt OFF_UL     = "24"; /**< off underline */
+    static inline TermOpt OFF_BLINK  = "25"; /**< off slow blink (150 times/min) */
+    static inline TermOpt OFF_INV    = "27"; /**< off inverse FG and BG */
 
     /* some additional compound definitions */
-    static inline TermOpt ERR = RED | BF;    /** error message */
-    static inline TermOpt MSG = YELLOW | BF; /** message */
+    static inline TermOpt ERR = RED | BF;    /**< error message */
+    static inline TermOpt MSG = YELLOW | BF; /**< message */
 
     /**
      * @brief Disable terminal color and style.
