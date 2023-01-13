@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Terminal Color and Style Control
  * @version 0.1.1
- * @date 2023-01-12
+ * @date 2023-01-13
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -36,10 +36,10 @@ class TermOpt {
      */
     TermOpt(const char* val) : v(val) {}
 
-    // ANSI color code
+    /// ANSI color code
     std::string v;
 
-    // valid status (whether a colorful terminal is used)
+    /// valid status (whether a colorful terminal is used)
     bool vld = true;
 };
 
@@ -81,7 +81,42 @@ static inline TermOpt operator|(const TermOpt& o1, const TermOpt& o2) { return o
  */
 class Term {
   public:
-    static inline TermOpt BLACK = "30";
+    /* color and style definitions */
+    static inline TermOpt BLACK      = "30";
+    static inline TermOpt RED        = "31";
+    static inline TermOpt GREEN      = "32";
+    static inline TermOpt YELLOW     = "33";
+    static inline TermOpt BLUE       = "34";
+    static inline TermOpt MAGENTA    = "35";
+    static inline TermOpt CYAN       = "36";
+    static inline TermOpt WHITE      = "37";
+    static inline TermOpt DEFAULT    = "39";
+    static inline TermOpt BG_BLACK   = "40";
+    static inline TermOpt BG_RED     = "41";
+    static inline TermOpt BG_GREEN   = "42";
+    static inline TermOpt BG_YELLOW  = "43";
+    static inline TermOpt BG_BLUE    = "44";
+    static inline TermOpt BG_MAGENTA = "45";
+    static inline TermOpt BG_CYAN    = "46";
+    static inline TermOpt BG_WHITE   = "47";
+    static inline TermOpt BG_DEFAULT = "49";
+    static inline TermOpt RESET      = "0";
+    static inline TermOpt BF         = "1";  /** bold/bright */
+    static inline TermOpt DIM        = "2";  /** dim (faint) */
+    static inline TermOpt IT         = "3";  /** italic */
+    static inline TermOpt UL         = "4";  /** underline */
+    static inline TermOpt BLINK      = "5";  /** slow blink (150 times/min) */
+    static inline TermOpt INV        = "7";  /** inverse FG and BG */
+    static inline TermOpt OFF_BF     = "21"; /** off bold/bright */
+    static inline TermOpt OFF_DIM    = "22"; /** dim (faint) */
+    static inline TermOpt OFF_IT     = "23"; /** italic */
+    static inline TermOpt OFF_UL     = "24"; /** off underline */
+    static inline TermOpt OFF_BLINK  = "25"; /** off slow blink (150 times/min) */
+    static inline TermOpt OFF_INV    = "27"; /** off inverse FG and BG */
+
+    /* some additional compound definitions */
+    static inline TermOpt ERR = RED | BF;    /** error message */
+    static inline TermOpt MSG = YELLOW | BF; /** message */
 
     /**
      * @brief Disable terminal color and style.
