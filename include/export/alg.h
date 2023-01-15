@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Algorithm Parser (.alg Language)
  * @version 0.1.1
- * @date 2022-07-25
+ * @date 2023-01-15
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -55,7 +55,7 @@ class Alg {
     Alg() = default;
 
     Alg(const std::string& str, const Macro& macro = macro_none, int job_cnt = -1, int alg_cnt = -1,
-        bool fail_fast = false, bool add_comment = true, bool add_semicolon = true);
+        bool fail_fast = false, bool add_comment = false, bool add_semicolon = true);
 
     const Alg_Lines& lines() const;
 

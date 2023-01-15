@@ -487,15 +487,7 @@ void Export::_sounding() {
                 _f() << "unsigned pilot = " << pilot_vec[0] << ";\n";
                 _f() << "uword ii = 0;\n";
             }
-            _f() << "cx_cube " << _beamforming_W << " = "
-                 << "randn<cube>(" << Nx * Ny << ", " << BNx * BNy << ", pilot / " << BNx * BNy
-                 << ") + 1i * randn<cube>(" << Nx * Ny << ", " << BNx * BNy << ", pilot / " << BNx * BNy << ");\n"
-                 << _beamforming_W << ".each_slice([](cx_mat& X){return normalise(X,2,0);});\n"
-                 << "cx_cube " << _beamforming_F << " = "
-                 << "randn<cube>(" << Mx * My << ", " << BMx * BMy << ", pilot / " << BNx * BNy
-                 << ") + 1i * randn<cube>(" << Mx * My << ", " << BMx * BMy << ", pilot / " << BNx * BNy << ");\n"
-                 << _beamforming_F << ".each_slice([](cx_mat& X){return normalise(X,2,0);});\n\n";
-            _generateReflection(BNx * BNy);
+            _generateBF(BNx * BNy);
             _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
             for (auto&& channel : _config["channels"]) {
                 // Load channel matrices.
@@ -1019,19 +1011,22 @@ bool Export::_setVarNames() {
     return true;
 }
 
-void Export::_generateReflection(unsigned Nt_B) {
+void Export::_generateBF(unsigned Nt_B) {
     unsigned cnt = 0;
     for (unsigned i = 0; i != _config["nodes"].size(); ++i) {
-        if (contains(_transmitters, i) || contains(_receivers, i)) continue;
-        std::string var                             = _beamforming_RIS[cnt++];
-        auto&& n                                    = _config["nodes"][i];
-        auto [Mx, My, GMx, GMy, _unused1, _unused2] = _getSize(n);
-        // maybe later we can check the value of _unused1 and _unused2
+        auto&& n                          = _config["nodes"][i];
+        std::string var                   = _asStr(n["beamforming"]["variable"]);
+        auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(n);
+        // maybe later we can check the value of BMx and BMy
         // to give a warning to users that they should not set the beam size for the RIS.
         unsigned size = Mx * My;
         unsigned grid = GMx * GMy;
+        unsigned beam = BMx * BMy;
+        bool isTxRx   = contains(_transmitters, i) || contains(_receivers, i);
         if (lang == Lang::CPP) {
-            _f() << "cx_mat " << var << "(" << size << ", pilot / " << Nt_B << ", arma::fill::zeros);\n"
+            if (isTxRx) _f() << "cx_cube " << var << "(" << size << ", " << beam;
+            else _f() << "cx_mat " << var << "(" << size;
+            _f() << ", pilot / " << Nt_B << ", arma::fill::zeros);\n"
                  << "{\nunsigned SIZE = " << size << ";\n"
                  << "unsigned GRID = " << grid << ";\n"
                  << "unsigned SIZE_x = " << Mx << ";\n"
@@ -1039,25 +1034,42 @@ void Export::_generateReflection(unsigned Nt_B) {
                  << "unsigned GRID_x = " << GMx << ";\n"
                  << "unsigned GRID_y = " << GMy << ";\n"
                  << "unsigned TIMES = pilot / " << Nt_B << ";\n";
+            if (isTxRx)
+                _f() << "unsigned BEAM = " << beam << ";\n"
+                     << "unsigned BEAM_x = " << BMx << ";\n"
+                     << "unsigned BEAM_y = " << BMy << ";\n";
         }
-        std::string scheme = "auto";
-        std::cerr << "alive finally" << std::endl;
-        scheme = boost::algorithm::to_lower_copy(_asStr(n["beamforming"]["scheme"], false));
+        std::string scheme = boost::algorithm::to_lower_copy(_asStr(n["beamforming"]["scheme"], false));
+        if (scheme.empty()) scheme = "random"; // default as random
         Macro macro;
-        macro._cascaded_channel = _cascaded_channel;
-        macro.beamforming       = _beamforming;
-        // macro.
+        macro._cascaded_channel      = _cascaded_channel;
+        macro.beamforming            = _beamforming;
+        macro.custom_priority["VAR"] = var;
+        std::cout << "BF scheme for '" << var << "' is " << scheme << std::endl;
         if (scheme == "custom") {
             std::string formula;
             try {
                 formula = _asStr(n["beamforming"]["formula"]);
             } catch (...) {
-                std::cerr << "Empty formula body for custom RIS beamforming." << std::endl;
+                std::cerr << "Empty formula body for custom beamforming." << std::endl;
                 // TODO: error handling
             }
             std::cerr << "Formula content: \n" << formula << std::endl;
             Alg alg(formula, macro);
             alg.write(_f(), _langStr());
+        } else if (scheme == "random") {
+            std::cout << "Load Random BF." << std::endl;
+            auto f_name = appDir() + "/../include/mmcesim/sys/random_" + (isTxRx ? "active" : "RIS") + "_BF.alg";
+            if (std::filesystem::exists(f_name)) {
+                std::ifstream f(f_name);
+                std::stringstream buf;
+                buf << f.rdbuf();
+                Alg a(buf.str(), macro);
+                a.write(_f(), _langStr());
+            } else {
+                std::cerr << Term::ERR << "[Internal Error] Cannot Load '" << f_name << "' from LIB." << Term::RESET
+                          << std::endl;
+            }
         }
         if (lang == Lang::CPP) _f() << "}\n";
     }

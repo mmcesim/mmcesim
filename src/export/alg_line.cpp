@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
  * @version 0.1.1
- * @date 2022-07-24
+ * @date 2023-01-15
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -198,7 +198,11 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         return;
     } else if (_func == "WHILE" || _func == "CPP" || _func == "IF" || _func == "ELIF") {
         Param_Type p;
-        for (auto i = start_i; i != v.size(); ++i) { p.value += v[i]; }
+        for (auto i = start_i; i != v.size(); ++i) {
+            p.value += v[i];
+            // There needs space between tokens.
+            if (_func == "CPP") p.value += ' ';
+        }
         if (p.value.length() > 5 && p.value.substr(0, 5) == "cond=") { p.value = removeQuote(p.value.substr(5)); }
         _params.push_back(p);
         return;

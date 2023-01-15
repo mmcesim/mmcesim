@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 #ifdef __APPLE__
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path + ".app")) {
-                std::cerr << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
                 std::cout << "Opening GUI application." << std::endl;
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path) && !std::filesystem::exists(gui_path + ".out") &&
                 !std::filesystem::exists(gui_path + ".exe")) {
-                std::cerr << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
                 std::cout << "Opening GUI application." << std::endl;
@@ -154,7 +154,8 @@ int main(int argc, char* argv[]) {
             if (opt.no_error_compile) {
                 std::cout << "Compiling Error with exit code " << compile_result << ".\n";
             } else {
-                std::cerr << "ERROR: Simulation compiling error. Compiling exit with code " << compile_result << ".\n";
+                std::cerr << Term::ERR << "ERROR: Simulation compiling error. Compiling exit with code "
+                          << compile_result << ".\n";
                 return errorCode(Err::COMPILE_ERROR);
             }
         }
@@ -165,14 +166,15 @@ int main(int argc, char* argv[]) {
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
         // Let's style it so it looks better when debugging.
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
-            std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+            std::cerr << Term::ERR << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
             return errorCode(Err::ASTYLE_ERROR);
         }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
                 std::cout << "Compiling Error with exit code " << compile_result << ".\n";
             } else {
-                std::cerr << "ERROR: Simulation compiling error. Compiling exit with code " << compile_result << ".\n";
+                std::cerr << Term::ERR << "ERROR: Simulation compiling error. Compiling exit with code "
+                          << compile_result << ".\n";
                 return errorCode(Err::COMPILE_ERROR);
             }
         }
@@ -183,14 +185,14 @@ int main(int argc, char* argv[]) {
             errorExit(errors[0].ec);
         }
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
-            std::cerr << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+            std::cerr << Term::ERR << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
             return errorCode(Err::ASTYLE_ERROR);
         }
     } else if (opt.cmd == "config") {
         if (vm.count("value")) {
             std::string msg;
             if (!Config::edit(opt.input, opt.value, &msg)) {
-                std::cerr << "ERROR: " << msg << std::endl;
+                std::cerr << Term::ERR << "ERROR: " << msg << std::endl;
                 return errorCode(Err::CONFIG_ERROR);
             }
         } else {

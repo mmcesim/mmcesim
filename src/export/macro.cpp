@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Macro class.
  * @version 0.1.1
- * @date 2023-01-05
+ * @date 2023-01-15
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -62,6 +62,10 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
                                    std::to_string(_G.Rx) + "," + std::to_string(_G.Ry) + ")");
     }
     if (_B.r() > 0) r = std::regex_replace(r, measurement_re, "(pilot*" + std::to_string(_B.r()) + ")");
+    for (const auto& [key, val] : custom_priority) {
+        std::cout << "Replacing user's custom priority macro.\n";
+        r = std::regex_replace(r, std::regex("`" + key + "`"), val);
+    }
     if (job_cnt >= 0) {
         r = std::regex_replace(r, alg_num_re, std::to_string(this->alg_num[job_cnt]));
         if (alg_cnt >= 0) {

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Export mmCEsim Configuration to Other Programming Languages
  * @version 0.1.1
- * @date 2023-01-04
+ * @date 2023-01-15
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -20,6 +20,7 @@
 #include "export/shared_info.h"
 #include "export/value_vec.h"
 #include "read.h"
+#include "term.h"
 #include "utils.h"
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -171,7 +172,7 @@ class Export {
      *          The variable names are listed in _beamforming_RIS.
      * @param Nt_B The beam number at the transmitter (Tx).
      */
-    void _generateReflection(unsigned Nt_B);
+    void _generateBF(unsigned Nt_B);
 
     unsigned _getTestNum(const YAML::Node& n);
 

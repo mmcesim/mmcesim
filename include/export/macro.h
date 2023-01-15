@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief ALG Macro
  * @version 0.1.1
- * @date 2023-01-05
+ * @date 2023-01-15
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -37,6 +37,7 @@ struct Macro {
     std::vector<std::vector<std::string>> alg_names;
     std::vector<std::vector<std::string>> alg_params;
     std::vector<std::vector<std::vector<std::pair<std::string, std::string>>>> alg_custom;
+    std::map<std::string, std::string> custom_priority;
     std::map<std::string, std::string> custom;
     std::map<std::string, std::string> custom_in_alg;
     std::map<std::string, std::string> beamforming;

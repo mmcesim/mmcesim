@@ -17,14 +17,21 @@ nodes:
     beam: [4, 2]
     grid: same
     beamforming:
-      variable: "F"
+      variable: "W" # combining
   - id: UE
     role: transmitter
     size: 4
     beam: 2
     grid: same
     beamforming:
-      variable: "W"
+      variable: "F" # precoding
+      scheme: custom # This can be omitted if the formula is specified.
+      formula: |
+        # Available temporary variables will include SIZE, BEAM, GRID, etc.
+        # And the size of W (type 't', i.e. 'c3') is SIZE * BEAM * TIMES
+        COMMENT This method is actually the same as that in the sys folder.
+        `VAR` = \randn(SIZE, BEAM, TIMES)
+        CPP `VAR`.each_slice([](cx_mat& X){return normalise(X,2,0);});
   - id: RIS
     size: [8, 8]
     grid: same

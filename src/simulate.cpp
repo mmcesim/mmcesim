@@ -31,7 +31,7 @@ int Simulate::simulate() const {
             std::cerr << "\nCompiling failed. Command: " << cmd << std::endl;
             return e;
         } else {
-            std::cout << "[mmcesim] simulate $ Code auto export finished.\n";
+            std::cout << "[mmcesim] simulate $ Code auto export finished." << std::endl;
             boost::process::ipstream is; // reading pipe-stream
             boost::process::child simulate_process("./a.out",
                                                    boost::process::std_out > boost::process::null, // ignore output
@@ -44,7 +44,7 @@ int Simulate::simulate() const {
                 std::cerr << "\nSimulation running failed. Command: ./a.out" << std::endl;
                 return e;
             } else {
-                std::cout << "[mmcesim] simulate $ Simulation succeeded.\n";
+                std::cout << "[mmcesim] simulate $ Simulation succeeded." << std::endl;
                 return 0;
             }
         }

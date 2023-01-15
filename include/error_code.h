@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Error Codes (Including Warnings)
  * @version 0.1.1
- * @date 2022-07-12
+ * @date 2023-01-15
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -13,6 +13,7 @@
 #define _ERROR_CODE_H_
 
 #include "meta.h"
+#include "term.h"
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -122,8 +123,8 @@ static inline bool isSuccess(const Err& e) noexcept { return e == Err::SUCCESS; 
  * @param e Error code (class Err).
  */
 static inline void errorExit(const Err& e) noexcept {
-    assert((isError(e) && "check if it is really an error in errorExit"));
-    std::cerr << "ERROR: " << errorMsg(e) << '\n';
+    assert(isError(e) && "check if it is really an error in errorExit");
+    std::cerr << Term::ERR << "ERROR: " << errorMsg(e) << Term::RESET << '\n';
     exit(errorCode(e));
 }
 

@@ -11,6 +11,8 @@
         "IPYNB",
         "MIMO",
         "MMCESIM",
+        "normalise",
+        "precoding",
         "randn",
         "uword",
         "xelatex"
