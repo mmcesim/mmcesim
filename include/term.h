@@ -130,6 +130,34 @@ class Term {
      * The color and style is on by default.
      */
     static void enable();
+
+    /**
+     * @brief Print error message.
+     *
+     * @tparam T The message type.
+     * @param msg The error message.
+     */
+    template <typename T>
+    static void error(const T& msg);
+
+    /**
+     * @brief Print a message.
+     *
+     * @tparam T The message type.
+     * @param msg The message.
+     */
+    template <typename T>
+    static void message(const T& msg);
 };
+
+template <typename T>
+inline void Term::error(const T& msg) {
+    std::cerr << Term::ERR << "[ERROR] " << msg << Term::RESET << std::endl;
+}
+
+template <typename T>
+inline void Term::message(const T& msg) {
+    std::cerr << Term::MSG << "[MESSAGE] " << msg << Term::RESET << std::endl;
+}
 
 #endif

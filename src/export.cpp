@@ -673,14 +673,24 @@ void Export::_reporting() {
     auto&& report_name      = _config["simulation"]["report"]["name"];
     std::string report_file = "report.rpt";
     std::string tex_file    = "_tex_report/report.tex";
+    std::string sys_file    = "_tex_report/system.dat";
     if (_preCheck(report_name, DType::STRING, false)) {
         report_file = _asStr(report_name) + ".rpt";
         tex_file    = "_tex_report/" + _asStr(report_name) + ".tex";
     }
-    _f() << "std::filesystem::create_directory(\"_tex_report\");\n";
-    _f() << "std::ofstream report_file(\"" << report_file << "\");"
+
+    std::filesystem::path input_path(_opt.input);
+    std::string sim_file = input_path.filename().replace_extension().string();
+    std::string out_dir  = input_path.parent_path().string();
+    if (out_dir == "") out_dir = ".";
+
+    std::filesystem::create_directory(out_dir + "/_tex_report");
+
+    _f() << "std::filesystem::create_directory(\"" + out_dir + "/_tex_report\");\n";
+    _f() << "std::ofstream report_file(\"" << out_dir + "/" + report_file << "\");"
          << "if (report_file.is_open()) {";
-    _f() << "std::ofstream tex_file(\"" << tex_file << "\");";
+    _f() << "std::ofstream tex_file(\"" << out_dir + "/" + tex_file << "\");";
+    _f() << "std::ofstream sys_file(\"" << out_dir + "/" + sys_file << "\");";
     auto&& jobs           = _config["simulation"]["jobs"];
     std::string sim_title = "mmCEsim Simulation Report";
     if (_preCheck(_config["meta"]["title"], DType::STRING, false)) { sim_title = _asStr(_config["meta"]["title"]); }
@@ -716,12 +726,6 @@ void Export::_reporting() {
         channel_sparsity = channel_sparsity_node.as<std::string>();
     }
 
-    std::filesystem::path input_path(_opt.input);
-    std::string sim_file = input_path.filename().replace_extension().string();
-    std::string out_dir  = input_path.parent_path().string();
-    if (out_dir == "") out_dir = ".";
-
-    std::filesystem::create_directory(out_dir + "/_tex_report");
     std::filesystem::copy_file(appDir() + "/../include/mmcesim/tex/simreport.cls",
                                out_dir + "/_tex_report/simreport.cls",
                                std::filesystem::copy_options::overwrite_existing);
@@ -749,20 +753,41 @@ void Export::_reporting() {
          << "report_file << \"# Web app is available at " << _MMCESIM_WEBAPP << ".\\n\";"
          << "report_file << \"# Visit " << _MMCESIM_WEB << " for more information.\\n\";"
          << "report_file << \"#" << std::string(78, '-') << "\\n\\n\";"
-         << "report_file << \"# System Settings\\n\\n\";"
-         << "report_file << \"  Transmitter: " << Nx << "x" << Ny << ", Grid: " << GNx << "x" << GNy
-         << ", Beam: " << BNx << "x" << BNy << "\\n\";"
-         << "report_file << \"  Receiver: " << Mx << "x" << My << ", Grid: " << GMx << "x" << GMy << ", Beam: " << BMx
-         << "x" << BMy << "\\n\";"
-         << "report_file << \"  Channel Sparsity: " << channel_sparsity << "\\n\";"
+         << "report_file << \"# System Settings\\n\\n\";";
+    for (size_t i = 0; i != _config["nodes"].size(); ++i) {
+        bool isTx                         = contains(_transmitters, i);
+        bool isRx                         = contains(_receivers, i);
+        bool isRIS                        = !(isTx || isRx);
+        auto&& n                          = _config["nodes"][i];
+        auto id                           = _asStr(n["id"]);
+        auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(n);
+        _f() << fmt::format(R"x(report_file << "  {} ({}) : {}x{}, Grid: {}x{}, Beam: {}\n";)x", id,
+                            isTx   ? "Tx"
+                            : isRx ? "Rx"
+                                   : "RIS",
+                            Mx, My, GMx, GMy, isRIS ? "---" : fmt::format("{}x{}", BMx, BMy));
+    }
+    _f() << "report_file << \"  Channel Sparsity: " << channel_sparsity << "\\n\";"
          << "report_file << \"  Off Grid: " << off_grid << "\\n\";"
          << "report_file << \"  Bandwidth: " << (freq != "narrow" ? "Wide" : "Narrow") << "band\\n\";";
     if (freq != "narrow") _f() << "report_file << \"  Carriers: " << carriers << "\\n\";";
-    _f() << "report_file << \"\\n\";"
-         << "tex_file << \"\\\\simsystem{" << Nx << "}{" << Ny << "}{" << BNx << "}{" << BNy << "}{" << GNx << "}{"
-         << GNy << "}{" << Mx << "}{" << My << "}{" << BMx << "}{" << BMy << "}{" << GMx << "}{" << GMy << "}{"
-         << channel_sparsity << "}{" << off_grid << "}{" << (freq != "narrow" ? "1" : "0") << "}{" << carriers
-         << "}\\n\";";
+    _f() << R"(report_file << "\n";)"
+         << R"(sys_file << "{Name}\t{Size Number}\t{Grid Number}\t{Beam Number}\n";)";
+    for (size_t i = 0; i != _config["nodes"].size(); ++i) {
+        bool isTx                         = contains(_transmitters, i);
+        bool isRx                         = contains(_receivers, i);
+        bool isRIS                        = !(isTx || isRx);
+        auto&& n                          = _config["nodes"][i];
+        auto id                           = _asStr(n["id"]);
+        auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(n);
+        _f() << R"(sys_file << "{\\texttt{)" << id << "} (" << (isTx ? "Tx" : isRx ? "Rx" : "RIS") << ")}\\t{$"
+             << Mx << "\\\\times" << My << "$}\\t{$" << GMx << "\\\\times" << GMy << "$}\\t{";
+        if (isRIS) _f() << "---";
+        else _f() << "$" << BMx << "\\\\times" << BMy << "$";
+        _f() << R"(}\n";)";
+    }
+    _f() << R"(tex_file << "\\simsystem{system.dat}{)" << channel_sparsity << "}{" << off_grid << "}{"
+         << (freq != "narrow") << "}{" << carriers << "}\\n\";";
     for (unsigned job_cnt = 0; job_cnt != jobs.size(); ++job_cnt) {
         auto&& job       = jobs[job_cnt];
         auto&& algs      = job["algorithms"];
@@ -802,7 +827,7 @@ void Export::_reporting() {
             title += ": " + raw_title;
         }
         _f() << "{\n"
-             << "std::ofstream data_file(\"_tex_report/d" << job_cnt << ".dat\");\n"
+             << "std::ofstream data_file(\"" << out_dir << "/_tex_report/d" << job_cnt << ".dat\");\n"
              << "tex_file << \"\\\\simjob{" << raw_title << "}{d" << job_cnt << ".dat}{" << test_num << "}\\n\";\n"
              << "report_file << \"# " << title << "\\n\\n\";"
              << "std::string col1label = \"" << col1_name << "\";\n"
@@ -836,6 +861,7 @@ void Export::_reporting() {
     }
     _f() << "tex_file << \"\\\\end{document}\\n\";"
          << "tex_file.close();"
+         << "sys_file.close();"
          << "} else { std::cerr << \"Cannot write report!\\n\"; }"
          << "report_file.close();";
 }

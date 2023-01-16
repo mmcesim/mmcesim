@@ -1,4 +1,5 @@
 ## New Features
+- Active beam pattern design support (#18).
 
 ## Bug Fixes
 
