@@ -779,8 +779,8 @@ void Export::_reporting() {
         _f() << R"(}\n";)";
     }
     _f() << R"(report_file << "\n";)";
-    _f() << R"(tex_file << "\\simsystem{system.dat}{channel.dat}{)" << off_grid << "}{"
-         << (freq != "narrow") << "}{" << carriers << "}\\n\";";
+    _f() << R"(tex_file << "\\simsystem{system.dat}{channel.dat}{)" << off_grid << "}{" << (freq != "narrow") << "}{"
+         << carriers << "}\\n\";";
     _f() << R"(ch_file << "{Channel ID}\t{From Node}\t{To Node}\t{Sparsity}\n";)";
     for (size_t i = 0; i != _config["channels"].size(); ++i) {
         auto&& n             = _config["channels"][i];
