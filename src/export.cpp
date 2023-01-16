@@ -780,8 +780,11 @@ void Export::_reporting() {
         auto&& n                          = _config["nodes"][i];
         auto id                           = _asStr(n["id"]);
         auto [Mx, My, GMx, GMy, BMx, BMy] = _getSize(n);
-        _f() << R"(sys_file << "{\\texttt{)" << id << "} (" << (isTx ? "Tx" : isRx ? "Rx" : "RIS") << ")}\\t{$"
-             << Mx << "\\\\times" << My << "$}\\t{$" << GMx << "\\\\times" << GMy << "$}\\t{";
+        _f() << R"(sys_file << "{\\texttt{)" << id << "} ("
+             << (isTx   ? "Tx"
+                 : isRx ? "Rx"
+                        : "RIS")
+             << ")}\\t{$" << Mx << "\\\\times" << My << "$}\\t{$" << GMx << "\\\\times" << GMy << "$}\\t{";
         if (isRIS) _f() << "---";
         else _f() << "$" << BMx << "\\\\times" << BMy << "$";
         _f() << R"(}\n";)";
