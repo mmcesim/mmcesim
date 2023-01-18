@@ -1,6 +1,6 @@
 ## New Features
 - Active beam pattern design support (#18).
-- Report Generation of RIS-assisted systems (#3).
+- Report generation of RIS-assisted systems (#3).
 
 ## Bug Fixes
 - Fix inconsistency of LaTeX report destination directory.

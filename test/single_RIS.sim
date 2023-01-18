@@ -1,9 +1,9 @@
 # single_RIS.sim
 # Single RIS Channel Estimation Test
 # Author: Wuqiong Zhao
-# Date: 2023-01-04
+# Date: 2023-01-17
 
-version: 0.1.0
+version: 0.1.1
 meta:
   title: Single RIS Channel Estimation Test
   author: Wuqiong Zhao
@@ -63,6 +63,7 @@ sounding:
     channel: "H"
 estimation: |
   COMMENT Here starts estimation.
+  # New Contents will be added after my patent corresponding to the TVT paper is accepted.
 simulation:
   backend: cpp
   jobs:
