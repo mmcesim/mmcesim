@@ -5,6 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)](https://github.com/mmcesim/mmcesim/releases/latest)
 [![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases/latest)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6912824.svg)](https://doi.org/10.5281/zenodo.6912824)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmmcesim%2Fmmcesim.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmmcesim%2Fmmcesim?ref=badge_shield)
 <!-- ![Twitter](https://img.shields.io/twitter/follow/mmcesim?style=social) -->
 
 CLI & GUI Application for Millimeter Wave Channel Estimation Simulation
@@ -91,3 +92,6 @@ All these releases are **statically** linked, so no dependency library is requir
 
 ## License
 mmCEsim is distributed by an [MIT License](LICENSE).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmmcesim%2Fmmcesim.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmmcesim%2Fmmcesim?ref=badge_large)
