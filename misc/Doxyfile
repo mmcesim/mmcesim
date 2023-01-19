@@ -986,8 +986,7 @@ EXCLUDE_PATTERNS       = ext \
                          bin \
                          doc \
                          docs \
-                         MyLibrary \
-                         doxygen-awesome-css \
+                         */doxygen-awesome-css/* \
                          CMakeFiles
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
