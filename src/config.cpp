@@ -2,7 +2,7 @@
  * @file config.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Config Class
- * @version 0.1.1
+ * @version 0.2.0
  * @date 2022-09-28
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
