@@ -16,3 +16,4 @@ jobs:
         token: ${{ secrets.PAT }}
         repository: mmcesim/mmcesim-doxygen
         event-type: mmcesim-cli-push
+        client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
