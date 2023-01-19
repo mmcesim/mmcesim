@@ -982,7 +982,7 @@ EXCLUDE_PATTERNS       = ext \
                          *_autogen \
                          README.md \
                          CODE_OF_CONDUCT.md \
-                         release_note.md
+                         release_note.md \
                          bin \
                          doc \
                          docs \
