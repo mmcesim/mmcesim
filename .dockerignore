@@ -4,7 +4,6 @@
 .vscode
 build
 build-*
-doc
 gui
 CMakeCache.txt
 DartConfiguration.tcl
