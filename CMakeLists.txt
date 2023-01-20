@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
-project(mmCEsim VERSION 0.1.1)
+project(mmCEsim VERSION 0.2.0)
 
-option(MMCESIM_BUILD_ASTYLE  "Build astyle Code Formatter"             ON )
-option(MMCESIM_BUILD_GUI     "Build mmCEsim GUI App with Qt"           OFF)
-option(MMCESIM_APPLE_COPY_SH "Copy additional shell script for macOS"  OFF)
+option(MMCESIM_BUILD_ASTYLE   "Build astyle Code Formatter"             ON )
+option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
+option(MMCESIM_BUILD_COMPOSE  "Build composition tool"                  ON )
+option(MMCESIM_BUILD_GUI      "Build mmCEsim GUI App with Qt"           OFF)
+option(MMCESIM_APPLE_COPY_SH  "Copy additional shell script for macOS"  OFF)
 
 # Default as Release
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -94,6 +96,9 @@ endif()
 
 if (MMCESIM_BUILD_GUI)
     add_subdirectory(gui)
+endif()
+if (MMCESIM_BUILD_MAINTAIN)
+    add_subdirectory(tools/maintain)
 endif()
 
 list(APPEND MMCESIM_DOCS
