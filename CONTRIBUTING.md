@@ -15,6 +15,7 @@ The project is configured with CMake, and the role of each folder is listed belo
   - `fmt`: C++ String Format (Like That in C++20)
   - `yaml-cpp`: Parse YAML Configuration (`.sim`)
 - `test`: Test Files Including `CTest` Configuration
+- `tools`: Accompanying Tools (`maintain` and `compose`)
 - `doc`: Documentation (*Currently Empty*)
 - `bin`: Generated Binary Executable
 - `misc`: Miscellaneous Files
