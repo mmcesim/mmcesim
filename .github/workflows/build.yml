@@ -133,7 +133,7 @@ jobs:
 
     - name: ccache cache files
       if: ${{ runner.os != 'Windows' }}
-      uses: actions/cache@v3.2.3
+      uses: actions/cache@v3.2.4
       with:
         path: .ccache
         key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
