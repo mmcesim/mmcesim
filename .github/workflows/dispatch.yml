@@ -7,7 +7,7 @@ on:
 
 jobs:
   dispatch:
-    if: github.repository_owner == 'mmcesim'
+    if: github.repository_owner == 'mmcesim' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
     - name: Repository Dispatch

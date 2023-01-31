@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   format:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check Out
