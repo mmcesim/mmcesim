@@ -31,7 +31,7 @@ You may consider citing it[^1]:
 [^1]: In `bibtex`, the `note` field may not be necessary. It should only be used when the `doi` field does not show (for example IEEEtran style).
 
 ## Usage
-```
+```console
 $ mmcesim -h
 mmCEsim 0.2.0  (C) 2022-2023 Wuqiong Zhao
 Millimeter Wave Channel Estimation Simulation
