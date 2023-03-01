@@ -66,7 +66,7 @@ class Channel_Graph {
      * @brief Validate paths.
      *
      * @details This removes all paths that does not terminate in the Rx.
-     * @note This is not used anymore since everything is handled well in _formPaths now.
+     * @deprecated This is not used anymore since everything is handled well in _formPaths now.
      */
     void _validatePaths();
 
