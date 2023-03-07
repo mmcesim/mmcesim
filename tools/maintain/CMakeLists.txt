@@ -10,7 +10,7 @@ add_executable(mmcesim-maintain "maintain.cpp")
 
 target_link_libraries(mmcesim-maintain LINK_PUBLIC ${Boost_LIBRARIES})
 if (USE_THREADS)
-    target_link_libraries(mmcesim PRIVATE Threads::Threads)
+    target_link_libraries(mmcesim-maintain PRIVATE Threads::Threads)
 endif()
 
 add_test(NAME maintain_l COMMAND mmcesim-maintain -l)
