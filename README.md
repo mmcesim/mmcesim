@@ -37,7 +37,7 @@ mmCEsim 0.2.0  (C) 2022-2023 Wuqiong Zhao
 Millimeter Wave Channel Estimation Simulation
 =============================================
 
-Usage: ./mmcesim <command> <input> [options]
+Usage: mmcesim <command> <input> [options]
 
 Commands:
   sim [ simulate ]       run simulation
