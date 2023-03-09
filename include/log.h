@@ -13,12 +13,12 @@
 #define _LOG_H_
 
 #include "meta.h"
-#include "spy.hpp"
 #include "term.h"
 #include "utils.h"
 #include <ctime>
 #include <fstream>
 #include <iomanip>
+#include <spy.hpp>
 
 /**
  * @brief Log support during compilation.
