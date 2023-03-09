@@ -31,3 +31,5 @@ jobs:
       - name: Push Changes
         if: github.repository_owner == 'mmcesim'
         uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref }}
