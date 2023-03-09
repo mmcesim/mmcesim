@@ -17,6 +17,7 @@
 #include "simulate.h"
 #include "style.h"
 #include "utils.h"
+#include "log.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/program_options.hpp>

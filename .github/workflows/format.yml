@@ -1,9 +1,6 @@
 name: Check and Apply Clang-Format
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 permissions:
   contents: write

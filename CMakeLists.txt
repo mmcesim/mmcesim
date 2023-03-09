@@ -74,6 +74,7 @@ set(SOURCES
     "src/config.cpp"
     "src/export.cpp"
     "src/format_yaml.cpp"
+    "src/log.cpp"
     "src/main.cpp"
     "src/read.cpp"
     "src/simulate.cpp"
