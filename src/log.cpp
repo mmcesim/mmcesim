@@ -11,7 +11,7 @@
 
 #include "log.h"
 
-Log::Log() : _f(appDir() + "/.log"), _open(_f.is_open()) {
+Log::Log() : _f(appDir() + "/mmcesim.log"), _open(_f.is_open()) {
     if (_open) {
         // get the current time
         std::time_t curr_time   = std::time(nullptr);
