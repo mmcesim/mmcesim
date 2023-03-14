@@ -22,12 +22,19 @@ Log::Log() : _f(appDir() + "/mmcesim.log"), _open(_f.is_open()) {
         info() << "* System   : " << spy::operating_system << "-" << spy::architecture << "\n";
         info() << "* Compiler : " << spy::compiler << std::endl;
     } else {
-        Term::warning("Cannot open the log file to write.");
+        std::cerr << "[WARNING] Cannot open the log file to write." << std::endl;
     }
 }
 
 Log::~Log() {
     if (_open) _f.close();
+}
+
+void Log::writeArg(int argc, char* argv[]) {
+    if (!_open) return;
+    _f << "[INFO] * CLI Args : " << argv[0];
+    for (int i = 1; i < argc; ++i) _f << " \"" << argv[i] << '"';
+    _f << std::endl;
 }
 
 Log _log;

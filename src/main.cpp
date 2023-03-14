@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.0
- * @date 2023-01-10
+ * @date 2023-03-14
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -13,7 +13,7 @@
 #include "config.h"
 #include "error_code.h"
 #include "export.h"
-#include "log.h"
+#include "log_global.h"
 #include "meta.h"
 #include "simulate.h"
 #include "style.h"
@@ -33,6 +33,8 @@
 
 int main(int argc, char* argv[]) {
     namespace po = boost::program_options;
+
+    _log.writeArg(argc, argv);
 
     CLI_Options opt; // command line options
 
@@ -110,9 +112,11 @@ int main(int argc, char* argv[]) {
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path + ".app")) {
                 std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                _log.err() << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
                 std::cout << "Opening GUI application." << std::endl;
+                _log.info() << "Opening GUI application." << std::endl;
                 boost::process::spawn(std::string("open ") + gui_path + ".app");
             }
 #else
@@ -120,9 +124,11 @@ int main(int argc, char* argv[]) {
             if (!std::filesystem::exists(gui_path) && !std::filesystem::exists(gui_path + ".out") &&
                 !std::filesystem::exists(gui_path + ".exe")) {
                 std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                _log.err() << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
                 std::cout << "Opening GUI application." << std::endl;
+                _log.info() << "Opening GUI application." << std::endl;
                 boost::process::spawn(gui_path);
             }
 #endif
@@ -133,6 +139,7 @@ int main(int argc, char* argv[]) {
         po::notify(vm);
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
+        _log.err() << e.what() << std::endl;
         std::cerr << "Use '" << argv[0] << " -h' for help." << std::endl;
         return errorCode(Err::CLI_OPTIONS);
     }
@@ -153,10 +160,12 @@ int main(int argc, char* argv[]) {
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
-                std::cout << "Compiling Error with exit code " << compile_result << ".\n";
+                std::cerr << Term::ERR << "[ERROR] Compiling Error with exit code " << compile_result << "."
+                          << std::endl;
+                _log.err() << "Compiling Error with exit code " << compile_result << "." << std::endl;
             } else {
-                std::cerr << Term::ERR << "ERROR: Simulation compiling error. Compiling exit with code "
-                          << compile_result << ".\n";
+                std::cerr << Term::ERR << "[ERROR] Simulation compiling error. Compiling exit with code "
+                          << compile_result << "." << std::endl;
                 return errorCode(Err::COMPILE_ERROR);
             }
         }
@@ -167,15 +176,19 @@ int main(int argc, char* argv[]) {
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
         // Let's style it so it looks better when debugging.
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
-            std::cerr << Term::ERR << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+            std::cerr << Term::ERR << "[ERROR] Formatting error. Astyle exit with code " << astyle_result << "."
+                      << std::endl;
+            _log.err() << "Formatting error. Astyle exit with code " << astyle_result << "." << std::endl;
             return errorCode(Err::ASTYLE_ERROR);
         }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
-                std::cout << "Compiling Error with exit code " << compile_result << ".\n";
+                std::cout << "[ERROR] Compiling Error with exit code " << compile_result << "." << std::endl;
+                _log.err() << "Compiling Error with exit code " << compile_result << "." << std::endl;
             } else {
-                std::cerr << Term::ERR << "ERROR: Simulation compiling error. Compiling exit with code "
-                          << compile_result << ".\n";
+                std::cerr << Term::ERR << "[ERROR] Simulation compiling error. Compiling exit with code "
+                          << compile_result << std::endl;
+                _log.err() << "Simulation compiling error. Compiling exit with code " << compile_result << std::endl;
                 return errorCode(Err::COMPILE_ERROR);
             }
         }
@@ -186,14 +199,19 @@ int main(int argc, char* argv[]) {
             errorExit(errors[0].ec);
         }
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
-            std::cerr << Term::ERR << "ERROR: Formatting error. Astyle exit with code " << astyle_result << ".\n";
+            std::cerr << Term::ERR << "[ERROR] Formatting error. Astyle exit with code " << astyle_result << "."
+                      << std::endl;
+            _log.err() << "Formatting error. Astyle exit with code " << astyle_result << "." << std::endl;
             return errorCode(Err::ASTYLE_ERROR);
         }
     } else if (opt.cmd == "config") {
         if (vm.count("value")) {
             std::string msg;
-            if (!Config::edit(opt.input, opt.value, &msg)) {
-                std::cerr << Term::ERR << "ERROR: " << msg << std::endl;
+            if (Config::edit(opt.input, opt.value, &msg)) {
+                _log.info() << "config '" << opt.input << "' as " << opt.value << std::endl;
+            } else {
+                std::cerr << Term::ERR << "[ERROR] " << msg << std::endl;
+                _log.err() << msg << std::endl;
                 return errorCode(Err::CONFIG_ERROR);
             }
         } else {

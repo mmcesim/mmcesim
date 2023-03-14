@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Error Codes (Including Warnings)
  * @version 0.2.0
- * @date 2023-01-15
+ * @date 2023-03-13
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,6 +12,7 @@
 #ifndef _ERROR_CODE_H_
 #define _ERROR_CODE_H_
 
+#include "log_global.h"
 #include "meta.h"
 #include "term.h"
 #include <cassert>
@@ -124,7 +125,9 @@ static inline bool isSuccess(const Err& e) noexcept { return e == Err::SUCCESS; 
  */
 static inline void errorExit(const Err& e) noexcept {
     assert(isError(e) && "check if it is really an error in errorExit");
-    std::cerr << Term::ERR << "ERROR: " << errorMsg(e) << Term::RESET << '\n';
+    auto msg = errorMsg(e);
+    std::cerr << Term::ERR << "ERROR: " << msg << Term::RESET << std::endl;
+    _log.err() << msg << std::endl;
     exit(errorCode(e));
 }
 
