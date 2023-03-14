@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Terminal Color and Style Control
  * @version 0.2.0
- * @date 2023-01-13
+ * @date 2023-03-10
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -116,7 +116,8 @@ class Term {
 
     /* some additional compound definitions */
     static inline TermOpt ERR = RED | BF;    /**< error message */
-    static inline TermOpt MSG = YELLOW | BF; /**< message */
+    static inline TermOpt MSG = YELLOW;      /**< message */
+    static inline TermOpt WAR = YELLOW | BF; /**< warning message */
 
     /**
      * @brief Disable terminal color and style.
@@ -148,6 +149,15 @@ class Term {
      */
     template <typename T>
     static void message(const T& msg);
+
+    /**
+     * @brief Print a warning message.
+     *
+     * @tparam T The warning message type.
+     * @param msg The warning message.
+     */
+    template <typename T>
+    static void warning(const T& msg);
 };
 
 template <typename T>
@@ -158,6 +168,11 @@ inline void Term::error(const T& msg) {
 template <typename T>
 inline void Term::message(const T& msg) {
     std::cerr << Term::MSG << "[MESSAGE] " << msg << Term::RESET << std::endl;
+}
+
+template <typename T>
+inline void Term::warning(const T& msg) {
+    std::cerr << Term::WAR << "[WARNING] " << msg << Term::RESET << std::endl;
 }
 
 #endif

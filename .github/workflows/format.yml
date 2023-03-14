@@ -1,9 +1,6 @@
 name: Check and Apply Clang-Format
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 permissions:
   contents: write
@@ -34,3 +31,5 @@ jobs:
       - name: Push Changes
         if: github.repository_owner == 'mmcesim'
         uses: ad-m/github-push-action@master
+        with:
+          branch: ${{ github.ref }}

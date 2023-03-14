@@ -47,6 +47,7 @@ add_subdirectory(ext/fmt)
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/ext/fmt/include
+    ${CMAKE_SOURCE_DIR}/ext/spy/src
     ${Boost_INCLUDE_DIR}
 )
 link_directories(${Boost_LIBRARY_DIRS})
@@ -74,6 +75,7 @@ set(SOURCES
     "src/config.cpp"
     "src/export.cpp"
     "src/format_yaml.cpp"
+    "src/log.cpp"
     "src/main.cpp"
     "src/read.cpp"
     "src/simulate.cpp"

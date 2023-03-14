@@ -16,3 +16,6 @@
 [submodule "misc/doxygen-awesome-css"]
 	path = misc/doxygen-awesome-css
 	url = https://github.com/mmcesim/doxygen-awesome-css.git
+[submodule "ext/spy"]
+	path = ext/spy
+	url = https://github.com/mmcesim/spy.git
