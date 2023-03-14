@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Run mmCEsim Action
-        uses: mmcesim/run-mmcesim-action@v0.0.2
+        uses: mmcesim/run-mmcesim-action@v0.0.5
         id: run
         with:
           version: ${{ github.ref_name }}
