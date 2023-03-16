@@ -6,6 +6,9 @@ if (USE_THREADS)
     find_package(Threads REQUIRED)
 endif()
 
+include_directories(../../ext/clip)
+add_subdirectory(${MMCESIM_ROOT_SOURCE_DIR}/ext/clip ${MMCESIM_ROOT_SOURCE_DIR}/bin)
+
 add_executable(mmcesim-log "log.cpp")
 
 target_link_libraries(mmcesim-log LINK_PUBLIC ${Boost_LIBRARIES})

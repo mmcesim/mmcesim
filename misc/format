@@ -5,5 +5,7 @@ clang-format -i include/*.h
 clang-format -i include/export/*.h
 clang-format -i tools/maintain/*.cpp
 clang-format -i tools/maintain/*.h
+clang-format -i tools/log/*.cpp
+clang-format -i tools/log/*.h
 clang-format -i include/mmcesim/copy/*.mmcesim-cpp
 echo "Finished formatting 'mmcesim' project."

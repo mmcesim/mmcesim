@@ -8,6 +8,8 @@ option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
 option(MMCESIM_BUILD_GUI      "Build mmCEsim GUI App with Qt"           OFF)
 option(MMCESIM_APPLE_COPY_SH  "Copy additional shell script for macOS"  OFF)
 
+set(MMCESIM_ROOT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
+
 # Default as Release
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
@@ -41,6 +43,7 @@ endif()
 set(YAML_CPP_BUILD_TESTS   OFF CACHE BOOL "disable yaml tests")
 set(YAML_CPP_BUILD_TOOLS   OFF CACHE BOOL "disable yaml tools")
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "disable yaml contrib")
+set(CLIP_TESTS             OFF CACHE BOOL "disable clip tests")
 
 add_subdirectory(ext/yaml-cpp)
 add_subdirectory(ext/fmt)
