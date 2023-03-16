@@ -19,3 +19,6 @@
 [submodule "ext/spy"]
 	path = ext/spy
 	url = https://github.com/mmcesim/spy.git
+[submodule "ext/clip"]
+	path = ext/clip
+	url = https://github.com/mmcesim/clip.git
