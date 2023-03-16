@@ -37,4 +37,6 @@ else()
     install(TARGETS mmcesim-log DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 
-# add_test(NAME log_v COMMAND mmcesim-log -v)
+if (MMCESIM_TESTS)
+    add_test(NAME log_plain COMMAND mmcesim-log)
+endif()

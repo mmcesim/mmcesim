@@ -34,4 +34,6 @@ else()
     install(TARGETS mmcesim-maintain DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 
-add_test(NAME maintain_l COMMAND mmcesim-maintain -l)
+if (MMCESIM_TESTS)
+    add_test(NAME maintain_l COMMAND mmcesim-maintain -l)
+endif()

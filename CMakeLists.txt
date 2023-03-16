@@ -7,6 +7,7 @@ option(MMCESIM_BUILD_LOG      "Build log tool"                          ON )
 option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
 option(MMCESIM_BUILD_GUI      "Build mmCEsim GUI App with Qt"           OFF)
 option(MMCESIM_APPLE_COPY_SH  "Copy additional shell script for macOS"  OFF)
+option(MMCESIM_TESTS          "Run mmCEsim tests"                       ON)
 
 set(MMCESIM_ROOT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 
