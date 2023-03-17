@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.0
- * @date 2023-03-14
+ * @date 2023-03-17
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
     p.add("input", -1);
     po::variables_map vm;
     try {
+        _log.info() << "Processing CLI options ..." << std::endl;
         po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
         if (vm.count("help")) {
             std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "  (C) 2022-2023 " << _MMCESIM_AUTHOR << '\n'
@@ -138,8 +139,11 @@ int main(int argc, char* argv[]) {
 
         po::notify(vm);
     } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        _log.err() << e.what() << std::endl;
+        std::string s = e.what();
+        if (s == "the option '--command' is required but missing") s = "command is missing";
+        else if (s == "the option '--input' is required but missing") s = "input is missing";
+        std::cerr << s << std::endl;
+        _log.err() << s << std::endl;
         std::cerr << "Use '" << argv[0] << " -h' for help." << std::endl;
         return errorCode(Err::CLI_OPTIONS);
     }
