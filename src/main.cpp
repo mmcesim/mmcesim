@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.0
- * @date 2023-03-17
+ * @date 2023-03-18
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -157,8 +157,10 @@ int main(int argc, char* argv[]) {
         opt.input += ".sim";
         if (!std::filesystem::exists(opt.input)) errorExit(Err::INPUT_NOT_EXISTS);
     }
+    _log.info() << "Finished CLI options processing." << std::endl;
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
+        _log.info() << "Simulation Mode [sim]" << std::endl;
         Shared_Info info;
         auto&& errors = Export::exportCode(opt, &info);
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
@@ -174,6 +176,7 @@ int main(int argc, char* argv[]) {
             }
         }
     } else if (opt.cmd == "dbg" || opt.cmd == "debug") {
+        _log.info() << "Debug Mode [dbg]" << std::endl;
         Shared_Info info;
         info.dbg      = true;
         auto&& errors = Export::exportCode(opt, &info);
@@ -187,7 +190,8 @@ int main(int argc, char* argv[]) {
         }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
-                std::cout << "[ERROR] Compiling Error with exit code " << compile_result << "." << std::endl;
+                std::cout << Term::ERR << "[ERROR] Compiling Error with exit code " << compile_result << "."
+                          << Term::RESET << std::endl;
                 _log.err() << "Compiling Error with exit code " << compile_result << "." << std::endl;
             } else {
                 std::cerr << Term::ERR << "[ERROR] Simulation compiling error. Compiling exit with code "
@@ -197,6 +201,7 @@ int main(int argc, char* argv[]) {
             }
         }
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
+        _log.info() << "Export Mode [exp]" << std::endl;
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) {
             for (auto&& err : errors) { std::cerr << err.msg << '\n'; }
@@ -209,6 +214,7 @@ int main(int argc, char* argv[]) {
             return errorCode(Err::ASTYLE_ERROR);
         }
     } else if (opt.cmd == "config") {
+        _log.info() << "Config Mode [config]" << std::endl;
         if (vm.count("value")) {
             std::string msg;
             if (Config::edit(opt.input, opt.value, &msg)) {
@@ -226,5 +232,6 @@ int main(int argc, char* argv[]) {
         errorExit(Err::UNKOWN_CMD);
     }
 
+    _log.info() << "Bye!" << std::endl;
     return 0;
 }

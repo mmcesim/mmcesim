@@ -89,7 +89,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
     for (int i = 0; i < _lines.size(); ++i) { // use i because sometimes it will be -1 before adding 1.
         Alg_Line line           = _lines[i];
         const std::string& func = line.func();
-        line.print();
+        line.print(_log.write(), "[INFO] ");
         // clang-format off
         SWITCH_FUNC
             // function no end
@@ -220,10 +220,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     estimate_alg.write(f, lang);
                 }
             CASE ("INIT")
-                std::cout << "I am in INIT" << std::endl;
-                for (auto&& param : line.params()) {
-                    std::cout << param.value << '\n';
-                }
+                // std::cout << "I am in INIT" << std::endl;
+                // for (auto&& param : line.params()) {
+                //     std::cout << param.value << '\n';
+                // }
                 if (line.returns().size() > 1) ERROR("Return variable more than 1 in 'INIT'.");
                 else if (line.returns().empty()) WARNING("Unused 'INIT', i.e. no return variable.");
                 else {
@@ -440,7 +440,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 // init call INIT/CALC function
                 LANG_CPP
                     f << "for (";
-                    std::cout << "line[init] = " << line["init"] << '\n';
+                    // std::cout << "line[init] = " << line["init"] << '\n';
                     if (line.hasKey("init")) {
                         if (inlineCalc(_ms("init"), lang) == "") {
                             f << ";";
@@ -456,7 +456,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (line.hasKey("oper")) {
                         Alg oper(inlineCalc(_ms("oper"), lang), macro_none, -1, -1, false, false, false);
                         oper.write(f, "cpp");
-                        std::cout << "has oper!\n";
+                        // std::cout << "has oper!\n";
                     }
                     f << ") {";
                 END_LANG

@@ -13,6 +13,7 @@
 #define _EXPORT_TYPE_TRACK_
 
 #include "export/type.h"
+#include "log_global.h"
 #include <iostream>
 #include <stack>
 #include <stdexcept>

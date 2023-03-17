@@ -12,16 +12,17 @@
 #ifndef _SIMULATE_H_
 #define _SIMULATE_H_
 
-#include <iostream>
-#include <string>
+#include "config.h"
+#include "export/shared_info.h"
+#include "log_global.h"
+#include "utils.h"
 #pragma GCC diagnostic ignored "-Wc++11-narrowing"
 #pragma GCC diagnostic push
 #include <boost/process.hpp>
 #pragma GCC diagnostic pop
-#include "config.h"
-#include "export/shared_info.h"
-#include "utils.h"
 #include <fmt/core.h>
+#include <iostream>
+#include <string>
 
 class Simulate {
   public:

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Parse Line of Alg
  * @version 0.2.0
- * @date 2022-07-24
+ * @date 2023-03-18
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -13,6 +13,7 @@
 #define _EXPORT_ALG_LINE_H_
 
 #include "export/functions.h"
+#include "log_global.h"
 #include "utils.h"
 #include <algorithm>
 #include <cassert>
@@ -118,6 +119,13 @@ class Alg_Line {
     const std::string& operator[](const std::string key) const;
 
     /**
+     * @brief Return the raw string of the line.
+     *
+     * @return (const std::string&) The raw string.
+     */
+    const std::string& rawStr() const;
+
+    /**
      * @brief Check whether parameters contain the key.
      *
      * Normally, the function 'setKey' needs to be called first
@@ -193,9 +201,10 @@ class Alg_Line {
      *
      * @details This is mostly used in internal debugging.
      * @param out The output stream.
+     * @param prefix The print prefix.
      * @return (std::ostream&) The output stream.
      */
-    std::ostream& print(std::ostream& out = std::cout) const;
+    std::ostream& print(std::ostream& out = std::cout, std::string prefix = "") const;
 
   private:
     /**
@@ -242,6 +251,7 @@ class Alg_Line {
     std::string _func;                 /**< function name */
     std::vector<Return_Type> _returns; /**< return variables */
     std::vector<Param_Type> _params;   /**< parameter variables */
+    std::string _raw_str;              /**< raw string (original line) */
 };
 
 inline const std::string& Alg_Line::func() const noexcept { return _func; }
@@ -268,6 +278,8 @@ inline const Alg_Line::Param_Type& Alg_Line::params(const std::string& key) cons
 }
 
 inline const std::string& Alg_Line::operator[](const std::string key) const { return params(key).value; }
+
+inline const std::string& Alg_Line::rawStr() const { return _raw_str; }
 
 inline bool Alg_Line::hasKey(const std::string& key) const noexcept {
     for (auto&& elem : _params) {
@@ -319,12 +331,18 @@ inline bool Alg_Line::needsEnd() const noexcept { return isFuncNeedsEnd(_func); 
 
 inline bool Alg_Line::isEnd() const noexcept { return isFuncIsEnd(_func); }
 
-inline std::ostream& Alg_Line::print(std::ostream& out) const {
-    out << "* FUNCTION: " << _func << '\n';
-    out << "* PARAMS:\n";
-    for (auto&& p : _params) out << "   > {" << p.key << "}={" << p.value << "}::{" << p.type << "}\n";
-    out << "* RETURN:\n";
-    for (auto&& r : _returns) out << "   > {" << r.name << "}::{" << r.type << "}\n";
+inline std::ostream& Alg_Line::print(std::ostream& out, std::string prefix) const {
+    out << prefix << "$ " << _raw_str << '\n';
+    if (_func.empty()) return out;
+    out << prefix << "* FUNCTION: " << _func << '\n';
+    if (_func != "COMMENT" && !_params.empty()) {
+        out << prefix << "* PARAMS:\n";
+        for (auto&& p : _params) out << prefix << "   > {" << p.key << "}={" << p.value << "}::{" << p.type << "}\n";
+    }
+    if (!isFuncNoEnd(_func)) {
+        out << prefix << "* RETURN:\n";
+        for (auto&& r : _returns) out << prefix << "   > {" << r.name << "}::{" << r.type << "}\n";
+    }
     out << std::flush;
     return out;
 }
