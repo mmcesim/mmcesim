@@ -40,8 +40,8 @@ nodes:
       scheme: random
 channels:
   - id: H
-    from: BS
-    to: UE # 'from -> to' specifies the channel direction
+    from: UE
+    to: BS # 'from -> to' specifies the channel direction
     sparsity: 5
     gains:
       mode: normal
