@@ -23,7 +23,7 @@ jobs:
       - name: Clang Format
         run: chmod +x ./misc/format && ./misc/format
       - name: Commit Files
-        if: github.repository_owner == 'mmcesim'
+        if: ${{ github.repository_owner == 'mmcesim' && startsWith(github.ref, 'refs/tags/') }}
         run: |
           git config --local user.email "bot@mmcesim.org"
           git config --local user.name "mmcesim-bot"
