@@ -13,6 +13,7 @@ mmCEsim_arch=arm
 #------------------------------
 # Build and Install
 #------------------------------
+mkdir build
 cmake . build -D CMAKE_INSTALL_PREFIX=${mmCEsim_install_dir} -D MMCESIM_APPLE_COPY_SH=ON
 cd build
 make
