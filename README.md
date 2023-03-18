@@ -1,6 +1,6 @@
 # mmCEsim [![Build mmCEsim CLI](https://github.com/mmcesim/mmcesim/actions/workflows/build.yml/badge.svg)](https://github.com/mmcesim/mmcesim/actions/workflows/build.yml)
 ![Code Size](https://img.shields.io/github/languages/code-size/mmcesim/mmcesim)
-![Total Lines](https://img.shields.io/tokei/lines/github/mmcesim/mmcesim)
+![Total Lines](https://tokei.tvj.one/b1/github/mmcesim/mmcesim?style=flat)
 [![License](https://img.shields.io/github/license/mmcesim/mmcesim)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)](https://github.com/mmcesim/mmcesim/releases/latest)
 [![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases/latest)
