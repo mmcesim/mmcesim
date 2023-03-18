@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.0
- * @date 2023-01-16
+ * @date 2023-03-17
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -207,7 +207,7 @@ void Export::_setLang() {
 }
 
 std::tuple<bool, std::string, std::string> Export::_setChannelGains(const YAML::Node& n) {
-    std::cout << "Set Channel Gains!\n";
+    // std::cout << "Set Channel Gains!\n";
     try {
         if (auto&& gains = n["gains"]; _preCheck(gains, DType::MAP, false)) {
             if (auto mode = boost::algorithm::to_lower_copy(_asStr(gains["mode"])); mode == "normal") {
@@ -322,7 +322,7 @@ void Export::_generateChannels() {
     auto [Nx, Ny, GNx, GNy, BNx, BNy] = _getSize(t_node);
     if (lang == Lang::CPP) {
         _f() << "namespace mmce {\nbool generateChannels() {" << '\n';
-        std::cout << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
+        _log.info() << "Tx index: " << _transmitters[0] << ", Rx index: " << _receivers[0] << '\n';
         _f() << "std::filesystem::create_directory(\"_data\");\n"
              << (freq == "wide" ? "cx_cube " : "cx_mat ") << _noise;
         if (freq == "wide") {
@@ -336,19 +336,22 @@ void Export::_generateChannels() {
         _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n";
         _f() << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
     }
+    _log.flush();
     for (unsigned i = 0; i != _config["channels"].size(); ++i) {
         auto&& ch = _config["channels"][i];
-        std::cout << "from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i] << "\n";
+        _log.info() << "from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i] << std::endl;
         if (_channel_graph.from[i] > _channel_graph.nodes.size()) {
             std::string err =
                 fmt::format("Unknown 'from' node '{}' in channel '{}'!", _asStr(ch["from"]), _asStr(ch["id"]));
             std::cerr << "[mmcesim] export $ ERROR: " << err << '\n';
+            _log.err() << err << std::endl;
             throw(err);
         }
         if (_channel_graph.to[i] > _channel_graph.nodes.size()) {
             std::string err =
                 fmt::format("Unknown 'to' node '{}' in channel '{}'!", _asStr(ch["from"]), _asStr(ch["id"]));
             std::cerr << "[mmcesim] export $ ERROR: " << err << '\n';
+            _log.err() << err << std::endl;
             throw(err);
         }
         auto&& t_node                     = _config["nodes"][_channel_graph.from[i]];
@@ -361,7 +364,8 @@ void Export::_generateChannels() {
             std::tie(gain_normal, gain_param1, gain_param2) = _setChannelGains(ch);
         } catch (const std::exception& e) {
             // TODO: error handling
-            std::cout << "Setting Channel Gains Error!\n" << e.what() << "\n";
+            std::cerr << "Setting Channel Gains Error!\n" << e.what() << "\n";
+            _log.err() << "Setting Channel Gains Error!\n" << e.what() << std::endl;
         }
         std::string sparsity     = _asStr(ch["sparsity"]);
         std::string channel_name = _asStr(ch["id"]);
@@ -409,7 +413,8 @@ void Export::_algorithms() {
     if (_preCheck(_config["preamble"], DType::STRING, false)) {
         std::string preamble_str = _asStr(_config["preamble"]);
         trim(preamble_str);
-        std::cout << "Preamble Text:\n" << preamble_str << "\n";
+        _log.info() << "====== Start of Preamble ======\n"
+                    << preamble_str << "\n[INFO] ======= End of Preamble =======" << std::endl;
         Alg alg(preamble_str, macro);
         alg.write(_f(), _langStr());
     }
@@ -656,15 +661,20 @@ void Export::_estimation(const Macro& macro, int job_cnt) {
         estimation_str = _asStr(_config["estimation"]);
     }
     trim(estimation_str);
-    std::cout << estimation_str << "\n";
+    _log.info() << "Estimation:"
+                << "\n";
+    _log.info() << "* Job Cnt: " << job_cnt << "\n";
     if (estimation_str.length() == 4 && boost::algorithm::to_lower_copy(estimation_str) == "auto") {
         // TODO: use tasked-oriented algorithm
         // just do nothing right now
-        std::cout << "Use auto estimation." << std::endl;
+        _log.info() << "* Use auto estimation scheme." << std::endl;
     } else {
+        _log.info() << "* Use custom estimation scheme." << std::endl;
         Alg alg(estimation_str, macro, job_cnt);
         alg.write(_f(), _langStr());
     }
+    _log.info() << "====== Start of Estimation =====\n"
+                << estimation_str << "\n[INFO] ======= End of Estimation ======" << std::endl;
 }
 
 void Export::_reporting() {
@@ -880,6 +890,7 @@ void Export::_ending() {
 }
 
 bool Export::_loadALG() {
+    _log.info() << "Loading ALG ..." << std::endl;
     if (auto&& jobs = _config["simulation"]["jobs"]; !_preCheck(jobs, DType::SEQ)) return false;
     else {
         // algorithms in simulation jobs
@@ -887,8 +898,14 @@ bool Export::_loadALG() {
         for (auto&& job : jobs) {
             auto&& job_algs = job["algorithms"];
             if (!_preCheck(job_algs, DType::SEQ)) return false;
-            for (auto&& job_alg : job_algs) { algs.push_back(_asStr(job_alg["alg"])); }
+            for (auto&& job_alg : job_algs) {
+                if (auto&& s = _asStr(job_alg["alg"]); !contains(algs, s)) {
+                    algs.push_back(s);
+                    _log.info() << "Job algorithm: " << s << "\n";
+                }
+            }
         }
+        _log.flush();
         // functions with function CALL
         auto&& estimation_node = _config["estimation"];
         auto&& preamble_node   = _config["preamble"];
@@ -899,13 +916,13 @@ bool Export::_loadALG() {
         // because std::regex does not support lookbehind.
         // In my VS Code extension, I define the syntax as (?<=CALL\s+)(\w+)
         std::regex r(R"(CALL\s+\w+)");
-        std::cout << "starting regex search\n";
+        // _log.info() << "Starting regex searching for CALL" << std::endl;
         if (_preCheck(estimation_node, DType::STRING, false)) {
             std::string estimation_str = _asStr(estimation_node);
             while (std::regex_search(estimation_str, sm, r)) {
                 algs.push_back(trim_copy(sm.str().substr(4)));
                 estimation_str = sm.suffix();
-                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+                _log.info() << "CALL RegEx match: " << trim_copy(sm.str().substr(4)) << std::endl;
             }
         }
         if (_preCheck(preamble_node, DType::STRING, false)) {
@@ -913,7 +930,7 @@ bool Export::_loadALG() {
             while (std::regex_search(preamble_str, sm, r)) {
                 algs.push_back(trim_copy(sm.str().substr(4)));
                 preamble_str = sm.suffix();
-                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+                _log.info() << "CALL RegEx match: " << trim_copy(sm.str().substr(4)) << std::endl;
             }
         }
         if (_preCheck(conclusion_node, DType::STRING, false)) {
@@ -921,7 +938,7 @@ bool Export::_loadALG() {
             while (std::regex_search(conclusion_str, sm, r)) {
                 algs.push_back(trim_copy(sm.str().substr(4)));
                 conclusion_str = sm.suffix();
-                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+                _log.info() << "CALL RegEx match: " << trim_copy(sm.str().substr(4)) << std::endl;
             }
         }
         if (_preCheck(appendix_node, DType::STRING, false)) {
@@ -929,10 +946,10 @@ bool Export::_loadALG() {
             while (std::regex_search(appendix_str, sm, r)) {
                 algs.push_back(trim_copy(sm.str().substr(4)));
                 appendix_str = sm.suffix();
-                std::cout << "Regex find match: " << trim_copy(sm.str().substr(4)) << std::endl;
+                _log.info() << "CALL RegEx match: " << trim_copy(sm.str().substr(4)) << std::endl;
             }
         }
-        std::cout << "Finished adding CALL with size " << algs.size() << "\n";
+        _log.info() << "Total required ALG size: " << algs.size() << "." << std::endl;
         std::sort(algs.begin(), algs.end());
         algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
         for (auto&& alg : algs) {
@@ -998,10 +1015,10 @@ bool Export::_setCascadedChannel() {
         return false;
     }
     if (!_channel_graph.arrange()) {
-        // Errors during arranging channel graph.
+        // TODO: Errors during arranging channel graph.
     }
-    std::cerr << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
-    std::cerr << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
+    _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
+    _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;
 }
 
@@ -1080,20 +1097,22 @@ void Export::_generateBF(unsigned Nt_B) {
         macro._cascaded_channel      = _cascaded_channel;
         macro.beamforming            = _beamforming;
         macro.custom_priority["VAR"] = var;
-        std::cout << "BF scheme for '" << var << "' is " << scheme << std::endl;
+        _log.info() << "BF scheme for '" << var << "' is " << scheme << "." << std::endl;
         if (scheme == "custom") {
             std::string formula;
             try {
                 formula = _asStr(n["beamforming"]["formula"]);
             } catch (...) {
                 std::cerr << "Empty formula body for custom beamforming." << std::endl;
+                _log.err() << "Empty formula body for custom beamforming." << std::endl;
                 // TODO: error handling
             }
-            std::cerr << "Formula content: \n" << formula << std::endl;
+            _log.info() << "===== Start of Custom BF =====\n"
+                        << formula << "\n[INFO] ====== End of Custom BF ======" << std::endl;
             Alg alg(formula, macro);
             alg.write(_f(), _langStr());
         } else if (scheme == "random") {
-            std::cout << "Load Random BF." << std::endl;
+            _log.info() << "Load Random BF." << std::endl;
             auto f_name = appDir() + "/../include/mmcesim/sys/random_" + (isTxRx ? "active" : "RIS") + "_BF.alg";
             if (std::filesystem::exists(f_name)) {
                 std::ifstream f(f_name);
@@ -1104,6 +1123,7 @@ void Export::_generateBF(unsigned Nt_B) {
             } else {
                 std::cerr << Term::ERR << "[Internal Error] Cannot Load '" << f_name << "' from LIB." << Term::RESET
                           << std::endl;
+                _log.err() << "(Internal Error) Cannot Load '" << f_name << "' from LIB." << std::endl;
             }
         }
         if (lang == Lang::CPP) _f() << "}\n";

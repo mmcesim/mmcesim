@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
  * @version 0.2.0
- * @date 2023-01-15
+ * @date 2023-03-17
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,12 +12,12 @@
 #include "export/alg_line.h"
 #include <iostream>
 
-Alg_Line::Alg_Line(const std::string& str) {
+Alg_Line::Alg_Line(const std::string& str) : _raw_str(str) {
     std::string s = str;
     _removeComment(s);
     if (s.empty()) return; // empty contents or all comments
     auto eq_index = _findChar(s, '=');
-    std::cout << s << " eq_index: " << eq_index << "\n";
+    _log.info() << ">> ALG Line: " << s << std::endl;
     // Now we need to tell whether this is assign '=' or parameter '='.
     bool eq_is_assign = false;
     std::string buf;
@@ -41,6 +41,7 @@ Alg_Line::Alg_Line(const std::string& str) {
                         eq_is_assign = true;
                     }
                 } else {
+                    _log.err() << "Trailing '='." << std::endl;
                     throw std::runtime_error("Trailing '='.");
                 }
             }
@@ -54,6 +55,7 @@ Alg_Line::Alg_Line(const std::string& str) {
                     if (isFunc(buf)) eq_is_assign = true;
                     else eq_is_assign = false;
                 } else {
+                    _log.err() << "Trailing '='." << std::endl;
                     throw std::runtime_error("Trailing '='.");
                 }
             }
@@ -92,7 +94,10 @@ Alg_Line::Alg_Line(const std::string& str) {
                 else if (c == 'r') buf += '\r';
                 else if (c == '0') buf += '\0';
                 else if (c == '$') buf += '$';
-                else throw std::runtime_error("Invalid escape.");
+                else {
+                    _log.err() << "Invalid escape." << std::endl;
+                    throw std::runtime_error("Invalid escape.");
+                }
             } else {
                 // This is just an ALG function staring indication, not a real escape.
                 buf += '\\';
@@ -180,7 +185,7 @@ void Alg_Line::_processReturns(const std::vector<std::string>& v) {
 void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
     if (v.empty()) { throw std::runtime_error("No function name specified."); }
     std::vector<std::string>::size_type start_i = 0;
-    if (auto&& func = v[0]; std::cout << "Try as func name: " << func << "\n", isFunc(func)) {
+    if (auto&& func = v[0]; isFunc(func)) {
         _func   = func;
         start_i = 1;
     } else {
@@ -193,7 +198,7 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         // do no more parsing for CALC or NEW
         Param_Type p;
         for (auto i = start_i; i != v.size(); ++i) { p.value += v[i]; }
-        std::cout << "CALC/NEW content: " << p.value << '\n';
+        _log.info() << "CALC/NEW content: " << p.value << '\n';
         _params.push_back(p);
         return;
     } else if (_func == "WHILE" || _func == "CPP" || _func == "IF" || _func == "ELIF") {
@@ -213,8 +218,10 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         Param_Type p;
         auto eq_index               = _findChar(s, '=');
         size_t start_index_of_value = 0;
-        if (eq_index == 0) throw std::runtime_error("Empty parameter key before '='.");
-        else if (eq_index == s.size()) {
+        if (eq_index == 0) {
+            _log.err() << "Empty parameter key before '='." << std::endl;
+            throw std::runtime_error("Empty parameter key before '='.");
+        } else if (eq_index == s.size()) {
             // There is no '=' in the parameter
             p.key                = "";
             start_index_of_value = 0;

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Graph Analysis for Complex Cascaded Channels
  * @version 0.2.0
- * @date 2023-01-03
+ * @date 2023-03-18
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,6 +12,7 @@
 #ifndef _EXPORT_CHANNEL_GRAPH_H_
 #define _EXPORT_CHANNEL_GRAPH_H_
 
+#include "log_global.h"
 #include "utils.h"
 #include <iostream>
 #include <string>

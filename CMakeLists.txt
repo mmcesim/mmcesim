@@ -2,10 +2,14 @@ cmake_minimum_required(VERSION 3.13)
 project(mmCEsim VERSION 0.2.0)
 
 option(MMCESIM_BUILD_ASTYLE   "Build astyle Code Formatter"             ON )
-option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
 option(MMCESIM_BUILD_COMPOSE  "Build composition tool"                  ON )
+option(MMCESIM_BUILD_LOG      "Build log tool"                          ON )
+option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
 option(MMCESIM_BUILD_GUI      "Build mmCEsim GUI App with Qt"           OFF)
 option(MMCESIM_APPLE_COPY_SH  "Copy additional shell script for macOS"  OFF)
+option(MMCESIM_TESTS          "Run mmCEsim tests"                       ON)
+
+set(MMCESIM_ROOT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 
 # Default as Release
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -40,6 +44,7 @@ endif()
 set(YAML_CPP_BUILD_TESTS   OFF CACHE BOOL "disable yaml tests")
 set(YAML_CPP_BUILD_TOOLS   OFF CACHE BOOL "disable yaml tools")
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "disable yaml contrib")
+set(CLIP_TESTS             OFF CACHE BOOL "disable clip tests")
 
 add_subdirectory(ext/yaml-cpp)
 add_subdirectory(ext/fmt)
@@ -98,6 +103,9 @@ endif()
 
 if (MMCESIM_BUILD_GUI)
     add_subdirectory(gui)
+endif()
+if (MMCESIM_BUILD_LOG)
+    add_subdirectory(tools/log)
 endif()
 if (MMCESIM_BUILD_MAINTAIN)
     add_subdirectory(tools/maintain)

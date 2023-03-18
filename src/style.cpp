@@ -23,16 +23,22 @@ int Style::style() const {
     // --pad-comma / -xg
     // --pad-header / -H
     std::string astyle_options = std::string("--suffix=none -N -Y -p -xg -H ") + _options + " " + _file_name;
+    auto astyle_cmd            = astyle_path + " " + astyle_options;
+    _log.info() << "Astyle CMD: " << astyle_cmd << std::endl;
     std::string line;
     boost::process::ipstream is; // reading pipe-stream
-    boost::process::child astyle_process(astyle_path + " " + astyle_options,
+    boost::process::child astyle_process(astyle_cmd,
                                          boost::process::std_out > boost::process::null, // ignore output
                                          boost::process::std_err > is                    // keep error message
     );
     while (astyle_process.running() && std::getline(is, line) && !line.empty()) { std::cerr << line << "\n"; }
     astyle_process.wait();
     int e = astyle_process.exit_code();
-    if (e) std::cerr << "\nInternal astyle command: " << astyle_path + " " + astyle_options << std::endl;
+    if (e) {
+        std::cerr << Term::ERR << "\n[ERROR] Internal astyle command failed: " << astyle_cmd << Term::RESET
+                  << std::endl;
+        _log.err() << "Astyle failed with exit code " << e << "." << std::endl;
+    } else _log.info() << "Astyle finished successfully." << std::endl;
     return e;
 }
 

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Calc Class
  * @version 0.2.0
- * @date 2023-01-05
+ * @date 2023-03-17
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -216,7 +216,7 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                             if (ch == '{') ++l_bracket;
                         }
                         ++i;
-                        std::cout << "Iter " << i << '\n';
+                        // std::cout << "Iter " << i << '\n';
                     }
                     std::string subs;
                     std::string subs_buf;
@@ -255,8 +255,8 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                                     if (type.isUnknown()) d_buf = -1;
                                     else d_buf = type.dim();
                                 }
-                                std::cout << "Type_Track: " << dims[j] << ", dim=" << int(d_buf)
-                                          << ", Size: " << type_track.size() << std::endl;
+                                _log.info() << "{Type Track} " << dims[j] << ", dim=" << int(d_buf)
+                                            << ", Size: " << type_track.size() << std::endl;
                             }
                         }
                         return d_buf;
@@ -322,15 +322,15 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                             subs += subs_buf + (j == dim ? ")" : ",");
                         }
                     }
-                    std::cout << start_i << ' ' << i << ' ' << subs << '\n';
-                    std::cout << str << std::endl;
+                    // std::cout << start_i << ' ' << i << ' ' << subs << '\n';
+                    // std::cout << str << std::endl;
                     try {
                         str.replace(start_i, i - start_i + 1, subs);
                     } catch (const std::exception& e) {
                         // Try to diagnose Windows MSVC test error.
-                        std::cerr << "REPLACE ERROR: " << e.what() << std::endl;
+                        _log.err() << "REPLACE ERROR: " << e.what() << " >>> " __FILE__ << ":" << __LINE__ << std::endl;
                     }
-                    std::cout << "alive\n";
+                    // std::cout << "alive\n";
                     if (d) *d = result_dim;
                 } // otherwise it might just be part of variable name
             }

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.0
- * @date 2023-03-14
+ * @date 2023-03-18
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
     p.add("input", -1);
     po::variables_map vm;
     try {
+        _log.info() << "Processing CLI options ..." << std::endl;
         po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
         if (vm.count("help")) {
             std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "  (C) 2022-2023 " << _MMCESIM_AUTHOR << '\n'
@@ -138,8 +139,11 @@ int main(int argc, char* argv[]) {
 
         po::notify(vm);
     } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        _log.err() << e.what() << std::endl;
+        std::string s = e.what();
+        if (s == "the option '--command' is required but missing") s = "command is missing";
+        else if (s == "the option '--input' is required but missing") s = "input is missing";
+        std::cerr << s << std::endl;
+        _log.err() << s << std::endl;
         std::cerr << "Use '" << argv[0] << " -h' for help." << std::endl;
         return errorCode(Err::CLI_OPTIONS);
     }
@@ -153,8 +157,10 @@ int main(int argc, char* argv[]) {
         opt.input += ".sim";
         if (!std::filesystem::exists(opt.input)) errorExit(Err::INPUT_NOT_EXISTS);
     }
+    _log.info() << "Finished CLI options processing." << std::endl;
     boost::algorithm::to_lower(opt.cmd);
     if (opt.cmd == "sim" || opt.cmd == "simulate") {
+        _log.info() << "Simulation Mode [sim]" << std::endl;
         Shared_Info info;
         auto&& errors = Export::exportCode(opt, &info);
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
@@ -170,6 +176,7 @@ int main(int argc, char* argv[]) {
             }
         }
     } else if (opt.cmd == "dbg" || opt.cmd == "debug") {
+        _log.info() << "Debug Mode [dbg]" << std::endl;
         Shared_Info info;
         info.dbg      = true;
         auto&& errors = Export::exportCode(opt, &info);
@@ -183,7 +190,8 @@ int main(int argc, char* argv[]) {
         }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
-                std::cout << "[ERROR] Compiling Error with exit code " << compile_result << "." << std::endl;
+                std::cout << Term::ERR << "[ERROR] Compiling Error with exit code " << compile_result << "."
+                          << Term::RESET << std::endl;
                 _log.err() << "Compiling Error with exit code " << compile_result << "." << std::endl;
             } else {
                 std::cerr << Term::ERR << "[ERROR] Simulation compiling error. Compiling exit with code "
@@ -193,6 +201,7 @@ int main(int argc, char* argv[]) {
             }
         }
     } else if (opt.cmd == "exp" || opt.cmd == "export") {
+        _log.info() << "Export Mode [exp]" << std::endl;
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) {
             for (auto&& err : errors) { std::cerr << err.msg << '\n'; }
@@ -205,6 +214,7 @@ int main(int argc, char* argv[]) {
             return errorCode(Err::ASTYLE_ERROR);
         }
     } else if (opt.cmd == "config") {
+        _log.info() << "Config Mode [config]" << std::endl;
         if (vm.count("value")) {
             std::string msg;
             if (Config::edit(opt.input, opt.value, &msg)) {
@@ -222,5 +232,6 @@ int main(int argc, char* argv[]) {
         errorExit(Err::UNKOWN_CMD);
     }
 
+    _log.info() << "Bye!" << std::endl;
     return 0;
 }

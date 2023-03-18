@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Log Utilities
  * @version 0.2.0
- * @date 2023-03-13
+ * @date 2023-03-17
  *
  * @copyright Copyright (c) 2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -82,6 +82,13 @@ class Log {
     std::ofstream& msg();
 
     /**
+     * @brief Flush the buff into the log file.
+     *
+     * @details This is equivalent to Log::write() << std::endl.
+     */
+    void flush();
+
+    /**
      * @brief Write CLI arguments information to log.
      *
      * @param argc The number of CLI arguments.
@@ -115,5 +122,7 @@ inline std::ofstream& Log::msg() {
     _f << "[MESSAGE] ";
     return _f;
 }
+
+inline void Log::flush() { _f << std::flush; }
 
 #endif
