@@ -1,11 +1,12 @@
 ## New Features
+- Colorful terminal (#22).
 - `mmcesim-maintain` tool support (#25).
 - Log system support with cleaner terminal output (#32, #36, #39).
 - `mmcesim-log` tool support (#37).
 
 ## Bug Fixes
 - Fix the Docker `entrypoint` command.
-- Fix *total lines* badge display (#40, #41) in README.
+- Fix *total lines* badge display in README (#40, #41).
 
 ## News
 - Short domain [mmces.im](https://mmces.im) has been registered alongside [mmcesim.org](https://mmcesim.org) (#43).
