@@ -10,6 +10,6 @@
 - Fix *total lines* badge display in README (#40, #41).
 
 ## News
-- Short domain [mmces.im](https://mmces.im) has been registered alongside [mmcesim.org](https://mmcesim.org) (#43).
+- Short domain [mmces.im](https://mmces.im) has been registered alongside [mmcesim.org](https://mmcesim.org) ([#43](https://github.com/orgs/mmcesim/discussions/43)).
 
 > **Note** x86 and x64 binaries are built automatically by GitHub Actions; The macOS arm binary is built manually on macOS with M1 chip.
