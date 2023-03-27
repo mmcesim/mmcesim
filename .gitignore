@@ -52,3 +52,5 @@ misc/_doxygen
 /*.rpt
 usr
 publish
+.cache
+
