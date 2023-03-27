@@ -83,6 +83,7 @@ For a Unix system, you can use CMake to install mmCEsim
 ```sh
 git clone https://github.com/mmcesim/mmcesim.git --recurse-submodules
 cd mmcesim
+mkdir build
 cmake . build
 cd build
 make
@@ -96,9 +97,12 @@ If you want to build the GUI app as well, you need to install Qt6.
 Some options can be configured when calling `cmake`.
 - `CMAKE_BUILD_TYPE`: Build type (default as `Release`)
 - `CMAKE_INSTALL_PREFIX`: Installation prefix (default as system path)
-- `MMCESIM_BUILD_ASTYLE`: Build astyle Code Formatter (default as `ON`)
+- `MMCESIM_BUILD_ASTYLE`: Build astyle code formatter (default as `ON`)
+- `MMCESIM_BUILD_LOG`: Build mmCEsim log tool (default as `ON`)
+- `MMCESIM_BUILD_MAINTAIN`: Build mmCEsim maintenance tool (default as `OFF`)
 - `MMCESIM_BUILD_GUI`: Build mmCEsim GUI App with Qt (default as `OFF`)
-- `MMCESIM_APPLE_COPY_SH`: Copy additional shell script for macOS (default as `OFF`).
+- `MMCESIM_APPLE_COPY_SH`: Copy additional shell script for macOS (default as `OFF`)
+- `MMCESIM_TESTS`: Run mmCEsim tests (default as `ON`)
 
 For example, you may use
 ```sh
