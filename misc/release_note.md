@@ -3,6 +3,7 @@
 - `mmcesim-maintain` tool support (#25).
 - Log system support with cleaner terminal output (#32, #36, #39).
 - `mmcesim-log` tool support (#37).
+- Syntax highlight for ALG language on [mmcesim.org](https://mmcesim.org) with a custom lexer (mmcesim/mmcesim.org#1).
 
 ## Bug Fixes
 - Fix the Docker `entrypoint` command.
