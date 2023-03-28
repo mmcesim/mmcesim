@@ -7,7 +7,8 @@ option(MMCESIM_BUILD_LOG      "Build log tool"                          ON )
 option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
 option(MMCESIM_BUILD_GUI      "Build mmCEsim GUI App with Qt"           OFF)
 option(MMCESIM_APPLE_COPY_SH  "Copy additional shell script for macOS"  OFF)
-option(MMCESIM_TESTS          "Run mmCEsim tests"                       ON)
+option(MMCESIM_TESTS          "Run mmCEsim tests"                       ON )
+option(MMCESIM_CODE_COVERAGE  "Enable mmCEsim Civerage Reporting"       OFF)
 
 set(MMCESIM_ROOT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 
@@ -69,6 +70,18 @@ if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS -Wno-error=narrowing)
 endif()
 
+# Code Coverage Configuration
+add_library(coverage_config INTERFACE)
+if (MMCESIM_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Add required flags (GCC & LLVM/Clang)
+    target_compile_options(coverage_config INTERFACE
+        -O0        # no optimization
+        -g         # generate debug info
+        --coverage # sets all required flags
+    )
+    target_link_options(coverage_config INTERFACE --coverage)
+endif()
+
 if (MMCESIM_BUILD_ASTYLE)
     add_subdirectory(ext/astyle)
 endif()
@@ -96,7 +109,7 @@ set(SOURCES
 )
 add_executable(mmcesim ${SOURCES})
 
-target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp fmt::fmt)
+target_link_libraries(mmcesim LINK_PUBLIC ${Boost_LIBRARIES} yaml-cpp fmt::fmt coverage_config)
 if (USE_THREADS)
     target_link_libraries(mmcesim PRIVATE Threads::Threads)
 endif()
@@ -132,6 +145,9 @@ if (WIN32)
     install(FILES ${MMCESIM_DOCS} DESTINATION "${CMAKE_INSTALL_PREFIX}\\mmCEsim\\doc")
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}\\mmCEsim\\include\\mmcesim")
 elseif (APPLE)
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX "/usr/local")
+    endif()
     # install to the default /usr/local/bin because of SIP restrictions
     install(TARGETS mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
     install(FILES ${MMCESIM_DOCS} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc/mmcesim")
