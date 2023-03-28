@@ -7,7 +7,7 @@ option(MMCESIM_BUILD_LOG      "Build log tool"                          ON )
 option(MMCESIM_BUILD_MAINTAIN "Build mantainence tool"                  ON )
 option(MMCESIM_BUILD_GUI      "Build mmCEsim GUI App with Qt"           OFF)
 option(MMCESIM_APPLE_COPY_SH  "Copy additional shell script for macOS"  OFF)
-option(MMCESIM_TESTS          "Run mmCEsim tests"                       ON)
+option(MMCESIM_TESTS          "Run mmCEsim tests"                       ON )
 
 set(MMCESIM_ROOT_SOURCE_DIR ${CMAKE_SOURCE_DIR})
 
@@ -133,6 +133,9 @@ if (WIN32)
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}\\mmCEsim\\include\\mmcesim")
 elseif (APPLE)
     # install to the default /usr/local/bin because of SIP restrictions
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX "/usr/local")
+    endif()
     install(TARGETS mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
     install(FILES ${MMCESIM_DOCS} DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc/mmcesim")
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/mmcesim DESTINATION "${CMAKE_INSTALL_PREFIX}/include"
