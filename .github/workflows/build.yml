@@ -26,7 +26,7 @@ jobs:
           environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
         - name: "Linux"
           artifact: "mmCEsim-CLI-Linux-x86.tar.gz"
-          os: ubuntu-latest
+          os: ubuntu-20.04
           architecture: x64
           cc: "gcc"
           cxx: "g++"
@@ -89,7 +89,7 @@ jobs:
       with:
         # Set the boost version (required)
         boost_version: ${{env.BOOST_VERSION}}
-        platform_version: 22.04
+        platform_version: 20.04
 
     - name: Install boost (macOS)
       if: ${{ runner.os == 'macOS' }}
