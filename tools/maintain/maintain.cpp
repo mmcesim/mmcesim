@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief mmCEsim Maintainence Tool
  * @version 0.2.0
- * @date 2023-03-07
+ * @date 2023-03-31
  *
  * @copyright Copyright (c) 2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -49,14 +49,15 @@ int main(int argc, char* argv[]) {
         if (vm.count("help")) {
             std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "  (C) 2022-2023 " << _MMCESIM_AUTHOR << '\n'
                       << _MMCESIM_DESCR << std::endl;
-            std::cout << std::string(45, '=') << "\n" << std::endl;
+            std::cout << std::string(45, '=') << std::endl;
+            std::cout << "This is the maintain tool.\n" << std::endl;
             std::cout << "Usage: " << argv[0] << " [options]\n" << std::endl;
             std::cout << visible << std::endl;
             return 0;
         }
 
         if (vm.count("version")) {
-            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << std::endl;
+            std::cout << _MMCESIM_NAME << "-maintain " << _MMCESIM_VER_STR << std::endl;
             return 0;
         }
 

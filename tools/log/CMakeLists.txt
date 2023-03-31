@@ -6,12 +6,14 @@ if (USE_THREADS)
     find_package(Threads REQUIRED)
 endif()
 
+set(CLIP_TESTS             OFF CACHE BOOL "disable clip tests")
+set(CLIP_EXAMPLES          OFF CACHE BOOL "disable clip examples")
 include_directories(../../ext/clip)
 add_subdirectory(${MMCESIM_ROOT_SOURCE_DIR}/ext/clip ${MMCESIM_ROOT_SOURCE_DIR}/bin)
 
 add_executable(mmcesim-log "log.cpp")
 
-target_link_libraries(mmcesim-log LINK_PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(mmcesim-log LINK_PUBLIC ${Boost_LIBRARIES} clip)
 if (USE_THREADS)
     target_link_libraries(mmcesim-log PRIVATE Threads::Threads)
 endif()
@@ -38,5 +40,10 @@ else()
 endif()
 
 if (MMCESIM_TESTS)
-    add_test(NAME log_plain COMMAND mmcesim-log)
+    add_test(NAME log_version COMMAND mmcesim-log -v)
+    add_test(NAME log_plain   COMMAND mmcesim-log)
+    add_test(NAME log_print   COMMAND mmcesim-log -p)
+    add_test(NAME log_copy    COMMAND mmcesim-log -c)
+    add_test(NAME log_file    COMMAND mmcesim-log -f)
+    add_test(NAME log_pc      COMMAND mmcesim-log -pc) # print + copy
 endif()

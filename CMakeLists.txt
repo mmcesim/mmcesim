@@ -45,6 +45,7 @@ set(YAML_CPP_BUILD_TESTS   OFF CACHE BOOL "disable yaml tests")
 set(YAML_CPP_BUILD_TOOLS   OFF CACHE BOOL "disable yaml tools")
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "disable yaml contrib")
 set(CLIP_TESTS             OFF CACHE BOOL "disable clip tests")
+set(CLIP_EXAMPLES          OFF CACHE BOOL "disable clip examples")
 
 add_subdirectory(ext/yaml-cpp)
 add_subdirectory(ext/fmt)
