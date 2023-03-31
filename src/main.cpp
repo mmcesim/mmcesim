@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
     namespace po = boost::program_options;
 
     _log.writeArg(argc, argv);
+    Term::detectEnv();
 
     CLI_Options opt; // command line options
 
