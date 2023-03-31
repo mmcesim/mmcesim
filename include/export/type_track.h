@@ -2,7 +2,7 @@
  * @file type_track.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Track data type of variables
- * @version 0.2.0
+ * @version 0.2.1
  * @date 2022-09-24
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

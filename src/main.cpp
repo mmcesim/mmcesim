@@ -2,7 +2,7 @@
  * @file main.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
- * @version 0.2.0
+ * @version 0.2.1
  * @date 2023-03-18
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
