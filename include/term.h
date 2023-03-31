@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Terminal Color and Style Control
  * @version 0.2.0
- * @date 2023-03-10
+ * @date 2023-03-31
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,6 +12,7 @@
 #ifndef _TERM_H_
 #define _TERM_H_
 
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -158,6 +159,15 @@ class Term {
      */
     template <typename T>
     static void warning(const T& msg);
+
+    /**
+     * @brief Detect environment variable of NO_COLOR.
+     *
+     * @details If environment variable NO_COLOR is set to a non-empty variable,
+     *          The color terminal is disabled.
+     *          View https://no-color.org for more information.
+     */
+    static void detectEnv();
 };
 
 template <typename T>

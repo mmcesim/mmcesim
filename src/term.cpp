@@ -3,13 +3,14 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Term Class and Color/Style Definitions
  * @version 0.2.0
- * @date 2023-01-13
+ * @date 2023-03-31
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
 #include "term.h"
+#include "log_global.h"
 
 void Term::disable() {
     Term::BLACK.vld      = false;
@@ -81,4 +82,13 @@ void Term::enable() {
     Term::OFF_INV.vld    = true;
     Term::ERR.vld        = true;
     Term::MSG.vld        = true;
+}
+
+void Term::detectEnv() {
+    const char* no_color = std::getenv("NO_COLOR");
+    if (no_color && no_color[0] != 0) {
+        disable();
+        _log.info() << "Non-empty 'NO_COLOR' environment variable detected. Colorful terminal is disabled."
+                    << std::endl;
+    }
 }
