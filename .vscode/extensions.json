@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "mmcesim.mmcesim",
-        "ms-vscode.cpptools-extension-pack"
+        "ms-vscode.cpptools-extension-pack",
+        "github.vscode-github-actions"
     ]
 }
