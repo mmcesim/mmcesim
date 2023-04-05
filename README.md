@@ -95,8 +95,8 @@ You need to have Boost Library (v1.70 or higher) to compile.
 If you want to build the GUI app as well, you need to install Qt6.
 
 Some options can be configured when calling `cmake`.
-- `CMAKE_BUILD_TYPE`: Build type (default as `Release`)
-- `CMAKE_INSTALL_PREFIX`: Installation prefix (default as system path)
+- [`CMAKE_BUILD_TYPE`](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html): Build type (default as `Release`)
+- [`CMAKE_INSTALL_PREFIX`](https://cmake.org/cmake/help/latest/variable/CMAKE_INSTALL_PREFIX.html): Installation prefix (default as system path)
 - `MMCESIM_BUILD_ASTYLE`: Build astyle code formatter (default as `ON`)
 - `MMCESIM_BUILD_LOG`: Build mmCEsim log tool (default as `ON`)
 - `MMCESIM_BUILD_MAINTAIN`: Build mmCEsim maintenance tool (default as `OFF`)
