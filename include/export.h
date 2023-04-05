@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Export mmCEsim Configuration to Other Programming Languages
  * @version 0.2.1
- * @date 2023-01-15
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -184,6 +184,8 @@ class Export {
      *         The five elements are: Mx, My, GMx, GMy, BMx, BMy.
      */
     std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> _getSize(const YAML::Node& n);
+
+    void _checkALGdependency(std::vector<std::string>& algs);
 
     CLI_Options& _opt;
     YAML::Node _config;
