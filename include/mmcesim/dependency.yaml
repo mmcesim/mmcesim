@@ -1,4 +1,3 @@
 # ALG Dependency Configuration
 
-OMP: []
-Oracle_LS: []
+OMPL: [max_n]
