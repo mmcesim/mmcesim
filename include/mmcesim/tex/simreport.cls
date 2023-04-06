@@ -7,14 +7,14 @@
 %%
 %% Author: Wuqiong Zhao
 %% License: MIT
-%% Date: 2023-01-16
-%% Version: 0.1.1
+%% Date: 2023-04-06
+%% Version: 0.2.1
 
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{l3keys2e}
-\ProvidesExplClass{simreport}{2023/01/16}{0.1.1}{Simulation Report}
+\ProvidesExplClass{simreport}{2023/04/06}{0.2.1}{Simulation Report}
 
-\str_const:Nn \c__simreport_mmcesim_ver_str { 0.1.1 }
+\str_const:Nn \c__simreport_mmcesim_ver_str { 0.2.1 }
 \str_const:Nn \c__simreport_base_class_str { article }
 
 \keys_define:nn { simreport }
@@ -344,6 +344,7 @@
       \item Blog:~\url{https://blog.mmcesim.org}
       \item Publications:~\url{https://pub.mmcesim.org}
       \item Dev~Documentation:~\url{https://dev.mmcesim.org}
+      \item Documentation~in~PDF:~\url{https://pub.mmcesim.org/mmCEsim-doc.pdf}
       \item GitHub~Organization:~\url{https://github.com/mmcesim}
       \item Twitter:~\url{https://twitter.com/mmcesim}
       \item VS~Code~Extension:~\url{https://marketplace.visualstudio.com/items?itemName=mmcesim.mmcesim}

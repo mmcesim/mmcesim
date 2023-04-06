@@ -865,6 +865,7 @@ void Export::_reporting() {
         }
         std::sort(algs.begin(), algs.end());
         algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
+        _checkALGdependency(algs, false);
         for (auto&& alg : algs) {
             if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
                 std::filesystem::copy_file(f_name, out_dir + "/_tex_report/" + alg + ".mmcesim-alg",
@@ -1188,7 +1189,7 @@ std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> Export::_
     return { Mx, My, GMx, GMy, BMx, BMy };
 }
 
-void Export::_checkALGdependency(std::vector<std::string>& algs) {
+void Export::_checkALGdependency(std::vector<std::string>& algs, bool logged) {
     // Parse dependency.yaml file.
     try {
         auto d = YAML::LoadFile(appDir() + "/../include/mmcesim/dependency.yaml");
@@ -1202,7 +1203,7 @@ void Export::_checkALGdependency(std::vector<std::string>& algs) {
                         std::string new_alg_s = new_alg.as<std::string>();
                         if (!contains(algs, new_alg_s)) {
                             algs.push_back(new_alg_s);
-                            _log.info() << "Add dependency ALG: " << new_alg_s << std::endl;
+                            if (logged) _log.info() << "Add dependency ALG: " << new_alg_s << std::endl;
                         }
                     } catch (...) {}
                 }
@@ -1211,13 +1212,13 @@ void Export::_checkALGdependency(std::vector<std::string>& algs) {
             }
         }
     } catch (const YAML::ParserException& e) {
-        _log.err() << "ALG library dependency file YAML parsing error.";
+        if (logged) _log.err() << "ALG library dependency file YAML parsing error.";
         // TODO: error message on terminal
         // Even though there is an error, let's continue.
     } catch (...) {
         // Let's be nice, there will be no harm done.
         // Well, theoretically this file can always be opened,
         // unless it is severely broken by some unkown forces...
-        _log.war() << "ALG library dependency file cannot be opened." << std::endl;
+        if (logged) _log.war() << "ALG library dependency file cannot be opened." << std::endl;
     }
 }
