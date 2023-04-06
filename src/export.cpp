@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.1
- * @date 2023-03-17
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -49,7 +49,7 @@ Export::Export(CLI_Options& opt, const YAML::Node& config, const YAML_Errors& er
     if (_opt.output == "__UNDEFINED") {
         std::filesystem::path input_path(_opt.input);
         _opt.output = input_path.replace_extension(_langExtension()).string();
-        if (!_opt.force && !std::filesystem::exists(_opt.output)) {
+        if (!_opt.force && std::filesystem::exists(_opt.output)) {
             YAML_Error e(Err::OUTPUT_FILE_EXISTS);
             _errors.push_back(e);
             _already_error_before_export = true;
@@ -75,7 +75,6 @@ YAML_Errors Export::exportCode() {
         _info("Error before executing exporting.");
         return _errors;
     }
-    // do something
     _topComment();
     _beginning();
     _setCascadedChannel();
@@ -84,7 +83,6 @@ YAML_Errors Export::exportCode() {
     _generateChannels();
     _algorithms();
     _sounding();
-    // _estimation();
     _reporting();
     _ending();
     _f().close();
@@ -914,7 +912,7 @@ bool Export::_loadALG() {
         std::smatch sm;
         // Here have to find the match containing the word CALL and the space after it
         // because std::regex does not support lookbehind.
-        // In my VS Code extension, I define the syntax as (?<=CALL\s+)(\w+)
+        // In the VS Code extension for mmCEsim, I define the syntax as (?<=CALL\s+)(\w+)
         std::regex r(R"(CALL\s+\w+)");
         // _log.info() << "Starting regex searching for CALL" << std::endl;
         if (_preCheck(estimation_node, DType::STRING, false)) {
@@ -952,15 +950,26 @@ bool Export::_loadALG() {
         _log.info() << "Total required ALG size: " << algs.size() << "." << std::endl;
         std::sort(algs.begin(), algs.end());
         algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
-        for (auto&& alg : algs) {
-            if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
-                std::ifstream f(f_name);
-                std::stringstream buf;
-                buf << f.rdbuf();
-                Alg a(buf.str());
-                a.write(_f(), _langStr());
-            } else {
-                // TODO: If the algorithm cannot be found in official library.
+        // Check algorithm dependency.
+        _checkALGdependency(algs);
+        // First loop: Function declaration.
+        // Second loop: Generate function definitions from the official library.
+        for (int i = 0; i != 2; ++i) {
+            bool func_declare = i == 0;
+            if (func_declare) _f() << "// ALG declarations\n";
+            else _f() << "\n// ALG definitions\n";
+            for (auto&& alg : algs) {
+                if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
+                    std::ifstream f(f_name);
+                    std::stringstream buf;
+                    buf << f.rdbuf();
+                    Alg a(buf.str(), macro_none, -1, -1, false, false, true,
+                          func_declare ? ALG_Opt::FUNCTION_DECLARATION : ALG_Opt::NONE);
+                    a.write(_f(), _langStr());
+                } else if (func_declare) {
+                    // TODO: If the algorithm cannot be found in official library.
+                    _log.info() << "Algorithm '" << alg << "' is not in the official library." << std::endl;
+                }
             }
         }
     }
@@ -1177,4 +1186,38 @@ std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> Export::_
         BMy = My;
     }
     return { Mx, My, GMx, GMy, BMx, BMy };
+}
+
+void Export::_checkALGdependency(std::vector<std::string>& algs) {
+    // Parse dependency.yaml file.
+    try {
+        auto d = YAML::LoadFile(appDir() + "/../include/mmcesim/dependency.yaml");
+        // We cannot use range for or iterators here because we are inserting elements during looping.
+        for (size_t i = 0; i != algs.size(); ++i) {
+            auto&& alg = algs[i];
+            try {
+                auto&& list = d[alg];
+                for (auto&& new_alg : list) {
+                    try {
+                        std::string new_alg_s = new_alg.as<std::string>();
+                        if (!contains(algs, new_alg_s)) {
+                            algs.push_back(new_alg_s);
+                            _log.info() << "Add dependency ALG: " << new_alg_s << std::endl;
+                        }
+                    } catch (...) {}
+                }
+            } catch (...) {
+                // We ignore any error here.
+            }
+        }
+    } catch (const YAML::ParserException& e) {
+        _log.err() << "ALG library dependency file YAML parsing error.";
+        // TODO: error message on terminal
+        // Even though there is an error, let's continue.
+    } catch (...) {
+        // Let's be nice, there will be no harm done.
+        // Well, theoretically this file can always be opened,
+        // unless it is severely broken by some unkown forces...
+        _log.war() << "ALG library dependency file cannot be opened." << std::endl;
+    }
 }

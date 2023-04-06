@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
  * @version 0.2.1
- * @date 2023-03-17
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,7 +12,7 @@
 #include "export/alg_line.h"
 #include <iostream>
 
-Alg_Line::Alg_Line(const std::string& str) : _raw_str(str) {
+Alg_Line::Alg_Line(const std::string& str, ALG_Opt opt) : _raw_str(str), _opt(opt) {
     std::string s = str;
     _removeComment(s);
     if (s.empty()) return; // empty contents or all comments

@@ -1,0 +1,185 @@
+# OMPL.sim
+# OMPL mmWave Channel Estimation
+# Author: Wuqiong Zhao
+# Date: 2022-09-20
+
+version: 0.2.1 # the targeted mmCEsim version
+meta: # document meta data
+  title: OMPL mmWave Channel Estimation
+  description:
+    This is a basic millimeter wave channel estimation simulation example with mmCEsim.
+    The involved algorithms are `OMPL', `OMP' and `Oracle LS'.
+    OMP list (OMPL) is the proposed one.
+    Due to hardware constraints,
+    there are variants to OMPL so that the number of different support in OMP is limited.
+    There are 4 jobs in total, with SNR and pilot overhead as variables and NMSE as metric.
+    The PFD report is auto generated via `simreport.cls'
+    and a corresponding plain text report is also available.
+    The beamforming matrices should matter here,
+    but currently only random ones are provided.
+    Therefore, the beam size is set to 1 now.
+  author: Wuqiong Zhao
+  email: me@wqzhao.org
+  website: https://wqzhao.org
+  license: MIT
+  date: "2023-04-05"
+  comments: This is an uplink channel.
+physics:
+  frequency: narrow # assume narrow band
+  off_grid: false # do not consider off-grid problem
+nodes:
+  - id: BS # this should be unique
+    role: receiver
+    num: 1 # this is the default value
+    size: [16, 1] # UPA with size 8x4
+    beam: [1, 1]
+    grid: same # the same as physics size
+    beamforming:
+      variable: "W"
+      scheme: random
+  - id: UE # user
+    role: transmitter
+    num: 1 # a single-user model
+    size: 8 # ULA with size 8
+    beam: 1
+    grid: 8
+    beamforming:
+      variable: "F"
+      scheme: random
+channels:
+  - id: H
+    from: UE
+    to: BS # 'from -> to' specifies the channel direction
+    sparsity: 6
+    gains:
+      mode: normal
+      mean: 0
+      variance: 1
+sounding:
+  variables:
+    received: "y" # received signal vector
+    noise: "noise" # received noise vector
+    channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
+preamble: |
+  # nothing here
+estimation: |
+  VNt::m = NEW `DICTIONARY.T`
+  VNr::m = NEW `DICTIONARY.R`
+  lambda_hat = INIT `GRID.*`
+  Q = INIT `MEASUREMENT` `GRID.*`
+  i::u0 = LOOP 0 `PILOT`/`BEAM.T`
+    F_t::m = NEW F_{:,:,i}
+    W_t::m = NEW W_{:,:,i}
+    Q_{i*`BEAM.*`:(i+1)*`BEAM.*`-1,:} = \kron(F_t^T, W_t^H) @ \kron(VNt^*, VNr) # the sensing matrix
+  END
+  none_zero::u1 = NEW \find(\abs(VNr^H@H_cascaded@VNt)>0.1)
+  # PRINT \size(none_zero,0) '\n' # make sure the number of non-zero elements
+  BRANCH
+  lambda_hat = ESTIMATE Q y none_zero
+  RECOVER VNr @ \reshape(lambda_hat, `GRID.R`, `GRID.T`) @ VNt^H
+  MERGE
+conclusion: |
+  PRINT "">>\t"" `JOB_CNT` '\n'
+simulation:
+  backend: cpp # cpp (default) | matlab | octave | py
+  metric: [NMSE] # used for compare
+  n_test: &N_TEST 20 # This is not mmCEsim extension, just a YAML specification
+  jobs:
+    - name: "NMSE v.s. SNR (Pilot: 24)"
+      test_num: *N_TEST
+      SNR: [0:2:30]
+      SNR_mode: dB # dB (default) | linear
+      pilot: 24
+      # pilot_mode: percent # num (default) | percent
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 6
+          label: OMP
+        - alg: OMPL
+          params: "6 1"
+          label: OMPL-1
+        - alg: OMPL
+          params: "6 2"
+          label: OMPL-2
+        - alg: OMPL
+          params: "6 4"
+          label: OMPL-4
+        - alg: OMPL
+          params: "6 8"
+          label: OMPL-8
+        - alg: Oracle_LS
+          label: Oracle LS
+    - name: NMSE v.s. Pilot (0 dB)
+      test_num: *N_TEST
+      SNR: 0
+      pilot: [24:4:64]
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 6
+          label: OMP
+        - alg: OMPL
+          params: "6 1"
+          label: OMPL-1
+        - alg: OMPL
+          params: "6 2"
+          label: OMPL-2
+        - alg: OMPL
+          params: "6 4"
+          label: OMPL-4
+        - alg: OMPL
+          params: "6 8"
+          label: OMPL-8
+        - alg: Oracle_LS
+          label: Oracle LS
+    - name: NMSE v.s. Pilot (10 dB)
+      test_num: *N_TEST
+      SNR: 10
+      pilot: [8:4:48]
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 6
+          label: OMP
+        - alg: OMPL
+          params: "6 1"
+          label: OMPL-1
+        - alg: OMPL
+          params: "6 2"
+          label: OMPL-2
+        - alg: OMPL
+          params: "6 4"
+          label: OMPL-4
+        - alg: OMPL
+          params: "6 8"
+          label: OMPL-8
+        - alg: Oracle_LS
+          label: Oracle LS
+    - name: NMSE v.s. Pilot (20 dB)
+      test_num: *N_TEST
+      SNR: 20
+      pilot: [8:4:48]
+      algorithms: # compare different languages
+        - alg: OMP
+          max_iter: 6
+          label: OMP
+        - alg: OMPL
+          params: "6 1"
+          label: OMPL-1
+        - alg: OMPL
+          params: "6 2"
+          label: OMPL-2
+        - alg: OMPL
+          params: "6 4"
+          label: OMPL-4
+        - alg: OMPL
+          params: "6 8"
+          label: OMPL-8
+        - alg: Oracle_LS
+          label: Oracle LS
+  report:
+    name: OMPL_Report
+    format: [pdf, latex] # both compiled PDF and tex files
+    plot: true # plot data
+    table: false # do not print table
+    latex:
+      command: xelatex # command to compile the report
+      UTF8: false # no need for UTF8 support with this setting

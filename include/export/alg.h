@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Algorithm Parser (.alg Language)
  * @version 0.2.1
- * @date 2023-01-15
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -13,6 +13,7 @@
 #define _EXPORT_ALG_H_
 
 #include "export/alg_line.h"
+#include "export/alg_opt.h"
 #include "export/calc.h"
 #include "export/macro.h"
 #include "export/type.h"
@@ -55,7 +56,7 @@ class Alg {
     Alg() = default;
 
     Alg(const std::string& str, const Macro& macro = macro_none, int job_cnt = -1, int alg_cnt = -1,
-        bool fail_fast = false, bool add_comment = false, bool add_semicolon = true);
+        bool fail_fast = false, bool add_comment = false, bool add_semicolon = true, ALG_Opt opt = ALG_Opt::NONE);
 
     const Alg_Lines& lines() const;
 
