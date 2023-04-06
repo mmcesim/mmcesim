@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Parse Line of Alg
  * @version 0.2.1
- * @date 2023-03-18
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,6 +12,7 @@
 #ifndef _EXPORT_ALG_LINE_H_
 #define _EXPORT_ALG_LINE_H_
 
+#include "export/alg_opt.h"
 #include "export/functions.h"
 #include "log_global.h"
 #include "utils.h"
@@ -62,8 +63,9 @@ class Alg_Line {
      *        Process string at the same time.
      *
      * @param str The raw string from Alg that is to be processed.
+     * @param opt ALG parsing options.
      */
-    Alg_Line(const std::string& str);
+    Alg_Line(const std::string& str, ALG_Opt opt = ALG_Opt::NONE);
 
     /**
      * @brief Get the function name.
@@ -197,6 +199,14 @@ class Alg_Line {
     bool isEnd() const noexcept;
 
     /**
+     * @brief Check whether the line is for function declaration.
+     *
+     * @retval true The ALG_Opt is set to ALG_Opt::FUNCTION_DECLARATION
+     * @retval false The ALG_Opt is not ALG_Opt::FUNCTION_DECLARATION
+     */
+    bool isFunctionDeclaration() const noexcept;
+
+    /**
      * @brief Print Alg_Line contents (including return values, function names and parameters).
      *
      * @details This is mostly used in internal debugging.
@@ -252,6 +262,7 @@ class Alg_Line {
     std::vector<Return_Type> _returns; /**< return variables */
     std::vector<Param_Type> _params;   /**< parameter variables */
     std::string _raw_str;              /**< raw string (original line) */
+    ALG_Opt _opt;                      /**< ALG options */
 };
 
 inline const std::string& Alg_Line::func() const noexcept { return _func; }
@@ -330,6 +341,8 @@ inline bool Alg_Line::setKey(std::vector<Param_Type>::size_type index, const std
 inline bool Alg_Line::needsEnd() const noexcept { return isFuncNeedsEnd(_func); }
 
 inline bool Alg_Line::isEnd() const noexcept { return isFuncIsEnd(_func); }
+
+inline bool Alg_Line::isFunctionDeclaration() const noexcept { return _opt == ALG_Opt::FUNCTION_DECLARATION; }
 
 inline std::ostream& Alg_Line::print(std::ostream& out, std::string prefix) const {
     out << prefix << "$ " << _raw_str << '\n';

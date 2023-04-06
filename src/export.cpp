@@ -952,17 +952,24 @@ bool Export::_loadALG() {
         algs.erase(std::unique(algs.begin(), algs.end()), algs.end());
         // Check algorithm dependency.
         _checkALGdependency(algs);
-        // Start copying files from the official library.
-        for (auto&& alg : algs) {
-            if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
-                std::ifstream f(f_name);
-                std::stringstream buf;
-                buf << f.rdbuf();
-                Alg a(buf.str());
-                a.write(_f(), _langStr());
-            } else {
-                // TODO: If the algorithm cannot be found in official library.
-                _log.info() << "Algorithm '" << alg << "' is not in the official library." << std::endl;
+        // First loop: Function declaration.
+        // Second loop: Generate function definitions from the official library.
+        for (int i = 0; i != 2; ++i) {
+            bool func_declare = i == 0;
+            if (func_declare) _f() << "// ALG declarations\n";
+            else _f() << "\n// ALG definitions\n";
+            for (auto&& alg : algs) {
+                if (auto f_name = appDir() + "/../include/mmcesim/" + alg + ".alg"; std::filesystem::exists(f_name)) {
+                    std::ifstream f(f_name);
+                    std::stringstream buf;
+                    buf << f.rdbuf();
+                    Alg a(buf.str(), macro_none, -1, -1, false, false, true,
+                          func_declare ? ALG_Opt::FUNCTION_DECLARATION : ALG_Opt::NONE);
+                    a.write(_f(), _langStr());
+                } else if (func_declare) {
+                    // TODO: If the algorithm cannot be found in official library.
+                    _log.info() << "Algorithm '" << alg << "' is not in the official library." << std::endl;
+                }
             }
         }
     }

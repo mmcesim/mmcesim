@@ -12,7 +12,7 @@
 #include "export/alg.h"
 
 Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, bool fail_fast, bool add_comment,
-         bool add_semicolon)
+         bool add_semicolon, ALG_Opt opt)
     : _macro(macro), _failed(false), _job_cnt(job_cnt), _add_semicolon(add_semicolon), _add_comment(add_comment) {
     std::string str_replaced_macro = macro.replaceMacro(str, job_cnt, alg_cnt);
     std::stringstream ss(str_replaced_macro);
@@ -31,7 +31,7 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, b
         } else {
             auto s = unterminated_line + line;
             try {
-                Alg_Line l(s);
+                Alg_Line l(s, opt);
                 if (!_failed) {
                     // If the status of 'failed' is true,
                     // the only aim of keeping parsing these lines
@@ -89,6 +89,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
     for (int i = 0; i < _lines.size(); ++i) { // use i because sometimes it will be -1 before adding 1.
         Alg_Line line           = _lines[i];
         const std::string& func = line.func();
+        bool is_func_declare    = line.isFunctionDeclaration();
+        if (is_func_declare) {
+            if (func.empty()) continue;
+            else if (func != "FUNCTION") {
+                _log.info() << "ALG ignoring function '" << func << "' (in function declaration)" << std::endl;
+                continue;
+            } else _log.info() << "ALG writing function declaration '" << func << "'" << std::endl;
+        }
         line.print(_log.write(), "[INFO] ");
         // clang-format off
         SWITCH_FUNC
@@ -492,12 +500,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         auto&& type = line.returns(0).type;
                         return_type = type.empty() ? "auto " : static_cast<Type>(type).string() + " ";
                     } else {
+                        auto&& type = line.returns(0).type;
+                        return_type = type.empty() ? "auto " : static_cast<Type>(type).string() + " ";
                         // TODO: multiple return values
                     }
                     f << return_type << _mi(0) << "(";
                     unsigned p = 10; // the number of parameters
                     while (--p != 0) {
-                        if (line.hasKey(std::string("p" + std::to_string(p)))) break;
+                        if (line.hasKey("p" + std::to_string(p))) break;
                     }
                     if (p > 0) {
                         for (unsigned i = 1; i != p; ++i) {
@@ -506,10 +516,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         }
                         f << paramType(line.params(p).type) << " " << _mi(p);
                     }
-                    if (s > 0) {
-                        f << ") {\n" << return_type << line.returns(0).name << ";\n";
+                    if (is_func_declare) {
+                        f << ");\n";
+                    } else {
+                        if (s > 0) {
+                            f << ") {\n" << return_type << line.returns(0).name << ";\n";
+                            _contents_at_end.push("return " + line.returns(0).name + ";");
+                        } else f << ") {\n";
                     }
-                    _contents_at_end.push("return " + line.returns(0).name + ";");
                 END_LANG
                 type_track++;
                 ++indent_cnt;
