@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.1
- * @date 2023-03-18
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
                       << "  sim [ simulate ]       run simulation\n"
                       << "  dbg [ debug ]          debug simulation settings\n"
                       << "  exp [ export ]         export code\n"
-                      << "  config                 configure mmCEsim options\n"
+                      << "  cfg [ config ]         configure mmCEsim options\n"
                       << "  (Leave empty)          generic use\n"
                       << std::endl;
             std::cout << visible << std::endl;
@@ -214,8 +214,8 @@ int main(int argc, char* argv[]) {
             _log.err() << "Formatting error. Astyle exit with code " << astyle_result << "." << std::endl;
             return errorCode(Err::ASTYLE_ERROR);
         }
-    } else if (opt.cmd == "config") {
-        _log.info() << "Config Mode [config]" << std::endl;
+    } else if (opt.cmd == "cfg" || opt.cmd == "config") {
+        _log.info() << "Config Mode [cfg]" << std::endl;
         if (vm.count("value")) {
             std::string msg;
             if (Config::edit(opt.input, opt.value, &msg)) {
