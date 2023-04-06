@@ -1,5 +1,51 @@
 // Generate Channel
 namespace mmce {
+
+// This is a patch for Armadillo by changing the randi operation.
+// https://gitlab.com/conradsnicta/armadillo-code/-/blob/11.4.x/include/armadillo_bits/fn_randperm.hpp?ref_type=heads#L24-79
+inline void internal_randperm_helper_(uvec& x, const uword N, const uword N_keep) {
+    typedef typename uvec::elem_type eT;
+
+    // see op_sort_index_bones.hpp for the definition of arma_sort_index_packet
+    // and the associated comparison functor
+
+    typedef arma_sort_index_packet<int> packet;
+
+    std::vector<packet> packet_vec(N);
+
+    std::uniform_int_distribution<int> int_dist;
+    std::mt19937 rng;
+
+    for (uword i = 0; i < N; ++i) {
+        packet_vec[i].val   = int(int_dist(rng)); // modified here!
+        packet_vec[i].index = i;
+    }
+
+    arma_sort_index_helper_ascend<int> comparator;
+
+    if (N >= 2) {
+        if (N_keep < N) {
+            typename std::vector<packet>::iterator first    = packet_vec.begin();
+            typename std::vector<packet>::iterator nth      = first + N_keep;
+            typename std::vector<packet>::iterator pastlast = packet_vec.end();
+
+            std::partial_sort(first, nth, pastlast, comparator);
+        } else {
+            std::sort(packet_vec.begin(), packet_vec.end(), comparator);
+        }
+    }
+
+    if (is_Row<uvec>::value) {
+        x.set_size(1, N_keep);
+    } else {
+        x.set_size(N_keep, 1);
+    }
+
+    eT* x_mem = x.memptr();
+
+    for (uword i = 0; i < N_keep; ++i) { x_mem[i] = eT(packet_vec[i].index); }
+}
+
 /**
  * @brief Safe version of randperm.
  *
@@ -10,8 +56,12 @@ namespace mmce {
  * @return (uvec) The number sequence.
  */
 inline uvec randperm_s(uword M, uword N) {
-    if (M >= N) return randperm(M, N);
-    else return randi<uvec>(N, distr_param(0, M - 1));
+    if (M >= N) {
+        uvec v;
+        internal_randperm_helper_(v, N, M);
+        return v;
+        // return randperm(M, N);
+    } else return randi<uvec>(N, distr_param(0, M - 1));
 }
 
 /**

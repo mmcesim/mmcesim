@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Simulate Class
  * @version 0.2.1
- * @date 2023-03-17
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -36,8 +36,8 @@ int Simulate::simulate() const {
             std::cout << "[mmcesim] simulate $ Code auto export finished." << std::endl;
             boost::process::ipstream is; // reading pipe-stream
             boost::process::child simulate_process("./a.out",
-                                                   boost::process::std_out > boost::process::null, // ignore output
-                                                   boost::process::std_err > is                    // keep error message
+                                                   boost::process::std_out > is,                  // keep output
+                                                   boost::process::std_err > boost::process::null // no error message
             );
             while (simulate_process.running() && std::getline(is, line) && !line.empty()) { std::cerr << line << "\n"; }
             simulate_process.wait();
