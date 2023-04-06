@@ -43,7 +43,7 @@ Commands:
   sim [ simulate ]       run simulation
   dbg [ debug ]          debug simulation settings
   exp [ export ]         export code
-  config                 configure mmCEsim options
+  cfg [ config ]         configure mmCEsim options
   (Leave empty)          generic use
 
 Allowed options:
