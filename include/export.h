@@ -185,7 +185,7 @@ class Export {
      */
     std::tuple<unsigned, unsigned, unsigned, unsigned, unsigned, unsigned> _getSize(const YAML::Node& n);
 
-    void _checkALGdependency(std::vector<std::string>& algs);
+    void _checkALGdependency(std::vector<std::string>& algs, bool logged = true);
 
     CLI_Options& _opt;
     YAML::Node _config;
