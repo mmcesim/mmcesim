@@ -83,9 +83,10 @@ conclusion: |
 simulation:
   backend: cpp # cpp (default) | matlab | octave | py
   metric: [NMSE] # used for compare
+  n_test: &N_TEST 20 # This is not mmCEsim extension, just a YAML specification
   jobs:
     - name: "NMSE v.s. SNR (Pilot: 24)"
-      test_num: 200
+      test_num: *N_TEST
       SNR: [0:2:30]
       SNR_mode: dB # dB (default) | linear
       pilot: 24
@@ -109,7 +110,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS
     - name: NMSE v.s. Pilot (0 dB)
-      test_num: 200
+      test_num: *N_TEST
       SNR: 0
       pilot: [24:4:64]
       algorithms: # compare different languages
@@ -131,7 +132,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS
     - name: NMSE v.s. Pilot (10 dB)
-      test_num: 200
+      test_num: *N_TEST
       SNR: 10
       pilot: [8:4:48]
       algorithms: # compare different languages
@@ -153,7 +154,7 @@ simulation:
         - alg: Oracle_LS
           label: Oracle LS
     - name: NMSE v.s. Pilot (20 dB)
-      test_num: 200
+      test_num: *N_TEST
       SNR: 20
       pilot: [8:4:48]
       algorithms: # compare different languages
