@@ -26,6 +26,8 @@
 #    include <unistd.h>       // readlink
 #endif
 
+using std::string_literals::operator""s;
+
 // https://stackoverflow.com/a/217605/15080514
 
 // trim from start (in place)

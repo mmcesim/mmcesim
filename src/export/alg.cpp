@@ -543,6 +543,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 type_track++;
                 ++indent_cnt;
                 _contents_at_end.push("");
+            CASE ("LOG")
+                std::string text;
+                if (line.params().size() > 1) {
+                    for (auto&& s : line.params()) text += _m(s.value) + ' ';
+                } else if (line.params().empty()) WARNING("Empty LOG content.");
+                else text = line.params(0).value;
+                trim(text);
+                _log.write() << removeQuote(text) << std::endl;
             CASE ("LOOP")
                 type_track++;
                 Keys keys { "begin", "end", "step", "from", "to" };
