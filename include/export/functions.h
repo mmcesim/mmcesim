@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Function Lists
  * @version 0.2.1
- * @date 2022-07-23
+ * @date 2023-04-06
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -17,20 +17,18 @@
 #include <string>
 
 static std::array functions_no_end = {
-    std::string("BRANCH"), std::string("BREAK"),    std::string("CALC"),  std::string("CALL"),   std::string("COMMENT"),
-    std::string("CPP"),    std::string("ESTIMATE"), std::string("INIT"),  std::string("MATLAB"), std::string("MERGE"),
-    std::string("NEW"),    std::string("OCTAVE"),   std::string("PRINT"), std::string("PYTHON"), std::string("RECOVER"),
+    "BRANCH"s, "BREAK"s,  "CALC"s,  "CALL"s, "COMMENT"s, "CPP"s,   "ESTIMATE"s, "INIT"s,
+    "LOG"s,    "MATLAB"s, "MERGE"s, "NEW"s,  "OCTAVE"s,  "PRINT"s, "PYTHON"s,   "RECOVER"s,
 };
 
 static std::array functions_needs_end = {
-    std::string("ELSE"),     std::string("ELIF"), std::string("FOR"),  std::string("FOREVER"),
-    std::string("FUNCTION"), std::string("IF"),   std::string("LOOP"), std::string("WHILE"),
+    "ELSE"s, "ELIF"s, "FOR"s, "FOREVER"s, "FUNCTION"s, "IF"s, "LOOP"s, "WHILE"s,
 };
 
 static std::array functions_is_end = {
-    std::string("END"),
-    std::string("ELSE"),
-    std::string("ELIF"),
+    "END"s,
+    "ELSE"s,
+    "ELIF"s,
 };
 
 static inline bool isFuncNoEnd(const std::string& str) noexcept { return contains(functions_no_end, str); }

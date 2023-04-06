@@ -1,7 +1,7 @@
 # MIMO_real.sim
 # Basic mmWave MIMO model
 # Author: Wuqiong Zhao
-# Date: 2023-03-18
+# Date: 2023-04-06
 
 version: 0.2.0 # the targeted mmCEsim version
 meta: # document meta data
@@ -12,7 +12,7 @@ meta: # document meta data
   email: contact@mmcesim.org
   website: https://mmcesim.org
   license: MIT
-  date: "2023-03-18"
+  date: "2023-04-06"
   comments: This is an uplink channel.
 physics:
   frequency: narrow # assume narrow band
@@ -52,6 +52,7 @@ sounding:
     channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
 preamble: |
   COMMENT Here starts the preamble.
+  LOG [INFO] A user-defined LOG message.
 estimation: |
   VNt::m = NEW `DICTIONARY.T`
   VNr::m = NEW `DICTIONARY.R`
