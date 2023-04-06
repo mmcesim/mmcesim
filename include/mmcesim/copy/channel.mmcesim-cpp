@@ -58,7 +58,7 @@ inline void internal_randperm_helper_(uvec& x, const uword N, const uword N_keep
 inline uvec randperm_s(uword M, uword N) {
     if (M >= N) {
         uvec v;
-        internal_randperm_helper_(v, N, M);
+        internal_randperm_helper_(v, M, N);
         return v;
         // return randperm(M, N);
     } else return randi<uvec>(N, distr_param(0, M - 1));
