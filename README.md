@@ -3,7 +3,7 @@
 ![Total Lines](https://tokei.tvj.one/b1/github/mmcesim/mmcesim?style=flat)
 [![License](https://img.shields.io/github/license/mmcesim/mmcesim)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)](https://github.com/mmcesim/mmcesim/releases/latest)
-[![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases/latest)
+[![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6912824.svg)](https://doi.org/10.5281/zenodo.6912824)
 <!-- ![Twitter](https://img.shields.io/twitter/follow/mmcesim?style=social) -->
 
