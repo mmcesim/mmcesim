@@ -32,7 +32,7 @@ jobs:
           cxx: "g++"
         - name: "macOS"
           artifact: "mmCEsim-CLI-macOS-x64.zip"
-          os: macos-12
+          os: macos-12-xl
           architecture: arm
           cc: "clang"
           cxx: "clang++"
@@ -331,7 +331,7 @@ jobs:
             os: ubuntu-latest
           - name: "macOS"
             artifact: "mmCEsim-CLI-macOS-x64.zip"
-            os: macos-12
+            os: macos-12-xl
     needs: release
 
     steps:
