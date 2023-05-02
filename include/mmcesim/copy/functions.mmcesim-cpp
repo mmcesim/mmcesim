@@ -79,6 +79,13 @@ inline cx_mat zeros(uword d1, uword d2) { return arma::zeros<cx_mat>(d1, d2); }
 
 inline cx_cube zeros(uword d1, uword d2, uword d3) { return arma::zeros<cx_cube>(d1, d2, d3); }
 
+template<typename T>
+void vec_push(arma::Col<T>& v, const T& x) {
+    arma::Col<T> av(1);
+    av.at(0) = x;
+    v.insert_rows(v.n_rows, av.row(0));
+}
+
 // iomanip center field
 // Reference: https://stackoverflow.com/a/14861289
 template <typename charT, typename traits = std::char_traits<charT>>

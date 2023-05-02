@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Channel_Graph Class
  * @version 0.2.1
- * @date 2023-03-18
+ * @date 2023-04-20
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,8 +12,8 @@
 #include "export/channel_graph.h"
 
 bool Channel_Graph::addChannel(const std::string& id, const std::string& from_, const std::string& to_) {
-    unsigned from_i = nodeIndex(from_);
-    unsigned to_i   = nodeIndex(to_);
+    auto from_i = nodeIndex(from_);
+    auto to_i   = nodeIndex(to_);
     if (from_i == MAX_INDEX || to_i == MAX_INDEX) return false;
     from.push_back(from_i);
     to.push_back(to_i);
@@ -22,15 +22,15 @@ bool Channel_Graph::addChannel(const std::string& id, const std::string& from_, 
     return true;
 }
 
-unsigned Channel_Graph::nodeIndex(const std::string& id) const {
-    for (unsigned i = 0; i != nodes.size(); ++i) {
+size_t Channel_Graph::nodeIndex(const std::string& id) const {
+    for (size_t i = 0; i != nodes.size(); ++i) {
         if (nodes[i] == id) return i;
     }
     return MAX_INDEX;
 }
 
-unsigned Channel_Graph::channelIndex(const std::string& id) const {
-    for (unsigned i = 0; i != channels.size(); ++i) {
+size_t Channel_Graph::channelIndex(const std::string& id) const {
+    for (size_t i = 0; i != channels.size(); ++i) {
         if (channels[i] == id) return i;
     }
     return MAX_INDEX;
@@ -48,27 +48,27 @@ bool Channel_Graph::arrange() {
     try {
         _formPaths({});
         if (paths.empty()) {
-            std::cerr << "[mmcesim] export $ ERROR: There is no valid path in the cascaded channel.\n";
+            std::cerr << "[mmcesim] export $ ERROR: There is no valid path in the cascaded channel." << std::endl;
             _log.err() << "There is no valid path in the cascaded channel." << std::endl;
             return false;
         } else return true;
     } catch (...) {
-        std::cerr << "[mmcesim] export $ ERROR: There are loops in the cascaded channel.\n";
+        std::cerr << "[mmcesim] export $ ERROR: There are loops in the cascaded channel." << std::endl;
         _log.err() << "There are loops in the cascaded channel." << std::endl;
         return false;
     }
 }
 
-void Channel_Graph::_formPaths(const std::vector<unsigned>& path) {
+void Channel_Graph::_formPaths(const std::vector<size_t>& path) {
     if (path.empty()) {
-        for (unsigned i = 0; i != channels.size(); ++i) {
+        for (size_t i = 0; i != channels.size(); ++i) {
             if (contains(Tx, from[i])) _formPaths({ i });
         }
     } else {
-        unsigned frontier = to[*(path.end() - 1)];
+        auto frontier = to[*(path.end() - 1)];
         // It forms a valid path when it reaches the Rx.
         if (contains(Rx, frontier)) paths.push_back(path);
-        for (unsigned i = 0; i != channels.size(); ++i) {
+        for (size_t i = 0; i != channels.size(); ++i) {
             if (from[i] == frontier) {
                 if (contains(path, i)) throw("Loop in the path!");
                 auto _path = path;
