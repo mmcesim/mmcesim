@@ -17,6 +17,7 @@
 #include "export/alg.h"
 #include "export/channel_graph.h"
 #include "export/keywords.h"
+#include "export/lang.h"
 #include "export/shared_info.h"
 #include "export/value_vec.h"
 #include "fmt.h"
@@ -40,19 +41,6 @@
 
 class Export {
   public:
-    /**
-     * @brief Export language.
-     *
-     * Options are CPP, MATLAB, PYTHON and IPYNB.
-     */
-    enum class Lang {
-        CPP,    ///< C++ with Armadillo library
-        MATLAB, ///< MATLAB
-        OCTAVE, ///< GNU Octave
-        PY,     ///< Python with NumPy library
-        IPYNB   ///< IPyNb with NumPy library
-    } lang = Lang::CPP;
-
     enum DType : unsigned {
         INT    = 1,    ///< int
         DOUBLE = 2,    ///< double
@@ -210,6 +198,8 @@ class Export {
 
     const int _MAX_TX = 1;
     const int _MAX_RX = 1;
+
+    Lang lang = Lang::CPP;
 };
 
 template <typename T>

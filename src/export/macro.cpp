@@ -66,6 +66,7 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
     }
     r = replace(r, "VERSION", std::to_string(_MMCESIM_VER));
     r = replace(r, "CAS_CH", _cascaded_channel);
+    for (const auto& [key, val] : _constants) r = replace(r, key, constantStr(val));
     for (const auto& [key, val] : beamforming) r = replace(r, "BF\\[" + key + "\\]", val);
     for (const auto& [key, val] : custom) r = replace(r, key, val, Type::USER);
     _log.flush();

@@ -12,6 +12,7 @@
 #ifndef _EXPORT_MACRO_H_
 #define _EXPORT_MACRO_H_
 
+#include "export/lang.h"
 #include "log_global.h"
 #include "meta.h"
 #include "utils.h"
@@ -44,6 +45,7 @@ struct Macro {
     std::map<std::string, std::string> beamforming;
     std::string _cascaded_channel;
     XY_Size _N, _B, _G;
+    Lang lang = Lang::CPP;
 
     std::string replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const;
 
@@ -54,6 +56,8 @@ struct Macro {
         USER_PRIORITY,
     };
 
+    const std::map<std::string, std::string> _constants = { { "CHS.PATHS_NUM", "paths_num" } };
+
     /**
      * @brief Get the name of Type.
      *
@@ -61,6 +65,8 @@ struct Macro {
      * @return (std::string) The name of Type.
      */
     std::string typeName(Type type) const noexcept;
+
+    std::string constantStr(const std::string& v) const;
 
   public:
     /**
@@ -87,6 +93,10 @@ inline std::string Macro::replace(const std::string& s, const std::string& key, 
     auto r = std::regex_replace(s, std::regex("`" + key + "`"), val);
     if (r != s) _log.info() << "Macro Replace (" << typeName(type) << "): " << key << " -> " << val << std::endl;
     return r;
+}
+
+inline std::string Macro::constantStr(const std::string& v) const {
+    return lang == Lang::CPP ? "mmCEsim_Consts\\:\\:"s + v : v;
 }
 
 #endif
