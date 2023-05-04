@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief ALG Macro
  * @version 0.2.1
- * @date 2023-03-17
+ * @date 2023-05-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -56,7 +56,11 @@ struct Macro {
         USER_PRIORITY,
     };
 
-    const std::map<std::string, std::string> _constants = { { "CHS.PATHS_NUM", "paths_num" } };
+    // TODO: This only applies to C++ only now, and needs to be extended.
+    const std::map<std::string, std::string> _constants = {
+        { R"(CHS\.PATHS_NUM)", "CHS_paths_num" },
+        { R"(CHS\.CHANNELS\[(.*\w+.*)\])", "CHS_channels[$1]" },
+    };
 
     /**
      * @brief Get the name of Type.
@@ -96,7 +100,11 @@ inline std::string Macro::replace(const std::string& s, const std::string& key, 
 }
 
 inline std::string Macro::constantStr(const std::string& v) const {
-    return lang == Lang::CPP ? "mmCEsim_Consts\\:\\:"s + v : v;
+    if (v.empty()) return "";
+    if (lang == Lang::CPP) {
+        if (*--v.end() == ']') return "(*mmCEsim_Consts_"s + v + ")";
+        else return "mmCEsim_Consts_"s + v;
+    } else return v;
 }
 
 #endif

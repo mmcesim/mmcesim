@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.1
- * @date 2023-05-04
+ * @date 2023-05-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -81,7 +81,6 @@ YAML_Errors Export::exportCode() {
     _setMaxTestNum();
     _setVarNames();
     _generateChannels();
-    _generateConstants();
     _algorithms();
     _sounding();
     _reporting();
@@ -381,14 +380,14 @@ void Export::_generateChannels() {
 }
 
 void Export::_generateConstants() {
-    auto start = [l = lang]() { return l == Lang::CPP ? "struct mmCEsim_Consts {\n"s : ""s; };
-    auto end   = [l = lang]() { return l == Lang::CPP ? "};\n"s : ""s; };
-    auto item  = [l = lang](std::string id, const auto& v) {
-        return l == Lang::CPP ? fmt::format("inline static const auto {} = {};\n", id, v) : ""s;
+    auto start = [l = lang]() { return l == Lang::CPP ? "// begin consts\n"s : ""s; };
+    auto end   = [l = lang]() { return l == Lang::CPP ? "// end consts\n"s : ""s; };
+    auto item  = [l = lang](std::string id, const auto& v, bool ref) {
+        return l == Lang::CPP ? fmt::format("{}auto mmCEsim_Consts_{} = {};\n", "const ", id, v) : ""s;
     };
     _f() << start();
     // _constants have type std::map<std::string, std::any>
-    for (const auto& [id, v] : _constants) { _f() << item(id, v); }
+    for (const auto& [id, v, ref] : _constants) { _f() << item(id, v, ref); }
     _f() << end() << std::endl;
 }
 
@@ -580,6 +579,7 @@ void Export::_sounding() {
                      << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy << ",(t+1)*"
                      << BNx * BNy * BMx * BMy << "-1)) = _y;}\n";
             }
+            _generateConstants();
             Macro macro;
             macro._cascaded_channel = _cascaded_channel;
             macro.beamforming       = _beamforming;
@@ -1040,7 +1040,20 @@ bool Export::_setCascadedChannel() {
     if (!_channel_graph.arrange()) {
         // TODO: Errors during arranging channel graph.
     }
-    _constants["paths_num"] = _channel_graph.pathsNum();
+    _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
+    std::string CHS_channels_str;
+    if (lang == Lang::CPP) CHS_channels_str += "{";
+    else CHS_channels_str += "[";
+    for (size_t i = 0; i != _channel_graph.channels.size(); ++i) {
+        if (lang == Lang::CPP) {
+            CHS_channels_str += "&" + _channel_graph.channels[i] + ", ";
+        } else {
+            CHS_channels_str += _channel_graph.channels[i] + ", ";
+        }
+    }
+    if (lang == Lang::CPP) CHS_channels_str += "}";
+    else CHS_channels_str += "]";
+    _constants.push_back({ "CHS_channels", CHS_channels_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;

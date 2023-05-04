@@ -130,5 +130,17 @@
         "version": "cpp",
         "__verbose_abort": "cpp"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "search.exclude": {
+        "ext/**": true,
+        "doc/**": true,
+        "test/**": true,
+        "misc/**": true,
+        "gui/**": true,
+        "bin/**": true,
+        "usr/**": true,
+        "build/**": true,
+        "Testing/**": true,
+        "build-*/**": true,
+    },
 }
