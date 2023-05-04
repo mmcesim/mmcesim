@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Simulate Generated Code
  * @version 0.2.1
- * @date 2022-10-12
+ * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -20,7 +20,7 @@
 #pragma GCC diagnostic push
 #include <boost/process.hpp>
 #pragma GCC diagnostic pop
-#include <fmt/core.h>
+#include "fmt.h"
 #include <iostream>
 #include <string>
 

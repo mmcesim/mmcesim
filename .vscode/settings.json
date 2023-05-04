@@ -127,7 +127,8 @@
         "armadillo": "cpp",
         "__functional_base_03": "cpp",
         "__std_stream": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "__verbose_abort": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

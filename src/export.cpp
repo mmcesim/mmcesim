@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.1
- * @date 2023-04-06
+ * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -81,6 +81,7 @@ YAML_Errors Export::exportCode() {
     _setMaxTestNum();
     _setVarNames();
     _generateChannels();
+    _generateConstants();
     _algorithms();
     _sounding();
     _reporting();
@@ -377,6 +378,18 @@ void Export::_generateChannels() {
     }
     if (lang == Lang::CPP) { _f() << "}return true;}}\n\n"; }
     // TODO: Generate channels.
+}
+
+void Export::_generateConstants() {
+    auto start = [l = lang]() { return l == Lang::CPP ? "struct mmCEsim_Consts {\n"s : ""s; };
+    auto end   = [l = lang]() { return l == Lang::CPP ? "};\n"s : ""s; };
+    auto item  = [l = lang](std::string id, const auto& v) {
+        return l == Lang::CPP ? fmt::format("inline static const auto {} = {};\n", id, v) : ""s;
+    };
+    _f() << start();
+    // _constants have type std::map<std::string, std::any>
+    for (const auto& [id, v] : _constants) { _f() << item(id, v); }
+    _f() << end() << std::endl;
 }
 
 void Export::_algorithms() {
@@ -1027,6 +1040,7 @@ bool Export::_setCascadedChannel() {
     if (!_channel_graph.arrange()) {
         // TODO: Errors during arranging channel graph.
     }
+    _constants["paths_num"] = _channel_graph.pathsNum();
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;

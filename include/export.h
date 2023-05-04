@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Export mmCEsim Configuration to Other Programming Languages
  * @version 0.2.1
- * @date 2023-04-06
+ * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -19,15 +19,16 @@
 #include "export/keywords.h"
 #include "export/shared_info.h"
 #include "export/value_vec.h"
+#include "fmt.h"
 #include "read.h"
 #include "term.h"
 #include "utils.h"
 #include <algorithm>
+#include <any>
 #include <boost/algorithm/string.hpp>
 #include <ctime>
 #include <exception>
 #include <filesystem>
-#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -131,6 +132,8 @@ class Export {
 
     void _generateChannels();
 
+    void _generateConstants();
+
     void _algorithms();
 
     void _sounding();
@@ -203,6 +206,7 @@ class Export {
     std::vector<std::string> _beamforming_RIS;
     std::map<std::string, std::string> _beamforming;
     Channel_Graph _channel_graph;
+    std::map<std::string, std::any> _constants;
 
     const int _MAX_TX = 1;
     const int _MAX_RX = 1;
