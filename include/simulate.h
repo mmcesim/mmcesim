@@ -15,9 +15,9 @@
 #include "_boost_config.h"
 #include "config.h"
 #include "export/shared_info.h"
+#include "fmt.h"
 #include "log_global.h"
 #include "utils.h"
-#include "fmt.h"
 #pragma GCC diagnostic ignored "-Wc++11-narrowing"
 #pragma GCC diagnostic push
 #include <boost/process.hpp>

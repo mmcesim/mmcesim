@@ -9,8 +9,8 @@
  *
  */
 
-#include "_boost_config.h"
 #include "maintain.h"
+#include "_boost_config.h"
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/program_options.hpp>
 
