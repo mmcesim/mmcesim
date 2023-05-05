@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Utilities
  * @version 0.2.1
- * @date 2022-07-11
+ * @date 2023-05-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #ifndef __linux__
+#    include "_boost_config.h"
 #    include <boost/dll/runtime_symbol_info.hpp>
 #else
 #    include <libgen.h>       // dirname

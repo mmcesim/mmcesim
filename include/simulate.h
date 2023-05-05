@@ -12,15 +12,16 @@
 #ifndef _SIMULATE_H_
 #define _SIMULATE_H_
 
+#include "_boost_config.h"
 #include "config.h"
 #include "export/shared_info.h"
 #include "log_global.h"
 #include "utils.h"
+#include "fmt.h"
 #pragma GCC diagnostic ignored "-Wc++11-narrowing"
 #pragma GCC diagnostic push
 #include <boost/process.hpp>
 #pragma GCC diagnostic pop
-#include "fmt.h"
 #include <iostream>
 #include <string>
 

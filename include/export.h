@@ -12,6 +12,7 @@
 #ifndef _EXPORT_H_
 #define _EXPORT_H_
 
+#include "_boost_config.h"
 #include "cli_options.h"
 #include "error_code.h"
 #include "export/alg.h"

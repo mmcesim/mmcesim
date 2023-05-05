@@ -12,6 +12,7 @@
 #ifndef _EXPORT_ALG_H_
 #define _EXPORT_ALG_H_
 
+#include "_boost_config.h"
 #include "export/alg_line.h"
 #include "export/alg_opt.h"
 #include "export/calc.h"

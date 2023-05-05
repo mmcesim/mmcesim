@@ -9,6 +9,7 @@
  *
  */
 
+#include "_boost_config.h"
 #include "meta.h"
 #include <boost/process.hpp>
 #include <fstream>

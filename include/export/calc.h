@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Make Calculation in Alg
  * @version 0.2.1
- * @date 2023-03-17
+ * @date 2023-05-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,6 +12,7 @@
 #ifndef _EXPORT_CALC_H_
 #define _EXPORT_CALC_H_
 
+#include "_boost_config.h"
 #include "export/type_track_global.h"
 #include "log_global.h"
 #include "utils.h"

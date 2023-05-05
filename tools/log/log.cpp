@@ -3,12 +3,13 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief mmCEsim Log Tool
  * @version 0.2.1
- * @date 2023-03-31
+ * @date 2023-05-06
  *
  * @copyright Copyright (c) 2023 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
+#include "_boost_config.h"
 #include "log.h"
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/program_options.hpp>

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Format Output File
  * @version 0.2.1
- * @date 2022-07-17
+ * @date 2023-05-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,14 +12,15 @@
 #ifndef _STYLE_H_
 #define _STYLE_H_
 
+#include "_boost_config.h"
+#include "error_code.h"
+#include "utils.h"
 #include <iostream>
 #include <string>
 #pragma GCC diagnostic ignored "-Wc++11-narrowing"
 #pragma GCC diagnostic push
 #include <boost/process.hpp>
 #pragma GCC diagnostic pop
-#include "error_code.h"
-#include "utils.h"
 
 /**
  * @brief Style (format) generated code.
