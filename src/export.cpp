@@ -1041,32 +1041,32 @@ bool Export::_setCascadedChannel() {
         // TODO: Errors during arranging channel graph.
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
-    std::string CHS_channels_str, CHS_channels_id_str;
-    if (lang == Lang::CPP) {
-        CHS_channels_str += "{";
-        CHS_channels_id_str += "{";
-    } else {
-        CHS_channels_str += "[";
-        CHS_channels_id_str += "{";
-    }
-    for (size_t i = 0; i != _channel_graph.channels.size(); ++i) {
+    std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str;
+    std::array str = { &CHS_channels_str, &CHS_channels_id_str, &CHS_nodes_id_str };
+    if (lang == Lang::CPP)
+        for (auto&& s : str) *s += "{";
+    else
+        for (auto&& s : str) *s += "[";
+    for (auto&& ch : _channel_graph.channels) {
         if (lang == Lang::CPP) {
-            CHS_channels_str += "&" + _channel_graph.channels[i] + ", ";
-            CHS_channels_id_str += "\"" + _channel_graph.channels[i] + "\", ";
+            CHS_channels_str += "&" + ch + ", ";
+            CHS_channels_id_str += "\"" + ch + "\", ";
         } else {
-            CHS_channels_str += _channel_graph.channels[i] + ", ";
-            CHS_channels_id_str += "\"" + _channel_graph.channels[i] + "\", ";
+            CHS_channels_str += ch + ", ";
+            CHS_channels_id_str += "\"" + ch + "\", ";
         }
     }
-    if (lang == Lang::CPP) {
-        CHS_channels_str += "}";
-        CHS_channels_id_str += "}";
-    } else {
-        CHS_channels_str += "]";
-        CHS_channels_id_str += "]";
+    for (auto&& n : _channel_graph.nodes) {
+        if (lang == Lang::CPP) CHS_nodes_id_str += "\"" + n + "\", ";
+        else CHS_nodes_id_str += "\"" + n + "\", ";
     }
+    if (lang == Lang::CPP)
+        for (auto&& s : str) *s += "}";
+    else
+        for (auto&& s : str) *s += "]";
     _constants.push_back({ "CHS_channels", CHS_channels_str, true });
     _constants.push_back({ "CHS_channels_id", CHS_channels_id_str, true });
+    _constants.push_back({ "CHS_nodes_id", CHS_nodes_id_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;

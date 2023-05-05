@@ -61,6 +61,7 @@ struct Macro {
         { R"(CHS\.PATHS_NUM)", "CHS_paths_num" },
         { R"(CHS\.CHANNELS\[(.*\w+.*)\])", "CHS_channels[$1]" },
         { R"(CHS\.CHANNELS\[(.*\w+.*)\]\.ID)", "CHS_channels_id[$1]" },
+        { R"(CHS\.NODES\[(.*\w+.*)\]\.ID)", "CHS_nodes_id[$1]" },
     };
 
     /**
