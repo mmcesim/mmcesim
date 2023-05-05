@@ -15,6 +15,7 @@
 #define _FMT_H_
 
 #include <any>
+#include <cassert>
 #include <fmt/core.h>
 #include <fmt/format.h>
 
