@@ -54,6 +54,7 @@ preamble: |
   COMMENT Here starts the preamble.
   COMMENT CHS.PATHS_NUM: `CHS.PATHS_NUM`
   COMMENT CHS.CHANNELS[0]: `CHS.CHANNELS[0]`
+  COMMENT CHS.CHANNELS[1 - 1].ID: `CHS.CHANNELS[1 - 1].ID`
   LOG [INFO] A user-defined LOG message.
 estimation: |
   VNt::m = NEW `DICTIONARY.T`

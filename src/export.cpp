@@ -1041,19 +1041,32 @@ bool Export::_setCascadedChannel() {
         // TODO: Errors during arranging channel graph.
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
-    std::string CHS_channels_str;
-    if (lang == Lang::CPP) CHS_channels_str += "{";
-    else CHS_channels_str += "[";
+    std::string CHS_channels_str, CHS_channels_id_str;
+    if (lang == Lang::CPP) {
+        CHS_channels_str += "{";
+        CHS_channels_id_str += "{";
+    } else {
+        CHS_channels_str += "[";
+        CHS_channels_id_str += "{";
+    }
     for (size_t i = 0; i != _channel_graph.channels.size(); ++i) {
         if (lang == Lang::CPP) {
             CHS_channels_str += "&" + _channel_graph.channels[i] + ", ";
+            CHS_channels_id_str += "\"" + _channel_graph.channels[i] + "\", ";
         } else {
             CHS_channels_str += _channel_graph.channels[i] + ", ";
+            CHS_channels_id_str += "\"" + _channel_graph.channels[i] + "\", ";
         }
     }
-    if (lang == Lang::CPP) CHS_channels_str += "}";
-    else CHS_channels_str += "]";
+    if (lang == Lang::CPP) {
+        CHS_channels_str += "}";
+        CHS_channels_id_str += "}";
+    } else {
+        CHS_channels_str += "]";
+        CHS_channels_id_str += "]";
+    }
     _constants.push_back({ "CHS_channels", CHS_channels_str, true });
+    _constants.push_back({ "CHS_channels_id", CHS_channels_id_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;
