@@ -1041,9 +1041,9 @@ bool Export::_setCascadedChannel() {
         // TODO: Errors during arranging channel graph.
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
-    std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_size_str;
+    std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_jumps_num_str, CHS_i_size_str;
     std::array str = { &CHS_channels_str, &CHS_channels_id_str, &CHS_nodes_id_str,
-                       &CHS_from_str,     &CHS_to_str,          &CHS_i_size_str };
+                       &CHS_from_str,     &CHS_to_str,        &CHS_i_jumps_num_str,  &CHS_i_size_str };
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "{";
     else
@@ -1063,7 +1063,10 @@ bool Export::_setCascadedChannel() {
     }
     for (auto&& i : _channel_graph.from) CHS_from_str += std::to_string(i) + ", ";
     for (auto&& i : _channel_graph.to) CHS_to_str += std::to_string(i) + ", ";
-    for (auto&& path : _channel_graph.paths) CHS_i_size_str += std::to_string(path.size()) + ", ";
+    for (auto&& path : _channel_graph.paths) {
+        CHS_i_jumps_num_str += std::to_string(path.size() - 1) + ", ";
+        CHS_i_size_str += std::to_string(path.size()) + ", ";
+    }
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "}";
     else
@@ -1073,6 +1076,7 @@ bool Export::_setCascadedChannel() {
     _constants.push_back({ "CHS_nodes_id", CHS_nodes_id_str, true });
     _constants.push_back({ "CHS_from", CHS_from_str, true });
     _constants.push_back({ "CHS_to", CHS_to_str, true });
+    _constants.push_back({ "CHS_i_jumps_num", CHS_i_jumps_num_str, true });
     _constants.push_back({ "CHS_i_size", CHS_i_size_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;

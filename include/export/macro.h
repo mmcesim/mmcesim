@@ -64,6 +64,7 @@ struct Macro {
         { R"(CHS\.NODES\[(.*\w+.*)\]\.ID)", "CHS_nodes_id[$1]" },
         { R"(CHS\.FROM\[(.*\w+.*)\])", "CHS_from[$1]" },
         { R"(CHS\.TO\[(.*\w+.*)\])", "CHS_to[$1]" },
+        { R"(CHS\[(.*\w+.*)\]\.JUMPS_NUM)", "CHS_i_jumps_num[$1]" },
         { R"(CHS\[(.*\w+.*)\]\.SIZE)", "CHS_i_size[$1]" },
     };
 
