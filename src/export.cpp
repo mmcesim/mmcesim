@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.1
- * @date 2023-05-05
+ * @date
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -1041,8 +1041,9 @@ bool Export::_setCascadedChannel() {
         // TODO: Errors during arranging channel graph.
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
-    std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str;
-    std::array str = { &CHS_channels_str, &CHS_channels_id_str, &CHS_nodes_id_str, &CHS_from_str, &CHS_to_str };
+    std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_size_str;
+    std::array str = { &CHS_channels_str, &CHS_channels_id_str, &CHS_nodes_id_str,
+                       &CHS_from_str,     &CHS_to_str,          &CHS_i_size_str };
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "{";
     else
@@ -1060,8 +1061,9 @@ bool Export::_setCascadedChannel() {
         if (lang == Lang::CPP) CHS_nodes_id_str += "\"" + n + "\", ";
         else CHS_nodes_id_str += "\"" + n + "\", ";
     }
-    for (auto&& i : _channel_graph.from) CHS_from_str += mmce::to_string(i) + ", ";
-    for (auto&& i : _channel_graph.to) CHS_to_str += mmce::to_string(i) + ", ";
+    for (auto&& i : _channel_graph.from) CHS_from_str += std::to_string(i) + ", ";
+    for (auto&& i : _channel_graph.to) CHS_to_str += std::to_string(i) + ", ";
+    for (auto&& path : _channel_graph.paths) CHS_i_size_str += std::to_string(path.size()) + ", ";
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "}";
     else
@@ -1071,6 +1073,7 @@ bool Export::_setCascadedChannel() {
     _constants.push_back({ "CHS_nodes_id", CHS_nodes_id_str, true });
     _constants.push_back({ "CHS_from", CHS_from_str, true });
     _constants.push_back({ "CHS_to", CHS_to_str, true });
+    _constants.push_back({ "CHS_i_size", CHS_i_size_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;

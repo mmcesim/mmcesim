@@ -59,6 +59,7 @@ preamble: |
   COMMENT CHS.NODES[x_tmp * 2 + 2].ID: `CHS.NODES[x_tmp * 2 + 2].ID`
   COMMENT CHS.FROM[ 0 ]: `CHS.FROM[ 0 ]`
   COMMENT CHS.TO[ 1 ]: `CHS.TO[ 1 ]`
+  COMMENT CHS[0].SIZE: `CHS[0].SIZE`
   LOG [INFO] A user-defined LOG message.
 estimation: |
   VNt::m = NEW `DICTIONARY.T`
