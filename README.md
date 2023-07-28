@@ -9,7 +9,7 @@
 
 CLI & GUI Application for Millimeter Wave Channel Estimation Simulation
 
-> [!IMPORTANT]
+> [!IMPORTANT]\
 > This application is currently under active development.
 
 ## Citation
@@ -89,7 +89,7 @@ cd build
 make
 sudo make install
 ```
-> [!NOTE]
+> [!NOTE]\
 > The option `--recurse-submodules` is required because some dependencies of mmCEsim are managed by Git submodules.
 
 You need to have Boost Library (v1.70 or higher) to compile.
