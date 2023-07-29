@@ -12,8 +12,8 @@
 #include "log.h"
 
 namespace mmcesim::_log {
-std::ofstream _streamFromLogFile(std::string filename) {
-    std::cout << "Writing log to " << dataDir() + "/mmcesim.log" << std::endl;
+std::ofstream _streamFromLogFile(const std::string& filename) {
+    // std::cout << "Writing log to " << dataDir() + "/mmcesim.log" << std::endl;
     std::filesystem::path path(filename);
     if (auto p = path.parent_path(); !std::filesystem::exists(p)) {
         if (!std::filesystem::create_directories(p)) {
