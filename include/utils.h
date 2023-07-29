@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Utilities
  * @version 0.2.1
- * @date 2022-07-11
+ * @date 2023-07-29
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -24,6 +24,11 @@
 #    include <libgen.h>       // dirname
 #    include <linux/limits.h> // PATH_MAX
 #    include <unistd.h>       // readlink
+#endif
+#ifndef _WIN32
+#    include <pwd.h>
+#    include <sys/types.h>
+#    include <unistd.h>
 #endif
 
 using std::string_literals::operator""s;
@@ -131,6 +136,13 @@ static inline bool contains(const T& container, const typename T::value_type val
     return false;
 }
 
+#ifndef _WIN32
+static inline std::string homeDir() {
+    const char* homedir = std::getenv("HOME");
+    return (homedir && homedir[0] != '~') ? homedir : getpwuid(getuid())->pw_dir;
+}
+#endif
+
 // get the application directory
 static inline std::string appDir() {
 #ifndef __linux__
@@ -142,6 +154,19 @@ static inline std::string appDir() {
     const char* path      = "";
     if (count != -1) path = dirname(result);
     return path;
+#endif
+}
+
+// get the data directory (i.e., log file directory)
+static inline std::string dataDir() {
+#ifdef _WIN32
+    return appDir();
+#else
+    // Reference: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    const char* XDG_DATA_HOME = std::getenv("XDG_DATA_HOME");
+    return XDG_DATA_HOME ? (XDG_DATA_HOME[0] == '~' ? homeDir() + std::string(XDG_DATA_HOME).substr(1)
+                                                    : std::string(XDG_DATA_HOME))
+                         : homeDir() + "/.local/share";
 #endif
 }
 
