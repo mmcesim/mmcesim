@@ -16,10 +16,10 @@
 #include "term.h"
 #include "utils.h"
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <spy.hpp>
-#include <filesystem>
 
 /**
  * @brief Log support during compilation.
