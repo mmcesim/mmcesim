@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Config Class
  * @version 0.2.1
- * @date 2023-04-06
+ * @date 2023-08-07
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -31,7 +31,7 @@ bool Config::set(const std::string& key, const std::string& v) noexcept {
 }
 
 bool Config::write() const {
-    std::ofstream f(appDir() + "/mmcesim.cfg");
+    std::ofstream f(dataDir() + "/mmcesim.cfg");
     if (f.is_open()) {
         try {
             f << _config;
@@ -68,7 +68,7 @@ bool Config::edit(const std::string& key, const std::string& v, std::string* msg
 
 bool Config::_load() {
     try {
-        _config = YAML::LoadFile(appDir() + "/mmcesim.cfg");
+        _config = YAML::LoadFile(dataDir() + "/mmcesim.cfg");
         return true;
     } catch (...) { return false; }
 }
