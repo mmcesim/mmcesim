@@ -12,9 +12,9 @@
 
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{l3keys2e}
-\ProvidesExplClass{simreport}{2023/04/06}{0.2.1}{Simulation Report}
+\ProvidesExplClass{simreport}{2023/08/10 }{0.2.2}{Simulation Report}
 
-\str_const:Nn \c__simreport_mmcesim_ver_str { 0.2.1 }
+\str_const:Nn \c__simreport_mmcesim_ver_str { 0.2.2 }
 \str_const:Nn \c__simreport_base_class_str { article }
 
 \keys_define:nn { simreport }

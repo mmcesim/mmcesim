@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(mmCEsim VERSION 0.2.1)
+project(mmCEsim VERSION 0.2.2)
 
 option(MMCESIM_BUILD_ASTYLE   "Build astyle Code Formatter"             ON )
 option(MMCESIM_BUILD_COMPOSE  "Build composition tool"                  ON )

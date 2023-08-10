@@ -2,7 +2,7 @@
  * @file meta.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief mmCEsim meta data
- * @version 0.2.1
+ * @version 0.2.2
  * @date 2023-03-31
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
