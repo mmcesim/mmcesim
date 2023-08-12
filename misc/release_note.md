@@ -21,5 +21,5 @@
 
 Contributed by @Teddy-van-Jerry and @mmcesim-bot, for version 0.2.2 release ([#73](https://github.com/mmcesim/mmcesim/issues/73)).
 
-[^1]: W. Zhao, Y. You, L. Zhang, X. You, and C. Zhang, “OMPL-SBL algorithm for intelligent reflecting surface-aided mmWave channel estimation”, *IEEE Trans. Veh. Technol.*, 2023, to be published. DOI: [10.1109/TVT.2023.3287400](https://doi.org/https://doi.org/10.1109/TVT.2023.3287400).
+[^1]: W. Zhao, Y. You, L. Zhang, X. You, and C. Zhang, “OMPL-SBL algorithm for intelligent reflecting surface-aided mmWave channel estimation”, *IEEE Trans. Veh. Technol.*, 2023, to be published. DOI: [10.1109/TVT.2023.3287400](https://doi.org/10.1109/TVT.2023.3287400).
 [^2]: Y. You, W. Zhao, L. Zhang, X. You, and C. Zhang, “Beam pattern and reflection pattern design for channel estimation in RIS-assisted mmWave MIMO systems”, *IEEE Trans. Veh. Technol.*, 2023, to be published.
