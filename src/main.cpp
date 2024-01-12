@@ -88,8 +88,8 @@ int main(int argc, char* argv[]) {
         po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
         if (vm.count("no-term-color")) Term::disable();
         if (vm.count("help")) {
-            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR
-                      << "  (C) " + _MMCESIM_YEARS + " " << _MMCESIM_AUTHOR << '\n'
+            std::cout << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << "  (C) " + _MMCESIM_YEARS + " " << _MMCESIM_AUTHOR
+                      << '\n'
                       << _MMCESIM_DESCR << std::endl;
             std::cout << std::string(45, '=') << "\n" << std::endl;
             std::cout << "Usage: " << argv[0] << " <command> <input> [options]\n" << std::endl;
