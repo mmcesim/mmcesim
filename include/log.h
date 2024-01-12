@@ -2,8 +2,8 @@
  * @file log.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Log Utilities
- * @version 0.2.1
- * @date 2023-03-17
+ * @version 0.2.2
+ * @date 2023-07-29
  *
  * @copyright Copyright (c) 2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -16,6 +16,7 @@
 #include "term.h"
 #include "utils.h"
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <spy.hpp>

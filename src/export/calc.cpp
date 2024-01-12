@@ -2,7 +2,7 @@
  * @file calc.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Calc Class
- * @version 0.2.1
+ * @version 0.2.2
  * @date 2023-04-20
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

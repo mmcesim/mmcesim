@@ -3,14 +3,14 @@
 ![Total Lines](https://tokei.tvj.one/b1/github/mmcesim/mmcesim?style=flat)
 [![License](https://img.shields.io/github/license/mmcesim/mmcesim)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/mmcesim/mmcesim?include_prereleases)](https://github.com/mmcesim/mmcesim/releases/latest)
-[![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases/latest)
+[![Download](https://img.shields.io/github/downloads/mmcesim/mmcesim/total)](https://github.com/mmcesim/mmcesim/releases)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6912824.svg)](https://doi.org/10.5281/zenodo.6912824)
 <!-- ![Twitter](https://img.shields.io/twitter/follow/mmcesim?style=social) -->
 
 CLI & GUI Application for Millimeter Wave Channel Estimation Simulation
 
-> **Note** This application is currently under active development.
-> The task-oriented method will be published after the patent is accepted.
+> [!IMPORTANT]\
+> This application is currently under active development.
 
 ## Citation
 Find mmCEsim useful to your research?
@@ -33,7 +33,7 @@ You may consider citing it[^1]:
 ## Usage
 ```console
 $ mmcesim -h
-mmCEsim 0.2.1  (C) 2022-2023 Wuqiong Zhao
+mmCEsim 0.2.2  (C) 2022-2023 Wuqiong Zhao
 Millimeter Wave Channel Estimation Simulation
 =============================================
 
@@ -89,7 +89,8 @@ cd build
 make
 sudo make install
 ```
-> **Note** The option `--recurse-submodules` is required because some dependencies of mmCEsim are managed by Git submodules.
+> [!NOTE]\
+> The option `--recurse-submodules` is required because some dependencies of mmCEsim are managed by Git submodules.
 
 You need to have Boost Library (v1.70 or higher) to compile.
 If you want to build the GUI app as well, you need to install Qt6.

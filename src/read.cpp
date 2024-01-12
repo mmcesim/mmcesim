@@ -2,7 +2,7 @@
  * @file read.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of class YAML_Error and ReadConfig
- * @version 0.2.1
+ * @version 0.2.2
  * @date 2022-07-12
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

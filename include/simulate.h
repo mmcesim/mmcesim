@@ -2,7 +2,7 @@
  * @file simulate.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Simulate Generated Code
- * @version 0.2.1
+ * @version 0.2.2
  * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
