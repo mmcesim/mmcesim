@@ -13,8 +13,9 @@
 - Fix warnings due to Boost Library's use of deprecated functions ([#66](https://github.com/mmcesim/mmcesim/issues/66)).
 
 ## News
+- The research paper entitled ‘Beam Pattern and Reflection Pattern Design for Channel Estimation in RIS-assisted mmWave MIMO Systems’ [^2] is online as an early access paper of *IEEE Transactions on Vehicular Technology* (Sep. 8, 2023).
 - The research paper entitled ‘Beam Pattern and Reflection Pattern Design for Channel Estimation in RIS-assisted mmWave MIMO Systems’ [^2] has been accepted by *IEEE Transactions on Vehicular Technology* (May 21, 2023).
-- The research paper entitled ‘OMPL-SBL Algorithm for Intelligent Reflecting Surface-Aided mmWave Channel Estimation’ [^1] is online as an early access paper of *IEEE Transactions on Vehicular Technology* (Jun. 27, 2023): https://ieeexplore.ieee.org/abstract/document/10164645 ([#69](https://github.com/mmcesim/mmcesim/discussions/69))
+- The research paper entitled ‘OMPL-SBL Algorithm for Intelligent Reflecting Surface-Aided mmWave Channel Estimation’ [^1] is online as an early access paper of *IEEE Transactions on Vehicular Technology* (Jun. 27, 2023): https://ieeexplore.ieee.org/document/10164645 ([#69](https://github.com/mmcesim/mmcesim/discussions/69))
 
 > [!NOTE]\
 > x86 and x64 binaries are built automatically by GitHub Actions; The macOS arm binary is built manually on macOS with M1 chip.
