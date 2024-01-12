@@ -13,13 +13,14 @@
 - Fix warnings due to Boost Library's use of deprecated functions ([#66](https://github.com/mmcesim/mmcesim/issues/66)).
 
 ## News
+- The research paper entitled ‘Beam Pattern and Reflection Pattern Design for Channel Estimation in RIS-assisted mmWave MIMO Systems’ [^2] is online as an early access paper of *IEEE Transactions on Vehicular Technology* (Sep. 8, 2023): https://ieeexplore.ieee.org/document/10243635 ([#79](https://github.com/mmcesim/mmcesim/discussions/79)).
 - The research paper entitled ‘Beam Pattern and Reflection Pattern Design for Channel Estimation in RIS-assisted mmWave MIMO Systems’ [^2] has been accepted by *IEEE Transactions on Vehicular Technology* (May 21, 2023).
-- The research paper entitled ‘OMPL-SBL Algorithm for Intelligent Reflecting Surface-Aided mmWave Channel Estimation’ [^1] is online as an early access paper of *IEEE Transactions on Vehicular Technology* (Jun. 27, 2023): https://ieeexplore.ieee.org/abstract/document/10164645 ([#69](https://github.com/mmcesim/mmcesim/discussions/69))
+- The research paper entitled ‘OMPL-SBL Algorithm for Intelligent Reflecting Surface-Aided mmWave Channel Estimation’ [^1] is online as an early access paper of *IEEE Transactions on Vehicular Technology* (Jun. 27, 2023): https://ieeexplore.ieee.org/document/10164645 ([#69](https://github.com/mmcesim/mmcesim/discussions/69)).
 
-> [!NOTE]\
+> [!NOTE]
 > x86 and x64 binaries are built automatically by GitHub Actions; The macOS arm binary is built manually on macOS with M1 chip.
 
 Contributed by @Teddy-van-Jerry and @mmcesim-bot, for version 0.2.2 release ([#73](https://github.com/mmcesim/mmcesim/issues/73)).
 
-[^1]: W. Zhao, Y. You, L. Zhang, X. You, and C. Zhang, “OMPL-SBL algorithm for intelligent reflecting surface-aided mmWave channel estimation”, *IEEE Trans. Veh. Technol.*, 2023, to be published. DOI: [10.1109/TVT.2023.3287400](https://doi.org/10.1109/TVT.2023.3287400).
-[^2]: Y. You, W. Zhao, L. Zhang, X. You, and C. Zhang, “Beam pattern and reflection pattern design for channel estimation in RIS-assisted mmWave MIMO systems”, *IEEE Trans. Veh. Technol.*, 2023, to be published.
+[^1]: W. Zhao, Y. You, L. Zhang, X. You, and C. Zhang, “OMPL-SBL algorithm for intelligent reflecting surface-aided mmWave channel estimation”, *IEEE Trans. Veh. Technol.*, vol. 72, no. 11, Nov. 2023, pp. 15121-15126. DOI: [10.1109/TVT.2023.3287400](https://doi.org/10.1109/TVT.2023.3287400).
+[^2]: Y. You, W. Zhao, L. Zhang, X. You, and C. Zhang, “Beam pattern and reflection pattern design for channel estimation in RIS-assisted mmWave MIMO systems”, *IEEE Trans. Veh. Technol.*, 2023, to be published, DOI: [10.1109/TVT.2023.3309950](https://doi.org/10.1109/TVT.2023.3309950).
