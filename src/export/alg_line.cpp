@@ -3,14 +3,13 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
 #include "export/alg_line.h"
-#include <iostream>
 
 Alg_Line::Alg_Line(const std::string& str, ALG_Opt opt) : _raw_str(str), _opt(opt) {
     std::string s = str;
@@ -172,10 +171,10 @@ void Alg_Line::_processReturns(const std::vector<std::string>& v) {
         }
         Return_Type r;
         if (has_type) {
-            r.name = s.substr(0, type_loc);
+            r.name = _decodeEscape(s.substr(0, type_loc));
             r.type = s.substr(type_loc + 2);
         } else {
-            r.name = s;
+            r.name = _decodeEscape(s);
             r.type = "";
         }
         _returns.push_back(r);
@@ -243,10 +242,10 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
             }
         }
         if (has_type) {
-            p.value = s.substr(start_index_of_value, type_loc);
+            p.value = _decodeEscape(s.substr(start_index_of_value, type_loc));
             p.type  = s.substr(type_loc + 2);
         } else {
-            p.value = s.substr(start_index_of_value);
+            p.value = _decodeEscape(s.substr(start_index_of_value));
             p.type  = "";
         }
         _params.push_back(p);

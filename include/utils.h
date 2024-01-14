@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #ifndef __linux__
+#    include "_boost_config.h"
 #    include <boost/dll/runtime_symbol_info.hpp>
 #else
 #    include <libgen.h>       // dirname

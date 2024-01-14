@@ -1,9 +1,9 @@
 # MIMO_real.sim
 # Basic mmWave MIMO model
 # Author: Wuqiong Zhao
-# Date: 2023-04-06
+# Date: 2023-05-05
 
-version: 0.2.0 # the targeted mmCEsim version
+version: 0.3.0 # the targeted mmCEsim version
 meta: # document meta data
   title: mmWave MIMO model
   description:
@@ -12,7 +12,7 @@ meta: # document meta data
   email: contact@mmcesim.org
   website: https://mmcesim.org
   license: MIT
-  date: "2023-04-06"
+  date: "2023-05-05"
   comments: This is an uplink channel.
 physics:
   frequency: narrow # assume narrow band
@@ -52,6 +52,29 @@ sounding:
     channel: "H_cascaded" # the cascaded channel (actually the same as 'H' for simple MIMO)
 preamble: |
   COMMENT Here starts the preamble.
+  COMMENT CHS.PATHS_NUM: `CHS.PATHS_NUM`
+  COMMENT CHS.CHANNELS[0]: `CHS.CHANNELS[0]`
+  COMMENT CHS.CHANNELS[1 - 1].ID: `CHS.CHANNELS[1 - 1].ID`
+  foo = NEW `CHS.CHANNELS[a_{1}].ID`
+  x_tmp::i0c = INIT -1
+  COMMENT CHS.NODES[x_tmp * 2 + 2].ID: `CHS.NODES[x_tmp * 2 + 2].ID`
+  COMMENT CHS.FROM[ 0 ]: `CHS.FROM[ 0 ]`
+  COMMENT CHS.FROM[ 0 ].INDEX: `CHS.FROM[ 0 ].INDEX`
+  COMMENT CHS.FROM[ 0 ].ID: `CHS.FROM[ 0 ].ID`
+  COMMENT CHS.TO[ 1 ]: `CHS.TO[ 1 ]`
+  COMMENT CHS.TO[ 1 ].INDEX: `CHS.TO[ 1 ].INDEX`
+  COMMENT CHS.TO[ 1 ].ID: `CHS.TO[ 1 ].ID`
+  COMMENT CHS[0].JUMPS_NUM: `CHS[0].JUMPS_NUM`
+  COMMENT CHS[0].SIZE: `CHS[0].SIZE`
+  COMMENT CHS.ALL_CHANNELS[0].INDEX: `CHS.ALL_CHANNELS[0].INDEX`
+  COMMENT CHS.ALL_CHANNELS[0]: `CHS.ALL_CHANNELS[0]`
+  COMMENT CHS.ALL_CHANNELS[0].ID: `CHS.ALL_CHANNELS[0].ID`
+  COMMENT CHS.NUM_CHANNELS_ACC[0]: `CHS.NUM_CHANNELS_ACC[0]`
+  COMMENT CHS[0][0]: `CHS[0][0]`
+  COMMENT CHS[0][0].ID: `CHS[0][0].ID`
+  COMMENT CHS[0][0].FROM.ID: `CHS[0][0].FROM.ID`
+  COMMENT CHS[0][0].TO.INDEX: `CHS[0][0].TO.INDEX`
+  COMMENT CHS[0][1 * 2 - 1].TO: `CHS[0][1 * 2 - 1].TO`
   LOG [INFO] A user-defined LOG message.
 estimation: |
   VNt::m = NEW `DICTIONARY.T`
@@ -66,6 +89,7 @@ estimation: |
   BRANCH
   lambda_hat = ESTIMATE Q y
   RECOVER VNr @ \reshape(lambda_hat, `GRID.R`, `GRID.T`) @ VNt^H
+  # RECOVER VNr @ \reshape(lambda_hat, `GRID.R`, `GRID.T`) @ VNt^H
   MERGE
 conclusion: |
   i::u0 = LOOP 0 \length(`NMSE`)

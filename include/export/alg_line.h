@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Parse Line of Alg
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -20,6 +20,7 @@
 #include <cassert>
 #include <iomanip>
 #include <iostream>
+#include <regex>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
@@ -257,6 +258,8 @@ class Alg_Line {
      */
     void _processFuncParams(const std::vector<std::string>& v);
 
+    std::string _decodeEscape(const std::string& s) const;
+
   private:
     std::string _func;                 /**< function name */
     std::vector<Return_Type> _returns; /**< return variables */
@@ -362,6 +365,10 @@ inline std::ostream& Alg_Line::print(std::ostream& out, std::string prefix) cons
 
 inline std::string::size_type Alg_Line::_findChar(const std::string& s, char c) const noexcept {
     return _findChars(s, std::string(1, c));
+}
+
+inline std::string Alg_Line::_decodeEscape(const std::string& s) const {
+    return std::regex_replace(s, std::regex(R"(\\:\\:)"), "::");
 }
 
 /**

@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Simulate Generated Code
  * @version 0.2.2
- * @date 2022-10-12
+ * @date 2023-05-04
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,15 +12,16 @@
 #ifndef _SIMULATE_H_
 #define _SIMULATE_H_
 
+#include "_boost_config.h"
 #include "config.h"
 #include "export/shared_info.h"
+#include "fmt.h"
 #include "log_global.h"
 #include "utils.h"
 #pragma GCC diagnostic ignored "-Wc++11-narrowing"
 #pragma GCC diagnostic push
 #include <boost/process.hpp>
 #pragma GCC diagnostic pop
-#include <fmt/core.h>
 #include <iostream>
 #include <string>
 

@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of class Alg
  * @version 0.2.2
- * @date 2022-07-25
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -102,15 +102,19 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         SWITCH_FUNC
             // function no end
             CASE ("BRANCH")
+                f << '\n';
                 _wComment(f, lang, INDENT) << "[" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt]
                     << "] Algorithm: " << _macro.alg_names[_job_cnt][_alg_cnt] << '\n';
+                _log.info() << "Job (" << _job_cnt + 1 << "/" << _macro.job_num << ") "
+                            << "Algorithm (" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt] << ") '"
+                            << _macro.alg_names[_job_cnt][_alg_cnt] << "'" << std::endl;
                 _branch_line = i;
-                // TODO: Consider the 'metric' field,
-                // so far we only consider it as NMSE
+                // TODO: Consider the 'metric' field, so far we only consider it as NMSE
                 LANG_CPP
                     // f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
                     f << "{";
                 END_LANG
+                _recover_cnt = 0;
                 type_track++;
             CASE ("BREAK")
                 f << "break";
@@ -348,9 +352,22 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 } else if (_alg_cnt == _macro.alg_num[_job_cnt]) {
                     _branch_line = Alg::max_length;
                 }
+                if (_recover_cnt == 0) {
+                    WARNING(fmt::format("No 'RECOVER' function found in estimation (Job: {}, Alg: {}).",
+                        _job_cnt + 1, _alg_cnt + 1));
+                    _log.war() << "No 'RECOVER' function found in estimation (Job: " << _job_cnt + 1
+                               << ", Alg: " << _alg_cnt << ")." << std::endl;
+                } else {
+                    _log.info() << "Found " << _recover_cnt << " 'RECOVER' function(s) in estimation (Job: "
+                                << _job_cnt + 1 << ", Alg: " << _alg_cnt << ")." << std::endl;
+                }
                 LANG_CPP
+                    if (_recover_cnt > 1) {
+                        f << "NMSE" << _job_cnt << "(ii, " << _alg_cnt - 1  << ") /= " << _recover_cnt << ";\n";
+                    }
                     f << "}";
                 END_LANG
+                _recover_cnt = 0;
                 try {
                     type_track--;
                 } catch (const std::out_of_range& e) {
@@ -410,6 +427,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
                     recover_alg.write(f, lang);
                 }
+                ++_recover_cnt;
             // function needs end
             CASE ("ELSE")
                 LANG_CPP
@@ -653,13 +671,24 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         }
         if (i + 1 == _lines.size() && _branch_line != Alg::max_length && _alg_cnt < _macro.alg_num[_job_cnt]) {
             // meaning the last while BRANCH is not closed
-            if (_alg_cnt + 1 < _macro.alg_num[_job_cnt]) {
-                ++_alg_cnt;
-                i = _branch_line - 1;
+            if (_alg_cnt + 1 < _macro.alg_num[_job_cnt]) { i = _branch_line - 1; }
+            ++_alg_cnt;
+            if (_recover_cnt == 0) {
+                WARNING(fmt::format("No 'RECOVER' function found in estimation (Job: {}, Alg: {}).", _job_cnt + 1,
+                                    _alg_cnt + 1));
+                _log.war() << "No 'RECOVER' function found in estimation (Job: " << _job_cnt + 1
+                           << ", Alg: " << _alg_cnt << ")." << std::endl;
+            } else {
+                _log.info() << "Found " << _recover_cnt << " 'RECOVER' function(s) in estimation (Job: " << _job_cnt + 1
+                            << ", Alg: " << _alg_cnt << ")." << std::endl;
             }
             LANG_CPP
+            if (_recover_cnt > 1) {
+                f << "NMSE" << _job_cnt << "(ii, " << _alg_cnt - 1 << ") /= " << _recover_cnt << ";\n";
+            }
             f << "}";
             END_LANG
+            _recover_cnt = 0;
             try {
                 type_track--;
             } catch (const std::out_of_range& e) {

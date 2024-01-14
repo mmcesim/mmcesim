@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Export mmCEsim Configuration to Other Programming Languages
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2023-05-05
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -12,22 +12,25 @@
 #ifndef _EXPORT_H_
 #define _EXPORT_H_
 
+#include "_boost_config.h"
 #include "cli_options.h"
 #include "error_code.h"
 #include "export/alg.h"
 #include "export/channel_graph.h"
 #include "export/keywords.h"
+#include "export/lang.h"
 #include "export/shared_info.h"
 #include "export/value_vec.h"
+#include "fmt.h"
 #include "read.h"
 #include "term.h"
 #include "utils.h"
 #include <algorithm>
+#include <any>
 #include <boost/algorithm/string.hpp>
 #include <ctime>
 #include <exception>
 #include <filesystem>
-#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -39,19 +42,6 @@
 
 class Export {
   public:
-    /**
-     * @brief Export language.
-     *
-     * Options are CPP, MATLAB, PYTHON and IPYNB.
-     */
-    enum class Lang {
-        CPP,    ///< C++ with Armadillo library
-        MATLAB, ///< MATLAB
-        OCTAVE, ///< GNU Octave
-        PY,     ///< Python with NumPy library
-        IPYNB   ///< IPyNb with NumPy library
-    } lang = Lang::CPP;
-
     enum DType : unsigned {
         INT    = 1,    ///< int
         DOUBLE = 2,    ///< double
@@ -131,6 +121,8 @@ class Export {
 
     void _generateChannels();
 
+    void _generateConstants();
+
     void _algorithms();
 
     void _sounding();
@@ -203,9 +195,12 @@ class Export {
     std::vector<std::string> _beamforming_RIS;
     std::map<std::string, std::string> _beamforming;
     Channel_Graph _channel_graph;
+    std::vector<std::tuple<std::string, std::any, bool>> _constants;
 
     const int _MAX_TX = 1;
     const int _MAX_RX = 1;
+
+    Lang lang = Lang::CPP;
 };
 
 template <typename T>

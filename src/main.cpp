@@ -9,6 +9,7 @@
  *
  */
 
+#include "_boost_config.h"
 #include "cli_options.h"
 #include "config.h"
 #include "error_code.h"
@@ -17,14 +18,13 @@
 #include "meta.h"
 #include "simulate.h"
 #include "style.h"
+#include "term.h"
 #include "utils.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
-
-#include "term.h"
 
 #ifdef _MSC_VER
 #    define _CRT_SECURE_NO_WARNINGS

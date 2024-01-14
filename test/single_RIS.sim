@@ -1,9 +1,9 @@
 # single_RIS.sim
 # Single RIS Channel Estimation Test
 # Author: Wuqiong Zhao
-# Date: 2023-01-17
+# Date: 2024-01-14
 
-version: 0.1.1
+version: 0.3.0
 meta:
   title: Single RIS Channel Estimation Test
   author: Wuqiong Zhao
@@ -56,6 +56,10 @@ channels:
     from: UE
     to: RIS
     sparsity: 3
+  - id: H_direct
+    from: UE
+    to: BS
+    sparsity: 2
 sounding:
   variables:
     received: "y"

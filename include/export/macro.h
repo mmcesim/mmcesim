@@ -3,15 +3,16 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief ALG Macro
  * @version 0.2.2
- * @date 2023-03-17
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
 #ifndef _EXPORT_MACRO_H_
 #define _EXPORT_MACRO_H_
 
+#include "export/lang.h"
 #include "log_global.h"
 #include "meta.h"
 #include "utils.h"
@@ -44,6 +45,7 @@ struct Macro {
     std::map<std::string, std::string> beamforming;
     std::string _cascaded_channel;
     XY_Size _N, _B, _G;
+    Lang lang = Lang::CPP;
 
     std::string replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const;
 
@@ -54,6 +56,63 @@ struct Macro {
         USER_PRIORITY,
     };
 
+    // TODO: This only applies to C++ only now, and needs to be extended.
+    const std::map<std::string, std::pair<std::string, bool>> _constants = {
+        { R"(CHS\.PATHS_NUM)", { "CHS_paths_num", false } },
+        { R"(CHS\.CHANNELS\[(.*\w+.*)\])", { "CHS_channels[$1]", true } },
+        { R"(CHS\.CHANNELS\[(.*\w+.*)\]\.ID)", { "CHS_channels_id[$1]", false } },
+        { R"(CHS\.NODES\[(.*\w+.*)\]\.ID)", { "CHS_nodes_id[$1]", false } },
+        { R"(CHS\.FROM\[(.*\w+.*)\])", { "CHS_from[$1]", false } },
+        { R"(CHS\.FROM\[(.*\w+.*)\]\.INDEX)", { "CHS_from[$1]", false } },
+        { R"(CHS\.FROM\[(.*\w+.*)\]\.ID)", { "CHS_nodes_id[" + constantStr({ "CHS_from[$1]", false }) + "]", false } },
+        { R"(CHS\.TO\[(.*\w+.*)\])", { "CHS_to[$1]", false } },
+        { R"(CHS\.TO\[(.*\w+.*)\]\.INDEX)", { "CHS_to[$1]", false } },
+        { R"(CHS\.TO\[(.*\w+.*)\]\.ID)", { "CHS_nodes_id[" + constantStr({ "CHS_to[$1]", false }) + "]", false } },
+        { R"(CHS\[(.*\w+.*)\]\.JUMPS_NUM)", { "CHS_i_jumps_num[$1]", false } },
+        { R"(CHS\[(.*\w+.*)\]\.SIZE)", { "CHS_i_size[$1]", false } },
+        { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\]\.INDEX)", { "CHS_all_channels_index[$1]", false } },
+        { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\])",
+          { "CHS_channels[" + constantStr({ "CHS_all_channels_index[$1]", false }) + "]", true } },
+        { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\]\.ID)",
+          { "CHS_channels_id[" + constantStr({ "CHS_all_channels_index[$1]", false }) + "]", false } },
+        { R"(CHS\.NUM_CHANNELS_ACC\[(.*\w+.*)\])", { "CHS_num_channels_acc[$1]", false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\])",
+          { "CHS_channels[" + constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) + "]",
+            true } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.ID)",
+          { "CHS_channels_id[" + constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) +
+                "]",
+            false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.FROM)",
+          { "CHS_from[" + constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) + "]",
+            false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.FROM\.INDEX)",
+          { "CHS_from[" + constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) + "]",
+            false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.FROM\.ID)",
+          { "CHS_nodes_id[" +
+                constantStr({ "CHS_from[" +
+                                  constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) +
+                                  "]",
+                              false }) +
+                "]",
+            false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.TO)",
+          { "CHS_to[" + constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) + "]",
+            false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.TO\.INDEX)",
+          { "CHS_to[" + constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) + "]",
+            false } },
+        { R"(CHS\[(.*\w+.*)\]\[(.*\w+.*)\]\.TO\.ID)",
+          { "CHS_nodes_id[" +
+                constantStr({ "CHS_to[" +
+                                  constantStr({ "CHS_all_channels_index[CHS_num_channels_acc[$1] + ($2)]", false }) +
+                                  "]",
+                              false }) +
+                "]",
+            false } },
+    };
+
     /**
      * @brief Get the name of Type.
      *
@@ -61,6 +120,8 @@ struct Macro {
      * @return (std::string) The name of Type.
      */
     std::string typeName(Type type) const noexcept;
+
+    std::string constantStr(const std::pair<std::string, bool>& v) const;
 
   public:
     /**
@@ -87,6 +148,14 @@ inline std::string Macro::replace(const std::string& s, const std::string& key, 
     auto r = std::regex_replace(s, std::regex("`" + key + "`"), val);
     if (r != s) _log.info() << "Macro Replace (" << typeName(type) << "): " << key << " -> " << val << std::endl;
     return r;
+}
+
+inline std::string Macro::constantStr(const std::pair<std::string, bool>& v) const {
+    if (v.first.empty()) return "";
+    if (lang == Lang::CPP) {
+        if (v.second) return "(*mmCEsim_Consts_"s + v.first + ")";
+        else return "mmCEsim_Consts_"s + v.first;
+    } else return v.first;
 }
 
 #endif

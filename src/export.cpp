@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -337,7 +337,8 @@ void Export::_generateChannels() {
     _log.flush();
     for (unsigned i = 0; i != _config["channels"].size(); ++i) {
         auto&& ch = _config["channels"][i];
-        _log.info() << "from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i] << std::endl;
+        _log.info() << "(Channel " << i << ") from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i]
+                    << std::endl;
         if (_channel_graph.from[i] > _channel_graph.nodes.size()) {
             std::string err =
                 fmt::format("Unknown 'from' node '{}' in channel '{}'!", _asStr(ch["from"]), _asStr(ch["id"]));
@@ -377,6 +378,18 @@ void Export::_generateChannels() {
     }
     if (lang == Lang::CPP) { _f() << "}return true;}}\n\n"; }
     // TODO: Generate channels.
+}
+
+void Export::_generateConstants() {
+    auto start = [l = lang]() { return l == Lang::CPP ? "// begin consts\n"s : ""s; };
+    auto end   = [l = lang]() { return l == Lang::CPP ? "// end consts\n"s : ""s; };
+    auto item  = [l = lang](std::string id, const auto& v, bool ref) {
+        return l == Lang::CPP ? fmt::format("{}auto mmCEsim_Consts_{} = {};\n", "const ", id, v) : ""s;
+    };
+    _f() << start();
+    // _constants have type std::map<std::string, std::any>
+    for (const auto& [id, v, ref] : _constants) { _f() << item(id, v, ref); }
+    _f() << end() << std::endl;
 }
 
 void Export::_algorithms() {
@@ -567,6 +580,7 @@ void Export::_sounding() {
                      << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy << ",(t+1)*"
                      << BNx * BNy * BMx * BMy << "-1)) = _y;}\n";
             }
+            _generateConstants();
             Macro macro;
             macro._cascaded_channel = _cascaded_channel;
             macro.beamforming       = _beamforming;
@@ -671,8 +685,8 @@ void Export::_estimation(const Macro& macro, int job_cnt) {
         Alg alg(estimation_str, macro, job_cnt);
         alg.write(_f(), _langStr());
     }
-    _log.info() << "====== Start of Estimation =====\n"
-                << estimation_str << "\n[INFO] ======= End of Estimation ======" << std::endl;
+    _log.info() << "===== Start of Estimation ====\n"
+                << estimation_str << "\n[INFO] ====== End of Estimation =====" << std::endl;
 }
 
 void Export::_reporting() {
@@ -1026,7 +1040,60 @@ bool Export::_setCascadedChannel() {
     }
     if (!_channel_graph.arrange()) {
         // TODO: Errors during arranging channel graph.
+        std::cerr << "Errors during arranging channel graph." << std::endl;
+        return false;
     }
+    _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
+    std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_jumps_num_str,
+        CHS_i_size_str, CHS_all_channels_index_str, CHS_num_channels_acc_str;
+    std::array str = { &CHS_channels_str,
+                       &CHS_channels_id_str,
+                       &CHS_nodes_id_str,
+                       &CHS_from_str,
+                       &CHS_to_str,
+                       &CHS_i_jumps_num_str,
+                       &CHS_i_size_str,
+                       &CHS_all_channels_index_str,
+                       &CHS_num_channels_acc_str };
+    if (lang == Lang::CPP)
+        for (auto&& s : str) *s += "{";
+    else
+        for (auto&& s : str) *s += "[";
+    for (auto&& ch : _channel_graph.channels) {
+        if (lang == Lang::CPP) {
+            CHS_channels_str += "&" + ch + ", ";
+            CHS_channels_id_str += "\"" + ch + "\"s, ";
+        } else {
+            CHS_channels_str += ch + ", ";
+            CHS_channels_id_str += "\"" + ch + "\"s, ";
+        }
+    }
+    for (auto&& n : _channel_graph.nodes) {
+        if (lang == Lang::CPP) CHS_nodes_id_str += "\"" + n + "\"s, ";
+        else CHS_nodes_id_str += "\"" + n + "\"s, ";
+    }
+    for (auto&& i : _channel_graph.from) CHS_from_str += std::to_string(i) + ", ";
+    for (auto&& i : _channel_graph.to) CHS_to_str += std::to_string(i) + ", ";
+    for (auto&& path : _channel_graph.paths) {
+        CHS_i_jumps_num_str += std::to_string(path.size() - 1) + ", ";
+        CHS_i_size_str += std::to_string(path.size()) + ", ";
+        // deal channel within each link (path)
+        for (auto&& ch_idx : path) { CHS_all_channels_index_str += std::to_string(ch_idx) + ", "; }
+    }
+    for (auto&& i : _channel_graph.paths_num_acc) CHS_num_channels_acc_str += std::to_string(i) + ", ";
+    if (lang == Lang::CPP)
+        for (auto&& s : str) *s += "}";
+    else
+        for (auto&& s : str) *s += "]";
+    _constants.push_back({ "CHS_channels", CHS_channels_str, true });
+    _constants.push_back({ "CHS_channels_id", CHS_channels_id_str, true });
+    _constants.push_back({ "CHS_nodes_id", CHS_nodes_id_str, true });
+    _constants.push_back({ "CHS_from", CHS_from_str, true });
+    _constants.push_back({ "CHS_to", CHS_to_str, true });
+    _constants.push_back({ "CHS_i_jumps_num", CHS_i_jumps_num_str, true });
+    _constants.push_back({ "CHS_i_size", CHS_i_size_str, true });
+    _constants.push_back({ "CHS_all_channels_index", CHS_all_channels_index_str, true });
+    _constants.push_back({ "CHS_num_channels_acc", CHS_num_channels_acc_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;
