@@ -114,6 +114,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     // f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
                     f << "{";
                 END_LANG
+                _recover_cnt = 0;
                 type_track++;
             CASE ("BREAK")
                 f << "break";
@@ -351,9 +352,22 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 } else if (_alg_cnt == _macro.alg_num[_job_cnt]) {
                     _branch_line = Alg::max_length;
                 }
+                if (_recover_cnt == 0) {
+                    WARNING(fmt::format("No 'RECOVER' function found in estimation (Job: {}, Alg: {}).",
+                        _job_cnt + 1, _alg_cnt + 1));
+                    _log.war() << "No 'RECOVER' function found in estimation (Job: " << _job_cnt + 1
+                               << ", Alg: " << _alg_cnt << ")." << std::endl;
+                } else {
+                    _log.info() << "Found " << _recover_cnt << " 'RECOVER' function(s) in estimation (Job: "
+                                << _job_cnt + 1 << ", Alg: " << _alg_cnt << ")." << std::endl;
+                }
                 LANG_CPP
+                    if (_recover_cnt > 1) {
+                        f << "NMSE" << _job_cnt << "(ii, " << _alg_cnt - 1  << ") /= " << _recover_cnt << ";\n";
+                    }
                     f << "}";
                 END_LANG
+                _recover_cnt = 0;
                 try {
                     type_track--;
                 } catch (const std::out_of_range& e) {
@@ -413,6 +427,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
                     recover_alg.write(f, lang);
                 }
+                ++_recover_cnt;
             // function needs end
             CASE ("ELSE")
                 LANG_CPP
