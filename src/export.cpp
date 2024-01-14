@@ -1044,7 +1044,7 @@ bool Export::_setCascadedChannel() {
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
     std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_jumps_num_str,
-        CHS_i_size_str, CHS_all_channels_index_str, CHS_num_channels_acc_str, CHS_i_i_str;
+        CHS_i_size_str, CHS_all_channels_index_str, CHS_num_channels_acc_str;
     std::array str = { &CHS_channels_str,
                        &CHS_channels_id_str,
                        &CHS_nodes_id_str,
@@ -1053,8 +1053,7 @@ bool Export::_setCascadedChannel() {
                        &CHS_i_jumps_num_str,
                        &CHS_i_size_str,
                        &CHS_all_channels_index_str,
-                       &CHS_num_channels_acc_str,
-                       &CHS_i_i_str };
+                       &CHS_num_channels_acc_str };
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "{";
     else
