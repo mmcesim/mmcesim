@@ -72,6 +72,13 @@ class Channel_Graph {
     void _formPaths(const std::vector<size_t>& path);
 
     /**
+     * @brief Sort paths.
+     *
+     * @details This sorts the paths based on the jumps (sizes) of the paths (from short to long).
+     */
+    void _sortPaths();
+
+    /**
      * @brief Validate paths.
      *
      * @details This removes all paths that does not terminate in the Rx.

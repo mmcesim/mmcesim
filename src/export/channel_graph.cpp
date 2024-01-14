@@ -57,6 +57,7 @@ bool Channel_Graph::arrange() {
         _log.err() << "There are loops in the cascaded channel." << std::endl;
         return false;
     }
+    _sortPaths();
     size_t cnt = 0;
     paths_num_acc.reserve(paths.size());
     for (size_t i = 0; i != paths.size(); ++i) {
@@ -87,6 +88,13 @@ void Channel_Graph::_formPaths(const std::vector<size_t>& path) {
             }
         }
     }
+}
+
+void Channel_Graph::_sortPaths() {
+    std::sort(paths.begin(), paths.end(), [this](const auto& a, const auto& b) { return a.size() < b.size(); });
+    _log.info() << "Sorted Path Lengths:";
+    for (auto&& path : paths) _log.write() << ' ' << path.size();
+    _log.write() << std::endl;
 }
 
 void Channel_Graph::_validatePaths() {
