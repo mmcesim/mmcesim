@@ -337,7 +337,8 @@ void Export::_generateChannels() {
     _log.flush();
     for (unsigned i = 0; i != _config["channels"].size(); ++i) {
         auto&& ch = _config["channels"][i];
-        _log.info() << "(Channel " << i << ") from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i] << std::endl;
+        _log.info() << "(Channel " << i << ") from: " << _channel_graph.from[i] << ", to: " << _channel_graph.to[i]
+                    << std::endl;
         if (_channel_graph.from[i] > _channel_graph.nodes.size()) {
             std::string err =
                 fmt::format("Unknown 'from' node '{}' in channel '{}'!", _asStr(ch["from"]), _asStr(ch["id"]));
