@@ -56,6 +56,10 @@ channels:
     from: UE
     to: RIS
     sparsity: 3
+  - id: H_direct
+    from: UE
+    to: BS
+    sparsity: 2
 sounding:
   variables:
     received: "y"
