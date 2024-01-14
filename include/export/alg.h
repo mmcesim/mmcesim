@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Algorithm Parser (.alg Language)
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -20,6 +20,7 @@
 #include "export/type.h"
 #include "utils.h"
 #include <boost/algorithm/string.hpp>
+#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <stack>
@@ -101,6 +102,7 @@ class Alg {
     Macro _macro;
     int _alg_cnt     = 0;
     int _job_cnt     = 0;
+    int _recover_cnt = 0;
     int _branch_line = Alg::max_length;
 
     const static int max_length = 100000;
