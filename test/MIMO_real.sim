@@ -3,7 +3,7 @@
 # Author: Wuqiong Zhao
 # Date: 2023-05-05
 
-version: 0.2.1 # the targeted mmCEsim version
+version: 0.3.0 # the targeted mmCEsim version
 meta: # document meta data
   title: mmWave MIMO model
   description:
@@ -61,6 +61,7 @@ preamble: |
   COMMENT CHS.TO[ 1 ]: `CHS.TO[ 1 ]`
   COMMENT CHS[0].JUMPS_NUM: `CHS[0].JUMPS_NUM`
   COMMENT CHS[0].SIZE: `CHS[0].SIZE`
+  COMMENT CHS.ALL_CHANNELS[0].INDEX: `CHS.ALL_CHANNELS[0].INDEX`
   LOG [INFO] A user-defined LOG message.
 estimation: |
   VNt::m = NEW `DICTIONARY.T`

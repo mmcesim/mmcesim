@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Channel_Graph Class
  * @version 0.2.2
- * @date 2023-04-20
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -57,11 +57,20 @@ bool Channel_Graph::arrange() {
         _log.err() << "There are loops in the cascaded channel." << std::endl;
         return false;
     }
+    size_t cnt = 0;
+    paths_num_acc.reserve(paths.size());
+    for (size_t i = 0; i != paths.size(); ++i) {
+        auto&& path = paths[i];
+        paths_num_acc.push_back(cnt);
+        cnt += path.size();
+        for (size_t j = 0; j != path.size(); ++j) { paths_indices.push_back({ i, j }); }
+    }
 }
 
 void Channel_Graph::_formPaths(const std::vector<size_t>& path) {
     if (path.empty()) {
         for (size_t i = 0; i != channels.size(); ++i) {
+            // the initial frontier is at Tx
             if (contains(Tx, from[i])) _formPaths({ i });
         }
     } else {

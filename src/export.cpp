@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -1039,12 +1039,15 @@ bool Export::_setCascadedChannel() {
     }
     if (!_channel_graph.arrange()) {
         // TODO: Errors during arranging channel graph.
+        std::cerr << "Errors during arranging channel graph." << std::endl;
+        return false;
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
     std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_jumps_num_str,
-        CHS_i_size_str;
+        CHS_i_size_str, CHS_all_channels_index_str, CHS_i_i_str;
     std::array str = { &CHS_channels_str, &CHS_channels_id_str, &CHS_nodes_id_str, &CHS_from_str,
-                       &CHS_to_str,       &CHS_i_jumps_num_str, &CHS_i_size_str };
+                       &CHS_to_str,       &CHS_i_jumps_num_str, &CHS_i_size_str,   &CHS_all_channels_index_str,
+                       &CHS_i_i_str };
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "{";
     else
@@ -1052,21 +1055,23 @@ bool Export::_setCascadedChannel() {
     for (auto&& ch : _channel_graph.channels) {
         if (lang == Lang::CPP) {
             CHS_channels_str += "&" + ch + ", ";
-            CHS_channels_id_str += "\"" + ch + "\", ";
+            CHS_channels_id_str += "\"" + ch + "\"s, ";
         } else {
             CHS_channels_str += ch + ", ";
-            CHS_channels_id_str += "\"" + ch + "\", ";
+            CHS_channels_id_str += "\"" + ch + "\"s, ";
         }
     }
     for (auto&& n : _channel_graph.nodes) {
-        if (lang == Lang::CPP) CHS_nodes_id_str += "\"" + n + "\", ";
-        else CHS_nodes_id_str += "\"" + n + "\", ";
+        if (lang == Lang::CPP) CHS_nodes_id_str += "\"" + n + "\"s, ";
+        else CHS_nodes_id_str += "\"" + n + "\"s, ";
     }
     for (auto&& i : _channel_graph.from) CHS_from_str += std::to_string(i) + ", ";
     for (auto&& i : _channel_graph.to) CHS_to_str += std::to_string(i) + ", ";
     for (auto&& path : _channel_graph.paths) {
         CHS_i_jumps_num_str += std::to_string(path.size() - 1) + ", ";
         CHS_i_size_str += std::to_string(path.size()) + ", ";
+        // deal channel within each link (path)
+        for (auto&& ch_idx : path) { CHS_all_channels_index_str += std::to_string(ch_idx) + ", "; }
     }
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "}";
@@ -1079,6 +1084,7 @@ bool Export::_setCascadedChannel() {
     _constants.push_back({ "CHS_to", CHS_to_str, true });
     _constants.push_back({ "CHS_i_jumps_num", CHS_i_jumps_num_str, true });
     _constants.push_back({ "CHS_i_size", CHS_i_size_str, true });
+    _constants.push_back({ "CHS_all_channels_index", CHS_all_channels_index_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;

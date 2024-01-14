@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Macro class.
  * @version 0.2.2
- * @date 2023-05-05
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 

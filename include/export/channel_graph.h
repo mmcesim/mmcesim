@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Graph Analysis for Complex Cascaded Channels
  * @version 0.2.2
- * @date 2023-03-18
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -16,6 +16,7 @@
 #include "utils.h"
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Channel_Graph {
@@ -51,6 +52,11 @@ class Channel_Graph {
      */
     size_t chToIndex(const std::string& id) const;
 
+    /**
+     * @brief The number of paths in the channel graph.
+     *
+     * @return (size_t) the number of paths
+     */
     size_t pathsNum() const noexcept;
 
     size_t maxPathLength() const;
@@ -61,7 +67,7 @@ class Channel_Graph {
     /**
      * @brief Form paths based on the current frontier.
      *
-     * @param path The current paths.
+     * @param path The current path.
      */
     void _formPaths(const std::vector<size_t>& path);
 
@@ -82,7 +88,9 @@ class Channel_Graph {
     std::vector<size_t> to;
     std::vector<size_t> Tx;
     std::vector<size_t> Rx;
-    std::vector<std::vector<size_t>> paths;
+    std::vector<std::vector<size_t>> paths; /**< each path are stored as channel indices */
+    std::vector<size_t> paths_num_acc;
+    std::vector<std::pair<size_t, size_t>> paths_indices; /**< map 1D index to 2D used in paths */
 };
 
 inline size_t Channel_Graph::chFromIndex(const std::string& id) const { return from[channelIndex(id)]; }

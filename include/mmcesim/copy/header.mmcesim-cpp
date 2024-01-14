@@ -84,5 +84,6 @@ namespace filesystem = experimental::filesystem;
 
 using namespace arma;
 using std::operator""i;
+using namespace std::string_literals;
 
 const double _2pi = 2 * 3.141592653587932384625;

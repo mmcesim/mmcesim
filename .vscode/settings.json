@@ -128,7 +128,12 @@
         "__functional_base_03": "cpp",
         "__std_stream": "cpp",
         "version": "cpp",
-        "__verbose_abort": "cpp"
+        "__verbose_abort": "cpp",
+        "source_location": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp",
+        "format": "cpp",
+        "stop_token": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "search.exclude": {
