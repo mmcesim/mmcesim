@@ -1044,9 +1044,16 @@ bool Export::_setCascadedChannel() {
     }
     _constants.push_back({ "CHS_paths_num", _channel_graph.pathsNum(), false });
     std::string CHS_channels_str, CHS_channels_id_str, CHS_nodes_id_str, CHS_from_str, CHS_to_str, CHS_i_jumps_num_str,
-        CHS_i_size_str, CHS_all_channels_index_str, CHS_i_i_str;
-    std::array str = { &CHS_channels_str, &CHS_channels_id_str, &CHS_nodes_id_str, &CHS_from_str,
-                       &CHS_to_str,       &CHS_i_jumps_num_str, &CHS_i_size_str,   &CHS_all_channels_index_str,
+        CHS_i_size_str, CHS_all_channels_index_str, CHS_num_channels_acc_str, CHS_i_i_str;
+    std::array str = { &CHS_channels_str,
+                       &CHS_channels_id_str,
+                       &CHS_nodes_id_str,
+                       &CHS_from_str,
+                       &CHS_to_str,
+                       &CHS_i_jumps_num_str,
+                       &CHS_i_size_str,
+                       &CHS_all_channels_index_str,
+                       &CHS_num_channels_acc_str,
                        &CHS_i_i_str };
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "{";
@@ -1073,6 +1080,7 @@ bool Export::_setCascadedChannel() {
         // deal channel within each link (path)
         for (auto&& ch_idx : path) { CHS_all_channels_index_str += std::to_string(ch_idx) + ", "; }
     }
+    for (auto&& i : _channel_graph.paths_num_acc) CHS_num_channels_acc_str += std::to_string(i) + ", ";
     if (lang == Lang::CPP)
         for (auto&& s : str) *s += "}";
     else
@@ -1085,6 +1093,7 @@ bool Export::_setCascadedChannel() {
     _constants.push_back({ "CHS_i_jumps_num", CHS_i_jumps_num_str, true });
     _constants.push_back({ "CHS_i_size", CHS_i_size_str, true });
     _constants.push_back({ "CHS_all_channels_index", CHS_all_channels_index_str, true });
+    _constants.push_back({ "CHS_num_channels_acc", CHS_num_channels_acc_str, true });
     _log.info() << "Channel Graph Size: " << _channel_graph.from.size() << std::endl;
     _log.info() << "Channel Graph Paths: " << _channel_graph.pathsNum() << std::endl;
     return true;

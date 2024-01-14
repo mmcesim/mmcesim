@@ -51,7 +51,7 @@ bool Channel_Graph::arrange() {
             std::cerr << "[mmcesim] export $ ERROR: There is no valid path in the cascaded channel." << std::endl;
             _log.err() << "There is no valid path in the cascaded channel." << std::endl;
             return false;
-        } else return true;
+        };
     } catch (...) {
         std::cerr << "[mmcesim] export $ ERROR: There are loops in the cascaded channel." << std::endl;
         _log.err() << "There are loops in the cascaded channel." << std::endl;
@@ -65,6 +65,7 @@ bool Channel_Graph::arrange() {
         cnt += path.size();
         for (size_t j = 0; j != path.size(); ++j) { paths_indices.push_back({ i, j }); }
     }
+    return true;
 }
 
 void Channel_Graph::_formPaths(const std::vector<size_t>& path) {

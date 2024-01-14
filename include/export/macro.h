@@ -71,6 +71,7 @@ struct Macro {
           { "CHS_channels_id[" + constantStr({ "CHS_all_channels_index[$1]", false }) + "]", false } },
         { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\])",
           { "CHS_channels[" + constantStr({ "CHS_all_channels_index[$1]", false }) + "]", true } },
+        { R"(CHS\.NUM_CHANNELS_ACC\[(.*\w+.*)\])", { "CHS_num_channels_acc[$1]", false } },
     };
 
     /**
