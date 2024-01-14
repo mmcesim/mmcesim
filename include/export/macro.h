@@ -59,14 +59,18 @@ struct Macro {
     // TODO: This only applies to C++ only now, and needs to be extended.
     const std::map<std::string, std::pair<std::string, bool>> _constants = {
         { R"(CHS\.PATHS_NUM)", { "CHS_paths_num", false } },
-        { R"(CHS\.CHANNELS\[(.*\w+.*)\])", { "CHS_channels[$1]", true } },
         { R"(CHS\.CHANNELS\[(.*\w+.*)\]\.ID)", { "CHS_channels_id[$1]", false } },
+        { R"(CHS\.CHANNELS\[(.*\w+.*)\])", { "CHS_channels[$1]", true } },
         { R"(CHS\.NODES\[(.*\w+.*)\]\.ID)", { "CHS_nodes_id[$1]", false } },
         { R"(CHS\.FROM\[(.*\w+.*)\])", { "CHS_from[$1]", false } },
         { R"(CHS\.TO\[(.*\w+.*)\])", { "CHS_to[$1]", false } },
         { R"(CHS\[(.*\w+.*)\]\.JUMPS_NUM)", { "CHS_i_jumps_num[$1]", false } },
         { R"(CHS\[(.*\w+.*)\]\.SIZE)", { "CHS_i_size[$1]", false } },
         { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\]\.INDEX)", { "CHS_all_channels_index[$1]", false } },
+        { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\]\.ID)",
+          { "CHS_channels_id[" + constantStr({ "CHS_all_channels_index[$1]", false }) + "]", false } },
+        { R"(CHS\.ALL_CHANNELS\[(.*\w+.*)\])",
+          { "CHS_channels[" + constantStr({ "CHS_all_channels_index[$1]", false }) + "]", true } },
     };
 
     /**
