@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of class Alg
  * @version 0.2.2
- * @date 2022-07-25
+ * @date 2024-01-14
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -102,11 +102,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
         SWITCH_FUNC
             // function no end
             CASE ("BRANCH")
+                f << '\n';
                 _wComment(f, lang, INDENT) << "[" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt]
                     << "] Algorithm: " << _macro.alg_names[_job_cnt][_alg_cnt] << '\n';
+                _log.info() << "Job (" << _job_cnt + 1 << "/" << _macro.job_num << ") "
+                            << "Algorithm (" << _alg_cnt + 1 << "/" << _macro.alg_num[_job_cnt] << ") '"
+                            << _macro.alg_names[_job_cnt][_alg_cnt] << "'" << std::endl;
                 _branch_line = i;
-                // TODO: Consider the 'metric' field,
-                // so far we only consider it as NMSE
+                // TODO: Consider the 'metric' field, so far we only consider it as NMSE
                 LANG_CPP
                     // f << "vec sim_NMSE(" << _macro.alg_num[_job_cnt] << ", arma::fill::zeros);\n";
                     f << "{";
