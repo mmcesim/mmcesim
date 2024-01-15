@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief ALG Macro
  * @version 0.2.2
- * @date 2024-01-14
+ * @date 2024-01-15
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -18,19 +18,45 @@
 #include "utils.h"
 #include <map>
 #include <regex>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 struct XY_Size {
+    XY_Size() = default;
+
     unsigned Tx = 0;
     unsigned Ty = 0;
     unsigned Rx = 0;
     unsigned Ry = 0;
 
-    unsigned t() const { return Tx * Ty; }
-    unsigned r() const { return Rx * Ry; }
-    unsigned _() const { return t() * r(); }
+    unsigned t() const noexcept { return Tx * Ty; }
+    unsigned r() const noexcept { return Rx * Ry; }
+    unsigned _() const noexcept { return t() * r(); }
+
+    std::map<std::string, std::pair<unsigned, unsigned>> nodes_xy;
+
+    bool hasKey(std::string id) const noexcept { return nodes_xy.count(id); }
+
+    std::pair<unsigned, unsigned> xy(std::string id) const {
+        try {
+            return nodes_xy.at(id); // with boundary check
+        } catch (const std::out_of_range& e) {
+            // TODO: better error handling
+            _log.err() << "No '" + id + "' node when replacing macro (`SIZE[<id>]`, `BEAM[<id>]`, `GRID[<id>]`)!"
+                       << std::endl;
+            Term::error("No '" + id + "' node when replacing macro (`SIZE[<id>]`, `BEAM[<id>]`, `GRID[<id>]`)!");
+            return { 0, 0 };
+        }
+    }
+
+    unsigned x(std::string id) const { return xy(id).first; }
+    unsigned y(std::string id) const { return xy(id).second; }
+    unsigned x_mul_y(std::string id) const {
+        auto&& x_and_y = this->xy(id);
+        return x_and_y.first * x_and_y.second;
+    }
 };
 
 struct Macro {
@@ -46,6 +72,8 @@ struct Macro {
     std::string _cascaded_channel;
     XY_Size _N, _B, _G;
     Lang lang = Lang::CPP;
+
+    bool replaceXY(std::string& r) const;
 
     std::string replaceMacro(const std::string& s, int job_cnt, int alg_cnt) const;
 

@@ -119,14 +119,14 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             CASE ("BREAK")
                 f << "break";
                 LANG_CPP
-                    if (_add_semicolon) f << ";";
+                    if (_add_semicolon) f << ";\n";
                 END_LANG
             CASE ("CALC")
                 std::string msg;
                 std::string out;
                 LANG_CPP
                     if (line.params().size() == 0) {
-                        if (_add_semicolon) f << ";";
+                        if (_add_semicolon) f << ";\n";
                     } else {
                         out = Calc::as(_mi(0), "cpp", &msg);
                         if (msg.empty()) {
@@ -139,7 +139,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 f << "=";
                             }
                             f << out;
-                            if (_add_semicolon) f << ";";
+                            if (_add_semicolon) f << ";\n";
                         } else {
                             std::cerr << msg << "\n";
                             // TODO: handle error here
@@ -188,7 +188,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         f << inlineCalc(_mi(p), "cpp");
                     }
                     f << ")";
-                    if (_add_semicolon) f << ";";
+                    if (_add_semicolon) f << ";\n";
                 END_LANG
             CASE ("COMMENT")
                 std::string comment;
@@ -209,7 +209,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         f << cpp_content;
                     }
                     if (!cpp_content.empty() && *(cpp_content.cend() - 1) != ';' && _add_semicolon) {
-                        f << ';';
+                        f << ";\n";
                     }
                 END_LANG
             CASE ("ESTIMATE")
@@ -340,7 +340,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                         type_track.push(line.returns(0).name, type);
                     }
                     LANG_CPP
-                        if (_add_semicolon) f << ";";
+                        if (_add_semicolon) f << ";\n";
                     END_LANG
                 }
             CASE ("MATLAB")
@@ -379,7 +379,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 std::string out;
                 LANG_CPP
                     if (line.params().size() == 0) {
-                        if (_add_semicolon) f << ";";
+                        if (_add_semicolon) f << ";\n";
                     } else {
                         out = Calc::as(_mi(0), "cpp", &msg);
                         if (msg.empty()) {
@@ -395,7 +395,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                                 f << "=";
                             }
                             f << out;
-                            if (_add_semicolon) f << ";";
+                            if (_add_semicolon) f << ";\n";
                         } else {
                             std::cerr << msg << "\n";
                             // TODO: handle error here
@@ -412,7 +412,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     for (size_t j = 0; j != line.params().size(); ++j) {
                         f << " << " << inlineCalc(_mi(j), lang);
                     }
-                    if (_add_semicolon) f << ";";
+                    if (_add_semicolon) f << ";\n";
                 LANG_PY
                 LANG_M
                 END_LANG
@@ -663,7 +663,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                               << ": " << e.what() << std::endl; 
                 }
             DEFAULT
-                // if (_add_semicolon) f << ";";
+                // if (_add_semicolon) f << ";\n";
         END_SWITCH
         // clang-format on
         if (_add_comment) {

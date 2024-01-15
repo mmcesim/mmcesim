@@ -1,7 +1,7 @@
 # single_RIS.sim
 # Single RIS Channel Estimation Test
 # Author: Wuqiong Zhao
-# Date: 2024-01-14
+# Date: 2024-01-15
 
 version: 0.3.0
 meta:
@@ -11,10 +11,11 @@ physics:
   frequency: narrow
   off_grid: true
 nodes:
+  # now both BS and UE are ULA
   - id: BS
     role: receiver
-    size: [16, 4]
-    beam: [4, 2]
+    size: 16 # [16, 4]
+    beam: 3 # [4, 2]
     grid: same
     beamforming:
       variable: "W" # combining
@@ -56,18 +57,26 @@ channels:
     from: UE
     to: RIS
     sparsity: 3
-  - id: H_direct
-    from: UE
-    to: BS
-    sparsity: 2
+  # - id: H_direct
+  #   from: UE
+  #   to: BS
+  #   sparsity: 2
 sounding:
   variables:
     received: "y"
     noise: "noise"
     channel: "H"
 estimation: |
-  COMMENT Here starts estimation.
-  # New Contents will be added after my patent corresponding to the TVT paper is accepted.
+  COMMENT STEP 1: Load Dictionary
+  VNt::m = NEW `DICTIONARY.T`
+  VNr::m = NEW `DICTIONARY.R`
+
+  COMMENT STEP 2: Compressed Sensing Formulation
+  Q::m = INIT `MEASUREMENT` $`GRID.*` * $
+
+  COMMENT `SIZE[RIS].x` + `SIZE[RIS].y`
+  COMMENT `BEAM[UE]`
+
 simulation:
   backend: cpp
   jobs:
