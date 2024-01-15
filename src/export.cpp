@@ -3,13 +3,29 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.2
- * @date 2024-01-14
+ * @date 2024-01-15
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
 #include "export.h"
+
+#define CREATE_MACRO_CH                                                                                                \
+    Macro macro;                                                                                                       \
+    macro._cascaded_channel = _cascaded_channel;                                                                       \
+    macro.beamforming       = _beamforming;                                                                            \
+    macro.job_num           = jobs.size();                                                                             \
+    macro._N                = { Nx, Ny, Mx, My };                                                                      \
+    macro._B                = { BNx, BNy, BMx, BMy };                                                                  \
+    macro._G                = { GNx, GNy, GMx, GMy };                                                                  \
+    for (auto&& node : _config["nodes"]) {                                                                             \
+        auto [Nx, Ny, Gx, Gy, Bx, By] = _getSize(node);                                                                \
+        std::string id                = _asStr(node["id"]);                                                            \
+        macro._N.nodes_xy[id]         = { Nx, Ny };                                                                    \
+        macro._B.nodes_xy[id]         = { Bx, By };                                                                    \
+        macro._G.nodes_xy[id]         = { Gx, Gy };                                                                    \
+    }
 
 Export::Export(CLI_Options& opt, Shared_Info* const info) : _opt(opt), _s_info(info) {
     std::tie(_config, _errors) = ReadConfig::read(opt.input);
@@ -404,13 +420,7 @@ void Export::_algorithms() {
     if (auto&& n = _config["physics"]["frequency"]; _preCheck(n, DType::STRING, false)) { freq = _asStr(n); }
     if (auto&& m = _config["physics"]["carriers"]; _preCheck(m, DType::INT, false)) { carriers = m.as<unsigned>(); }
     auto&& jobs = _config["simulation"]["jobs"];
-    Macro macro;
-    macro._cascaded_channel         = _cascaded_channel;
-    macro.beamforming               = _beamforming;
-    macro.job_num                   = jobs.size();
-    macro._N                        = { Nx, Ny, Mx, My };
-    macro._B                        = { BNx, BNy, BMx, BMy };
-    macro._G                        = { GNx, GNy, GMx, GMy };
+    CREATE_MACRO_CH;
     auto&& common_custom_macro_node = _config["macro"];
     if (_preCheck(common_custom_macro_node, DType::SEQ, false)) {
         for (auto&& macro_pair : common_custom_macro_node) {
@@ -581,13 +591,7 @@ void Export::_sounding() {
                      << BNx * BNy * BMx * BMy << "-1)) = _y;}\n";
             }
             _generateConstants();
-            Macro macro;
-            macro._cascaded_channel = _cascaded_channel;
-            macro.beamforming       = _beamforming;
-            macro.job_num           = jobs.size();
-            macro._N                = { Nx, Ny, Mx, My };
-            macro._B                = { BNx, BNy, BMx, BMy };
-            macro._G                = { GNx, GNy, GMx, GMy };
+            CREATE_MACRO_CH;
             for (size_t i = 0; i != macro.job_num; ++i) {
                 auto&& job_algs = jobs[i]["algorithms"];
                 macro.alg_num.push_back(job_algs.size());
@@ -1289,3 +1293,5 @@ void Export::_checkALGdependency(std::vector<std::string>& algs, bool logged) {
         if (logged) _log.war() << "ALG library dependency file cannot be opened." << std::endl;
     }
 }
+
+#undef CREATE_MACRO_CH
