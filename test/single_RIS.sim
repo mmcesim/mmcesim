@@ -72,10 +72,7 @@ estimation: |
   VNr::m = NEW `DICTIONARY.R`
 
   COMMENT STEP 2: Compressed Sensing Formulation
-  Q::m = INIT `MEASUREMENT` $`GRID.*` * $
-
-  COMMENT `SIZE[RIS].x` + `SIZE[RIS].y`
-  COMMENT `BEAM[UE]`
+  Q::m = INIT `MEASUREMENT` $`GRID.*` * `GRID[RIS]`$
 
 simulation:
   backend: cpp
