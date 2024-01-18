@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of class Alg
  * @version 0.2.2
- * @date 2024-01-14
+ * @date 2024-01-18
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -80,9 +80,10 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, b
 
 // Apply keys and check repeated/unknown keys.
 #define APPLY_KEYS(_func_name__)                                                                                       \
-    if (!_applyKey(line, keys)) ERROR(std::string("More parameters than expected in '") + _func_name__ + "'.");        \
-    if (line.hasRepeatedKey()) ERROR(std::string("Repeated key in '") + _func_name__ + "'.");                          \
-    if (line.hasUnknownKey(keys)) ERROR(std::string("Unkown key in '") + _func_name__ + "'.");
+    if (!_applyKey(line, keys)) ERROR("More parameters than expected in '"s + _func_name__ + "'.");                    \
+    if (line.hasRepeatedKey()) ERROR("Repeated key in '"s + _func_name__ + "'.");                                      \
+    if (line.hasUnknownKey(keys, unknown_key))                                                                         \
+        ERROR("Unknown key '"s + unknown_key + "' in Function '"s + _func_name__ + "'.");
 
 bool Alg::write(std::ofstream& f, const std::string& lang) {
     size_t indent_cnt = 0;                    // used for Python and MATLAB.
@@ -98,6 +99,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             } else _log.info() << "ALG writing function declaration '" << func << "'" << std::endl;
         }
         line.print(_log.write(), "[INFO] ");
+        std::string unknown_key;
         // clang-format off
         SWITCH_FUNC
             // function no end
@@ -221,8 +223,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     if (auto&& type = line.returns(0).type; type.empty()) estimate_str += "v";
                     else estimate_str += type;
                     if (_macro.alg_names[_job_cnt][_alg_cnt] == "Oracle_LS") {
-                        estimate_str += " = CALL Oracle_LS " + _ms("Q") + " " + _ms("y") + " " + inlineCalc(_ms("nonezero"), "cpp") +
-                            " " + _macro.alg_params[_job_cnt][_alg_cnt];
+                        try {
+                            estimate_str += " = CALL Oracle_LS " + _ms("Q") + " " + _ms("y") + " "
+                                + inlineCalc(_ms("nonezero"), "cpp") + " " + _macro.alg_params[_job_cnt][_alg_cnt];
+                        } catch (...) {
+                            ERROR("No 'nonezero' parameter specified in 'ESTIMATE'.");
+                        }
                     } else {
                         estimate_str += " = CALL " + _macro.alg_names[_job_cnt][_alg_cnt] +
                             " " + _ms("Q") + " " + _ms("y") + " " + _macro.alg_params[_job_cnt][_alg_cnt];
@@ -437,7 +443,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     type_track--;
                 } catch (const std::out_of_range& e) {
                     std::cerr << "ERROR: " << __FILE__ << " " << __LINE__
-                              << ": " << e.what() << std::endl; 
+                              << ": " << e.what() << std::endl;
                 }
                 type_track++;
             CASE ("ELIF")
@@ -652,9 +658,9 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 f << _contents_at_end.top();
                 _contents_at_end.pop();
                 --indent_cnt;
-                LANG_CPP f << "}";
+                LANG_CPP f << "}\n";
                 LANG_PY
-                LANG_M f << INDENT << "end";
+                LANG_M f << INDENT << "end ";
                 END_LANG
                 try {
                     type_track--;
@@ -696,7 +702,19 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             }
         }
     }
-    return true;
+    if (_errors.empty()) return true;
+    else {
+        _log.err() << "!! Encountering " << _errors.size() << " error(s) when processing ALG." << std::endl;
+        Term::error("!! Encountering " + std::to_string(_errors.size()) + " errors when processing ALG.");
+        for (auto&& e : _errors) {
+            _log.err() << e.msg << " (line " << e.line << "): " << e.msg << std::endl;
+            std::cerr << Term::ERR << "[ERROR] " << e.msg << Term::RESET << " (line " << Term::GREEN << e.line
+                      << Term::RESET << ")\n"
+                      << Term::ERR << "[ERROR] " << Term::RESET << "-> " << Term::YELLOW << e.raw_str << Term::RESET
+                      << std::endl;
+        }
+        return false;
+    }
 }
 
 #undef SWITCH_FUNC
