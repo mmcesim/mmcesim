@@ -123,7 +123,7 @@ simulation:
       - alg: OMPL
         params: "6 8"
         label: OMPL-8
-      - alg: Oracle_LS
-        label: Oracle LS
+      # - alg: Oracle_LS
+      #   label: Oracle LS
   report:
     name: Single_RIS_Simulation
