@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Algorithm Parser (.alg Language)
  * @version 0.2.2
- * @date 2024-01-14
+ * @date 2024-01-20
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -87,6 +87,8 @@ class Alg {
 
     bool _applyKey(Alg_Line& line, const Keys& keys) const;
 
+    void _recoverPrint() const;
+
     Alg_Lines _lines;
     Errors _errors;
     Warnings _warnings;
@@ -103,6 +105,7 @@ class Alg {
     int _alg_cnt     = 0;
     int _job_cnt     = 0;
     int _recover_cnt = 0;
+    std::vector<std::string> _recover_cnt_var;
     int _branch_line = Alg::max_length;
 
     const static int max_length = 100000;

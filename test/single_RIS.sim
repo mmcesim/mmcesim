@@ -75,6 +75,7 @@ estimation: |
     tmp::v = \kron(V_M_{i,:}^T, V_M_{i,:}^H)
     D_{:,i} = tmp_{0:`SIZE[RIS]`-1}
   END
+  V_N::m = NEW \kron(VNt^*, VNr)
 
   COMMENT STEP 2: Compressed Sensing Formulation
   Q::m = INIT `MEASUREMENT` $`GRID.*` * `GRID[RIS]`$ # sensing matrix
@@ -89,13 +90,21 @@ estimation: |
       Z_T::m = \kron(F_t^T, W_t^H)
       first_index::u0 = (k * T + t) * `BEAM.*`
       last_index::u0  = first_index + `BEAM.*` - 1
-      Q_{first_index:last_index,:} = \kron((D * psi)^T, Z_T @ V_N)
+      Q_{first_index:last_index,:} = \kron((D @ psi)^T, Z_T @ V_N)
     END
   END
 
   COMMENT STEP 3: Apply Compressed Sensing Algorithms
   BRANCH
   lambda_hat = ESTIMATE Q y
+  Lambda_hat::m = NEW \reshape(lambda_hat, `GRID.*`, `GRID[RIS]`)
+  # Here we have multiple 'RECOVER's, as we need to measure the SNR for different reflection patterns.
+  # This should be carefully designed, whether it can be a fair representation.
+  k::u0 = LOOP 0 K
+    psi::v = NEW Psi_{k}
+    H_hat::m = NEW \reshape(V_N @ Lambda_hat @ D @ psi, `SIZE.R`, `SIZE.T`)
+    RECOVER H_hat num=K
+  END
   MERGE
 
 simulation:

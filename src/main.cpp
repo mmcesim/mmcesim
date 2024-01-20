@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.2
- * @date 2024-01-12
+ * @date 2024-01-21
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -217,17 +217,23 @@ int main(int argc, char* argv[]) {
         }
     } else if (opt.cmd == "cfg" || opt.cmd == "config") {
         _log.info() << "Config Mode [cfg]" << std::endl;
+        std::string msg;
         if (vm.count("value")) {
-            std::string msg;
             if (Config::edit(opt.input, opt.value, &msg)) {
                 _log.info() << "config '" << opt.input << "' as " << opt.value << std::endl;
             } else {
-                std::cerr << Term::ERR << "[ERROR] " << msg << std::endl;
+                Term::error(msg);
                 _log.err() << msg << std::endl;
                 return errorCode(Err::CONFIG_ERROR);
             }
         } else {
-            std::cout << Config::read(opt.input) << std::endl;
+            if (auto value = Config::read(opt.input, &msg); msg.empty()) {
+                std::cout << value << std::endl;
+            } else {
+                Term::error(msg);
+                _log.err() << msg << std::endl;
+                return errorCode(Err::CONFIG_ERROR);
+            }
         }
         return 0;
     } else {

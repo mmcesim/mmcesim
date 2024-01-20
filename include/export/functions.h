@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Function Lists
  * @version 0.2.2
- * @date 2023-04-06
+ * @date 2024-01-20
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -16,10 +16,9 @@
 #include <array>
 #include <string>
 
-static std::array functions_no_end = {
-    "BRANCH"s, "BREAK"s,  "CALC"s,  "CALL"s, "COMMENT"s, "CPP"s,   "ESTIMATE"s, "INIT"s,
-    "LOG"s,    "MATLAB"s, "MERGE"s, "NEW"s,  "OCTAVE"s,  "PRINT"s, "PYTHON"s,   "RECOVER"s,
-};
+static std::array functions_no_end = { "BRANCH"s,   "BREAK"s, "CALC"s,   "CALL"s,    "COMMENT"s, "CPP"s,
+                                       "ESTIMATE"s, "INIT"s,  "LOG"s,    "MATLAB"s,  "MERGE"s,   "NEW"s,
+                                       "OCTAVE"s,   "PRINT"s, "PYTHON"s, "RECOVER"s, "SETCH"s };
 
 static std::array functions_needs_end = {
     "ELSE"s, "ELIF"s, "FOR"s, "FOREVER"s, "FUNCTION"s, "IF"s, "LOOP"s, "WHILE"s,

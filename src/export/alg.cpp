@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of class Alg
  * @version 0.2.2
- * @date 2024-01-18
+ * @date 2024-01-21
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -84,6 +84,33 @@ Alg::Alg(const std::string& str, const Macro& macro, int job_cnt, int alg_cnt, b
     if (line.hasRepeatedKey()) ERROR("Repeated key in '"s + _func_name__ + "'.");                                      \
     if (line.hasUnknownKey(keys, unknown_key))                                                                         \
         ERROR("Unknown key '"s + unknown_key + "' in Function '"s + _func_name__ + "'.");
+
+#define RECOVER_PROCESS                                                                                                \
+    if (_recover_cnt == 0 && _recover_cnt_var.empty()) {                                                               \
+        WARNING(                                                                                                       \
+            fmt::format("No 'RECOVER' function found in estimation (Job: {}, Alg: {}).", _job_cnt + 1, _alg_cnt + 1)); \
+        _log.war() << "No 'RECOVER' function found in estimation (Job: " << _job_cnt + 1 << ", Alg: " << _alg_cnt      \
+                   << ")." << std::endl;                                                                               \
+    } else {                                                                                                           \
+        std::string recover_cnt = std::to_string(_recover_cnt);                                                        \
+        if (!_recover_cnt_var.empty()) {                                                                               \
+            /* add each element inside _recover_cnt_var to recover_cnt, with a pair of parentheses */                  \
+            recover_cnt =                                                                                              \
+                std::accumulate(_recover_cnt_var.begin(), _recover_cnt_var.end(), recover_cnt,                         \
+                                [](const std::string& a, const std::string& b) { return a + " + (" + b + ")"; });      \
+        }                                                                                                              \
+        _log.info() << "Found " << recover_cnt << " 'RECOVER' function(s) in estimation (Job: " << _job_cnt + 1        \
+                    << ", Alg: " << _alg_cnt << ")." << std::endl;                                                     \
+                                                                                                                       \
+        LANG_CPP                                                                                                       \
+        if (recover_cnt != "1") {                                                                                      \
+            f << "NMSE" << _job_cnt << "(ii, " << _alg_cnt - 1 << ") /= (" << recover_cnt << ");\n";                   \
+        }                                                                                                              \
+        f << "}";                                                                                                      \
+        END_LANG                                                                                                       \
+    }                                                                                                                  \
+    _recover_cnt = 0;                                                                                                  \
+    _recover_cnt_var.clear();
 
 bool Alg::write(std::ofstream& f, const std::string& lang) {
     size_t indent_cnt = 0;                    // used for Python and MATLAB.
@@ -350,6 +377,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                     END_LANG
                 }
             CASE ("MATLAB")
+                LANG_CPP
+                LANG_PY
+                LANG_M
+                    _log.war() << "Ignoring Function 'MATLAB' (not supported yet).";
+                END_LANG
             CASE ("MERGE")
                 ++_alg_cnt;
                 if (_branch_line != Alg::max_length && _alg_cnt < _macro.alg_num[_job_cnt]) {
@@ -358,22 +390,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 } else if (_alg_cnt == _macro.alg_num[_job_cnt]) {
                     _branch_line = Alg::max_length;
                 }
-                if (_recover_cnt == 0) {
-                    WARNING(fmt::format("No 'RECOVER' function found in estimation (Job: {}, Alg: {}).",
-                        _job_cnt + 1, _alg_cnt + 1));
-                    _log.war() << "No 'RECOVER' function found in estimation (Job: " << _job_cnt + 1
-                               << ", Alg: " << _alg_cnt << ")." << std::endl;
-                } else {
-                    _log.info() << "Found " << _recover_cnt << " 'RECOVER' function(s) in estimation (Job: "
-                                << _job_cnt + 1 << ", Alg: " << _alg_cnt << ")." << std::endl;
-                }
-                LANG_CPP
-                    if (_recover_cnt > 1) {
-                        f << "NMSE" << _job_cnt << "(ii, " << _alg_cnt - 1  << ") /= " << _recover_cnt << ";\n";
-                    }
-                    f << "}";
-                END_LANG
-                _recover_cnt = 0;
+                RECOVER_PROCESS;
                 try {
                     type_track--;
                 } catch (const std::out_of_range& e) {
@@ -411,6 +428,11 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 LANG_M
                 END_LANG
             CASE ("OCTAVE")
+                LANG_CPP
+                LANG_PY
+                LANG_M
+                    _log.war() << "Ignoring Function 'OCTAVE' (not supported yet).";
+                END_LANG
             CASE ("PRINT")
                 // TODO: set stream type and return file
                 LANG_CPP
@@ -424,16 +446,24 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 END_LANG
             CASE ("RECOVER")
                 if (!line.returns().empty()) WARNING("No return value is needed in function 'RECOVER'!.");
-                else {
-                    Keys keys { "H" };
-                    APPLY_KEYS("RECOVER");
-                    std::string recover_str = "= NMSE" + std::to_string(_job_cnt) + "_{ii," +
-                                              std::to_string(_alg_cnt) + "} += \\nmse(" +
-                                              line["H"] + ", " + _macro._cascaded_channel + ")";
-                    Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
-                    recover_alg.write(f, lang);
+                Keys keys { "est", "real", "num" };
+                APPLY_KEYS("RECOVER");
+                std::string real_ch = line.hasKey("real") ? line["real"] : _macro._cascaded_channel;
+                std::string num = line.hasKey("num") ? line["num"] : "1";
+                if (num.empty()) {
+                    WARNING("Empty 'num' parameter in 'RECOVER'. Use default value 1 instead.");
+                    num = "1";
                 }
-                ++_recover_cnt;
+                if (num == "1") ++_recover_cnt;
+                else _recover_cnt_var.push_back(num);
+                std::string recover_str = fmt::format("= NMSE{}_{{ii, {}}} += \\nmse({}, {})",
+                    _job_cnt, _alg_cnt, line["est"], real_ch);
+                Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
+                recover_alg.write(f, lang);
+            CASE ("SETCH") // SET CHannel
+                Keys keys { "H" };
+                APPLY_KEYS("SETCH");
+                // TODO: ALG Function 'SETCH'
             // function needs end
             CASE ("ELSE")
                 LANG_CPP
@@ -679,22 +709,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             // meaning the last while BRANCH is not closed
             if (_alg_cnt + 1 < _macro.alg_num[_job_cnt]) { i = _branch_line - 1; }
             ++_alg_cnt;
-            if (_recover_cnt == 0) {
-                WARNING(fmt::format("No 'RECOVER' function found in estimation (Job: {}, Alg: {}).", _job_cnt + 1,
-                                    _alg_cnt + 1));
-                _log.war() << "No 'RECOVER' function found in estimation (Job: " << _job_cnt + 1
-                           << ", Alg: " << _alg_cnt << ")." << std::endl;
-            } else {
-                _log.info() << "Found " << _recover_cnt << " 'RECOVER' function(s) in estimation (Job: " << _job_cnt + 1
-                            << ", Alg: " << _alg_cnt << ")." << std::endl;
-            }
-            LANG_CPP
-            if (_recover_cnt > 1) {
-                f << "NMSE" << _job_cnt << "(ii, " << _alg_cnt - 1 << ") /= " << _recover_cnt << ";\n";
-            }
-            f << "}";
-            END_LANG
-            _recover_cnt = 0;
+            RECOVER_PROCESS;
             try {
                 type_track--;
             } catch (const std::out_of_range& e) {
