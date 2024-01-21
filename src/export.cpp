@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.2
- * @date 2024-01-15
+ * @date 2024-01-21
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -437,7 +437,10 @@ void Export::_algorithms() {
         _log.info() << "====== Start of Preamble ======\n"
                     << preamble_str << "\n[INFO] ======= End of Preamble =======" << std::endl;
         Alg alg(preamble_str, macro);
-        alg.write(_f(), _langStr());
+        if (!alg.write(_f(), _langStr())) {
+            _errors.push_back(Err::ALG_EXPORT_ALGORITHM);
+            _log.err() << "Failed to export ALG algorithm!" << std::endl;
+        }
     }
 }
 
@@ -687,7 +690,10 @@ void Export::_estimation(const Macro& macro, int job_cnt) {
     } else {
         _log.info() << "* Use custom estimation scheme." << std::endl;
         Alg alg(estimation_str, macro, job_cnt);
-        alg.write(_f(), _langStr());
+        if (!alg.write(_f(), _langStr())) {
+            _errors.push_back(Err::ALG_EXPORT_ESTIMATION);
+            _log.err() << "Estimation algorithm export failed!" << std::endl;
+        }
     }
     _log.info() << "===== Start of Estimation ====\n"
                 << estimation_str << "\n[INFO] ====== End of Estimation =====" << std::endl;
@@ -1191,7 +1197,10 @@ void Export::_generateBF(unsigned Nt_B) {
             _log.info() << "===== Start of Custom BF =====\n"
                         << formula << "\n[INFO] ====== End of Custom BF ======" << std::endl;
             Alg alg(formula, macro);
-            alg.write(_f(), _langStr());
+            if (!alg.write(_f(), _langStr())) {
+                _errors.push_back({ "Custom BF ALG error.", Err::ALG_EXPORT_GEN_BF });
+                _log.err() << "Custom BF ALG export error." << std::endl;
+            }
         } else if (scheme == "random") {
             _log.info() << "Load Random BF." << std::endl;
             auto f_name = appDir() + "/../include/mmcesim/sys/random_" + (isTxRx ? "active" : "RIS") + "_BF.alg";

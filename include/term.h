@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Terminal Color and Style Control
  * @version 0.2.2
- * @date 2023-03-31
+ * @date 2024-01-21
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -63,7 +63,11 @@ static inline std::ostream& operator<<(std::ostream& out, const TermOpt& opt) {
  * @param o2 The second TermOpt configuration.
  * @return (TermOpt) The added result.
  */
-static inline TermOpt operator+(const TermOpt& o1, const TermOpt& o2) { return o1.v + ";" + o2.v; }
+static inline TermOpt operator+(const TermOpt& o1, const TermOpt& o2) {
+    if (o1.vld && o2.vld) return o1.v + ";" + o2.v;
+    else if (o1.vld) return o1;
+    else return o2;
+}
 
 /**
  * @brief Combine two TermOpt configurations.

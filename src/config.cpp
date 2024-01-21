@@ -124,8 +124,6 @@ bool Config::_load() {
             // ```
             auto cfgs = YAML::LoadAllFromFile(cfg_file);
             _config   = cfgs.end()[-1];
-            std::cout << cfg_file << std::endl;
-            std::cout << "Loaded\n" << _config << std::endl;
             return true;
         } catch (std::exception& e) {
             // TODO: error handling cfg file on load

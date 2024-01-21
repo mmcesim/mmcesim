@@ -18,6 +18,7 @@
 #include "utils.h"
 #include <algorithm>
 #include <cassert>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -290,7 +291,7 @@ inline const Alg_Line::Param_Type& Alg_Line::params(const std::string& key) cons
     for (auto&& elem : _params) {
         if (elem.key == key) return elem;
     }
-    throw("No such key!");
+    throw std::runtime_error("No key '" + key + "'!");
 }
 
 inline const std::string& Alg_Line::operator[](const std::string key) const { return params(key).value; }

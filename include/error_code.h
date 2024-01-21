@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Error Codes (Including Warnings)
  * @version 0.2.2
- * @date 2023-03-13
+ * @date 2024-01-21
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -45,6 +45,9 @@ enum class Err : int {
     SIMULATE_ERROR,
     CONFIG_ERROR,
     CANNOT_COPY_FROM_INCLUDE,
+    ALG_EXPORT_ESTIMATION,
+    ALG_EXPORT_GEN_BF,
+    ALG_EXPORT_ALGORITHM,
     // warning
     VERSION_NOT_SPECIFIED = 200,
 };
@@ -81,8 +84,12 @@ static inline std::string errorMsg(const Err& e) noexcept {
     case Err::ASTYLE_ERROR: return "Astyle formatting error.";
     case Err::COMPILE_ERROR: return "Simulation compilation error.";
     case Err::SIMULATE_ERROR: return "Simulation running error.";
+    case Err::CONFIG_ERROR: return "Configuration error.";
     case Err::CANNOT_COPY_FROM_INCLUDE:
         return "Cannot copy from include directory. Please check if directory 'include/mmcesim/copy' exists.";
+    case Err::ALG_EXPORT_ESTIMATION: return "ALG export estimation error.";
+    case Err::ALG_EXPORT_GEN_BF: return "ALG export generation BF error.";
+    case Err::ALG_EXPORT_ALGORITHM: return "ALG export algorithm error.";
     case Err::VERSION_NOT_SPECIFIED:
         return "Version string not specified. Assume as application version " + _MMCESIM_VER_STR + ".";
     default: return "Error!";
@@ -123,11 +130,13 @@ static inline bool isSuccess(const Err& e) noexcept { return e == Err::SUCCESS; 
  *
  * @param e Error code (class Err).
  */
-static inline void errorExit(const Err& e) noexcept {
+static inline void errorExit(const Err& e, bool show_error = true) noexcept {
     assert(isError(e) && "check if it is really an error in errorExit");
-    auto msg = errorMsg(e);
-    std::cerr << Term::ERR << "ERROR: " << msg << Term::RESET << std::endl;
-    _log.err() << msg << std::endl;
+    if (show_error) {
+        auto msg = errorMsg(e);
+        Term::error(msg);
+        _log.err() << msg << std::endl;
+    }
     exit(errorCode(e));
 }
 

@@ -25,6 +25,7 @@
 #include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
+#include <fmt/core.h>
 
 #ifdef _MSC_VER
 #    define _CRT_SECURE_NO_WARNINGS
@@ -115,7 +116,7 @@ int main(int argc, char* argv[]) {
 #ifdef __APPLE__
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path + ".app")) {
-                std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                Term::error(errorMsg(Err::NO_GUI));
                 _log.err() << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
@@ -127,7 +128,7 @@ int main(int argc, char* argv[]) {
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path) && !std::filesystem::exists(gui_path + ".out") &&
                 !std::filesystem::exists(gui_path + ".exe")) {
-                std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                Term::error(errorMsg(Err::NO_GUI));
                 _log.err() << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
@@ -155,7 +156,7 @@ int main(int argc, char* argv[]) {
     if (vm.count("verbose")) opt.verbose = true;
     if (vm.count("no-error-compile")) opt.no_error_compile = true;
 
-    if (opt.cmd != "config" && !std::filesystem::exists(opt.input)) {
+    if (opt.cmd != "config" && opt.cmd != "cfg" && !std::filesystem::exists(opt.input)) {
         opt.input += ".sim";
         if (!std::filesystem::exists(opt.input)) errorExit(Err::INPUT_NOT_EXISTS);
     }
@@ -206,8 +207,9 @@ int main(int argc, char* argv[]) {
         _log.info() << "Export Mode [exp]" << std::endl;
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) {
-            for (auto&& err : errors) { std::cerr << err.msg << '\n'; }
-            errorExit(errors[0].ec);
+            Term::error(fmt::format("!!! {} error(s) occurred during exporting.", errors.size()));
+            for (auto&& err : errors) { Term::error(err.msg); }
+            errorExit(errors[0].ec, false);
         }
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
             std::cerr << Term::ERR << "[ERROR] Formatting error. Astyle exit with code " << astyle_result << "."

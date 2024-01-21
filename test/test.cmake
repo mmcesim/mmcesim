@@ -8,7 +8,7 @@ if (MMCESIM_TESTS)
     add_test(NAME null2     COMMAND mmcesim sim) # [will fail]
     add_test(NAME sim       COMMAND mmcesim sim ../test/MIMO.sim --no-error-compile -f)
     # add_test(NAME exp       COMMAND mmcesim exp ../test/MIMO.sim -f)
-    # add_test(NAME real      COMMAND mmcesim exp ../test/MIMO_real.sim -f)
+    add_test(NAME real      COMMAND mmcesim exp ../test/MIMO_real.sim -f)
     add_test(NAME wideband  COMMAND mmcesim exp ../test/MIMO_wideband.sim -f)
     add_test(NAME wide_off  COMMAND mmcesim exp ../test/MIMO_wideband_offgrid.sim -f)
     # add_test(NAME Oracle_LS COMMAND mmcesim exp ../test/MIMO_Oracle_LS.sim -f)
@@ -19,4 +19,6 @@ if (MMCESIM_TESTS)
     add_test(NAME not_exist COMMAND mmcesim sim input_not_exists) # [will fail]
     add_test(NAME yaml_err  COMMAND mmcesim sim ../test/syntax_error.sim) # [will fail]
     set_tests_properties(null1 null2 not_exist yaml_err PROPERTIES WILL_FAIL TRUE)
+    get_property(test_names DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY TESTS)
+    set_tests_properties(${test_names} PROPERTIES ENVIRONMENT "NO_COLOR=1")
 endif()

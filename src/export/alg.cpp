@@ -448,6 +448,12 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 if (!line.returns().empty()) WARNING("No return value is needed in function 'RECOVER'!.");
                 Keys keys { "est", "real", "num" };
                 APPLY_KEYS("RECOVER");
+                std::string est_ch;
+                if (line.hasKey("est")) est_ch = line["est"];
+                else {
+                    ERROR("No 'est' parameter specified in 'RECOVER'.");
+                    _log.err() << "No 'est' parameter specified in 'RECOVER'." << std::endl;
+                }
                 std::string real_ch = line.hasKey("real") ? line["real"] : _macro._cascaded_channel;
                 std::string num = line.hasKey("num") ? line["num"] : "1";
                 if (num.empty()) {
@@ -457,7 +463,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 if (num == "1") ++_recover_cnt;
                 else _recover_cnt_var.push_back(num);
                 std::string recover_str = fmt::format("= NMSE{}_{{ii, {}}} += \\nmse({}, {})",
-                    _job_cnt, _alg_cnt, line["est"], real_ch);
+                    _job_cnt, _alg_cnt, est_ch, real_ch);
                 Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
                 recover_alg.write(f, lang);
             CASE ("SETCH") // SET CHannel
@@ -717,18 +723,31 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
             }
         }
     }
-    if (_errors.empty()) return true;
+    if (_errors.empty() && _warnings.empty()) return true;
     else {
+        // ERROR
         _log.err() << "!! Encountering " << _errors.size() << " error(s) when processing ALG." << std::endl;
-        Term::error("!! Encountering " + std::to_string(_errors.size()) + " errors when processing ALG.");
+        if (!_errors.empty())
+            Term::error("!! Encountering " + std::to_string(_errors.size()) + " errors when processing ALG.");
         for (auto&& e : _errors) {
             _log.err() << e.msg << " (line " << e.line << "): " << e.msg << std::endl;
             std::cerr << Term::ERR << "[ERROR] " << e.msg << Term::RESET << " (line " << Term::GREEN << e.line
                       << Term::RESET << ")\n"
-                      << Term::ERR << "[ERROR] " << Term::RESET << "-> " << Term::YELLOW << e.raw_str << Term::RESET
-                      << std::endl;
+                      << Term::ERR << "[ERROR] " << Term::RESET << "-> " << Term::CYAN + Term::DIM << e.raw_str
+                      << Term::RESET << std::endl;
         }
-        return false;
+        // WARNING
+        _log.war() << "!! Encountering " << _warnings.size() << " warning(s) when processing ALG." << std::endl;
+        if (!_warnings.empty())
+            Term::warning("!! Encountering " + std::to_string(_warnings.size()) + " warnings when processing ALG.");
+        for (auto&& w : _warnings) {
+            _log.war() << w.msg << " (line " << w.line << "): " << w.msg << std::endl;
+            std::cerr << Term::WAR << "[WARNING] " << w.msg << Term::RESET << " (line " << Term::GREEN << w.line
+                      << Term::RESET << ")\n"
+                      << Term::WAR << "[WARNING] " << Term::RESET << "-> " << Term::CYAN + Term::DIM << w.raw_str
+                      << Term::RESET << std::endl;
+        }
+        return _errors.empty();
     }
 }
 
@@ -746,6 +765,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
 #undef _mi
 #undef _ms
 #undef APPLY_KEYS
+#undef RECOVER_PROCESS
 
 std::string Alg::inlineCalc(const std::string& s, const std::string& lang) {
     // TODO: error handling here
