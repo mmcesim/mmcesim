@@ -1,4 +1,5 @@
-# Configure CPP Flags on Teddy van Jerry's Mac
+#!/bin/sh
+
 # You can also use this script if you install Armadillo library with MacPorts
 # available at: https://ports.macports.org/port/armadillo/
 

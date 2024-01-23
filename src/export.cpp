@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.2
- * @date 2024-01-21
+ * @date 2024-01-24
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -529,12 +529,13 @@ void Export::_sounding() {
             }
             // TODO: The cascaded channel is the only channel is valid only for a simple MIMO system.
             // TODO: transmit pilots!
-            if (freq == "wide") {
+            if (freq == "wide") { // ***** WIDEBAND *****
                 _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
                      << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
                      << ", carriers_num, arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
                 _f() << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "_cascaded_channel_tmp.zeros();\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
                      << "for (uword k = 0; k != carriers_num; ++k) {";
@@ -562,11 +563,12 @@ void Export::_sounding() {
                      << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
                      << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy << ",(t+1)*"
                      << BNx * BNy * BMx * BMy << "-1), k) = _y;}}\n";
-            } else {
+            } else { // ***** NARROWBAND *****
                 _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
                      << "cx_mat " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
                      << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "_cascaded_channel_tmp.zeros();\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n";
                 if (!_channel_graph.paths.empty()) {

@@ -467,9 +467,10 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
                 recover_alg.write(f, lang);
             CASE ("SETCH") // SET CHannel
-                Keys keys { "H" };
-                APPLY_KEYS("SETCH");
+                Keys keys;
+                // add keys as id of RIS nodes
                 // TODO: ALG Function 'SETCH'
+                APPLY_KEYS("SETCH");
             // function needs end
             CASE ("ELSE")
                 LANG_CPP

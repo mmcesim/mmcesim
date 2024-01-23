@@ -88,6 +88,10 @@ std::string Macro::replaceMacro(const std::string& s, int job_cnt, int alg_cnt) 
                     "\\dictionary(" + std::to_string(_N.Rx) + "," + std::to_string(_N.Ry) + "," +
                         std::to_string(_G.Rx) + "," + std::to_string(_G.Ry) + ")");
     }
+    if (_N._() > 0) {
+        r = replace(r, R"(DICTIONARY\[(.*\w+.*)\])",
+                    "\\dictionary(`SIZE[$1].x`, `SIZE[$1].y`, `GRID[$1].x`, `GRID[$1].y`)");
+    }
     if (_B.r() > 0) r = replace(r, "MEASUREMENT", "(pilot*" + std::to_string(_B.r()) + ")");
     for (const auto& [key, val] : custom_priority) { r = replace(r, key, val, Type::USER_PRIORITY); }
     if (job_cnt >= 0) {

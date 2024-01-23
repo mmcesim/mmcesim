@@ -1,7 +1,7 @@
 # single_RIS.sim
 # Single RIS Channel Estimation Test
 # Author: Wuqiong Zhao
-# Date: 2024-01-18
+# Date: 2024-01-24
 
 version: 0.3.0
 meta:
@@ -9,16 +9,27 @@ meta:
   author: Wuqiong Zhao
 physics:
   frequency: narrow
-  off_grid: true
+  off_grid: false
 nodes:
   # now both BS and UE are ULA
   - id: BS
     role: receiver
     size: 16 # [16, 4]
-    beam: 3 # [4, 2]
+    beam: 4 # [4, 2]
     grid: same
     beamforming:
       variable: "W" # combining
+      # scheme: custom
+      # formula: |
+      #   # random beam for single-RIS system
+      #   K::u0 = NEW 16 # number of blocks
+      #   T::u0 = NEW TIMES/K # number of sounding times
+      #   `VAR` = \randn(SIZE, BEAM, TIMES)
+      #   tmp = INIT SIZE BEAM T fill=randn
+      #   CPP tmp.each_slice([](cx_mat& X){ return normalise(X,2,0); });
+      #   i::u0 = LOOP 0 K
+      #     `VAR`_{:,:,i*T:(i+1)*T-1} = tmp
+      #   END
   - id: UE
     role: transmitter
     size: 4
@@ -26,37 +37,39 @@ nodes:
     grid: same
     beamforming:
       variable: "F" # precoding
-      scheme: custom # This can be omitted if the formula is specified.
-      formula: |
-        # Available temporary variables will include SIZE, BEAM, GRID, etc.
-        # And the size of W (type 't', i.e. 'c3') is SIZE * BEAM * TIMES
-        COMMENT This method is actually the same as that in the sys folder.
-        `VAR` = \randn(SIZE, BEAM, TIMES)
-        CPP `VAR`.each_slice([](cx_mat& X){return normalise(X,2,0);});
+      # scheme: custom # This can be omitted if the formula is specified.
+      # formula: |
+      #   # random beam for single-RIS system
+      #   K::u0 = NEW 16 # number of blocks
+      #   T::u0 = NEW TIMES/K # number of sounding times
+      #   `VAR` = \randn(SIZE, BEAM, TIMES)
+      #   tmp = INIT SIZE BEAM T fill=randn
+      #   CPP tmp.each_slice([](cx_mat& X){ return normalise(X,2,0); });
+      #   i::u0 = LOOP 0 K
+      #     `VAR`_{:,:,i*T:(i+1)*T-1} = tmp
+      #   END
   - id: RIS
-    size: [8, 8]
+    size: [4, 4] # [8, 8]
     grid: same
     beamforming:
       variable: "Psi" # RIS reflection pattern
       scheme: custom # This can be omitted if the formula is specified.
       formula: |
-        # Available temporary variables will include SIZE, GRID, etc.
-        # And the size of Psi (type 'm', i.e. 'c2') is SIZE * TIMES
-        # where `TIMES` is the macro (of scope 1 and 2) for the number of phase shift in one sounding.
-        Psi = \randn(SIZE, TIMES)
-        Psi = Psi / \abs(Psi)
-        # Test Macro Here:
-        # CAS_CH: `CAS_CH`
-        # BF[RIS]: `BF[RIS]`
+        `VAR` = \randn(SIZE, TIMES)
+        `VAR` = `VAR` / \abs(`VAR`)
+        # K::u0 = NEW 16 # number of blocks
+        # tmp = INIT SIZE K fill=randn
+        # tmp = tmp / \abs(tmp)
+        # `VAR` = \kron(tmp, \ones(1, TIMES/K))
 channels:
   - id: G
     from: RIS
     to: BS
-    sparsity: 5
+    sparsity: 2
   - id: R
     from: UE
     to: RIS
-    sparsity: 3
+    sparsity: 1
   # - id: H_direct
   #   from: UE
   #   to: BS
@@ -70,68 +83,77 @@ estimation: |
   COMMENT STEP 1: Load Dictionary
   VNt::m = NEW `DICTIONARY.T`
   VNr::m = NEW `DICTIONARY.R`
+  V_M::m = NEW `DICTIONARY[RIS]`
+  V_N::m = NEW \kron(VNt^*, VNr)
   D::m   = INIT `GRID[RIS]` `SIZE[RIS]`
   LOOP 0 `SIZE[RIS]`
-    tmp::v = \kron(V_M_{i,:}^T, V_M_{i,:}^H)
+    tmp::v = NEW \kron(V_M_{i,:}^T, V_M_{i,:}^H)
     D_{:,i} = tmp_{0:`SIZE[RIS]`-1}
   END
-  V_N::m = NEW \kron(VNt^*, VNr)
 
   COMMENT STEP 2: Compressed Sensing Formulation
   Q::m = INIT `MEASUREMENT` $`GRID.*` * `GRID[RIS]`$ # sensing matrix
   K = NEW `GRID[RIS]` # number of blocks
-  T = NEW `PILOT`/`BEAM.T` # number of sounding times
+  T = NEW `PILOT`/`BEAM.T`/K # number of sounding times
   k::u0 = LOOP 0 K
-    psi::v = NEW Psi_{k} # one reflection vector
     t::u0 = LOOP 0 T
       i::u0 = NEW k * T + t
+      psi::v = NEW Psi_{:,i} # one reflection vector
       F_t::m = NEW F_{:,:,i}
       W_t::m = NEW W_{:,:,i}
-      Z_T::m = \kron(F_t^T, W_t^H)
-      first_index::u0 = (k * T + t) * `BEAM.*`
-      last_index::u0  = first_index + `BEAM.*` - 1
+      Z_T::m = NEW \kron(F_t^T, W_t^H)
+      first_index::u0 = NEW (k * T + t) * `BEAM.*`
+      last_index::u0  = NEW first_index + `BEAM.*` - 1
       Q_{first_index:last_index,:} = \kron((D @ psi)^T, Z_T @ V_N)
     END
   END
 
   COMMENT STEP 3: Apply Compressed Sensing Algorithms
   BRANCH
+  lambda_hat = INIT $`GRID.*` * `GRID[RIS]`$
   lambda_hat = ESTIMATE Q y
   Lambda_hat::m = NEW \reshape(lambda_hat, `GRID.*`, `GRID[RIS]`)
   # Here we have multiple 'RECOVER's, as we need to measure the SNR for different reflection patterns.
   # This should be carefully designed, whether it can be a fair representation.
-  k::u0 = LOOP 0 K
-    psi::v = NEW Psi_{k}
+  i::u0 = LOOP 0 T*K
+    psi::v = NEW Psi_{:,i}
     H_hat::m = NEW \reshape(V_N @ Lambda_hat @ D @ psi, `SIZE.R`, `SIZE.T`)
-    RECOVER H_hat num=K
+    H = G @ \diagmat(Psi_{:,i}) @ R
+    RECOVER H_hat H num=T*K
   END
   MERGE
+
+conclusion: |
+  i::u0 = LOOP 0 \length(`NMSE`)
+    PRINT `NMSE`_{i} '\n'
+  END
+  PRINT '\n'
 
 simulation:
   backend: cpp
   jobs:
-  - name: "NMSE v.s. SNR (Pilot: 24)"
-    test_num: 200
+  - name: "NMSE v.s. SNR (Pilot: 512)"
+    test_num: 20
     SNR: [0:2:30]
     SNR_mode: dB # dB (default) | linear
-    pilot: 24
+    pilot: 512
     # pilot_mode: percent # num (default) | percent
     algorithms: # compare different languages
       - alg: OMP
-        max_iter: 6
+        max_iter: 1
         label: OMP
-      - alg: OMPL
-        params: "6 1"
-        label: OMPL-1
-      - alg: OMPL
-        params: "6 2"
-        label: OMPL-2
-      - alg: OMPL
-        params: "6 4"
-        label: OMPL-4
-      - alg: OMPL
-        params: "6 8"
-        label: OMPL-8
+      # - alg: OMPL
+      #   params: "6 1"
+      #   label: OMPL-1
+      # - alg: OMPL
+      #   params: "6 2"
+      #   label: OMPL-2
+      # - alg: OMPL
+      #   params: "6 4"
+      #   label: OMPL-4
+      # - alg: OMPL
+      #   params: "6 8"
+      #   label: OMPL-8
       # - alg: Oracle_LS
       #   label: Oracle LS
   report:

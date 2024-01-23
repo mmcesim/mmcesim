@@ -79,6 +79,12 @@ inline cx_mat zeros(uword d1, uword d2) { return arma::zeros<cx_mat>(d1, d2); }
 
 inline cx_cube zeros(uword d1, uword d2, uword d3) { return arma::zeros<cx_cube>(d1, d2, d3); }
 
+inline cx_vec ones(uword d1) { return arma::ones<cx_vec>(d1); }
+
+inline cx_mat ones(uword d1, uword d2) { return arma::ones<cx_mat>(d1, d2); }
+
+inline cx_cube ones(uword d1, uword d2, uword d3) { return arma::ones<cx_cube>(d1, d2, d3); }
+
 template <typename T>
 void vec_push(arma::Col<T>& v, const T& x) {
     arma::Col<T> av(1);

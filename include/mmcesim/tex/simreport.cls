@@ -7,14 +7,14 @@
 %%
 %% Author: Wuqiong Zhao
 %% License: MIT
-%% Date: 2023-04-06
-%% Version: 0.2.1
+%% Date: 2024-01-24
+%% Version: 0.3.0
 
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{l3keys2e}
-\ProvidesExplClass{simreport}{2023/08/11}{0.2.2}{Simulation Report}
+\ProvidesExplClass{simreport}{2023/08/11}{0.3.0}{Simulation Report}
 
-\str_const:Nn \c__simreport_mmcesim_ver_str { 0.2.2 }
+\str_const:Nn \c__simreport_mmcesim_ver_str { 0.3.0 }
 \str_const:Nn \c__simreport_base_class_str { article }
 
 \keys_define:nn { simreport }
@@ -179,7 +179,7 @@
 {
   alsoletter={:\\.`*},
   keywords=[1]{BRANCH,BREAK,CALC,CALL,COMMENT,CPP,ESTIMATE,INIT,MATLAB,MERGE,NEW,OCTAVE,PRINT,PYTHON,RECOVER,ELSE,ELIF,FOR,FOREVER,FUNCTION,IF,LOOP,WHILE,END,ELSE,ELIF},
-  keywords=[2]{\\abs,\\find,\\kron,\\reshape,\\size,\\zeros,\\ones,\\length,\\index_max,\\index_min,\\max,\\min,\\ismember,\\pinv,\\inv,\\sum,\\accu,\\set_size,\\range,\\sort_index,\\solve,\\pow,\\exp2,\\sin,\\cos,\\rand,\\randn,\\randu},
+  keywords=[2]{\\abs,\\find,\\kron,\\reshape,\\size,\\zeros,\\ones,\\length,\\index_max,\\index_min,\\max,\\min,\\ismember,\\pinv,\\inv,\\diagmat,\\diagvec,\\sum,\\accu,\\set_size,\\range,\\sort_index,\\solve,\\pow,\\exp2,\\sin,\\cos,\\rand,\\randn,\\randu},
   keywords=[3]{`ALG_NAME`,`ALG_PARAMS`,`ALG_NUM`,`BEAM.R.x`,`BEAM.R.y`,`BEAM.R`,`BEAM.T.x`,`BEAM.T.y`,`BEAM.T`,`BEAM.*`,`DICTIONARY.R`,`DICTIONARY.T`,`GRID.R.x`,`GRID.R.y`,`GRID.R`,`GRID.T.x`,`GRID.T.y`,`GRID.T`,`GRID.*`,`JOB_NUM`,`JOB_CNT`,`MEASUREMENT`,`NMSE`,`PILOT`,`SIZE.R.x`,`SIZE.R.y`,`SIZE.R`,`SIZE.T.x`,`SIZE.T.y`,`SIZE.T`,`SIZE.*`,`SNR_dB`,`SNR_LINEAR`,`VERSION`,`OFDM_ANGLE_EST_NUM`,`SPARSITY_EST`,`CARRIERS_NUM`,`OFDM_RE_ESTIMATE`},
   keywords=[6]{version:,meta:,title:,description:,author:,email:,website:,license:,date:,comments:,physics:,frequency:,off_grid:,nodes:,id:,role:,num:,size:,beam:,grid:,beamforming:,variable:,scheme:,channels:,from:,to:,sparsity:,gains:,mode:,mean:,variance:,sounding:,variables:,received:,noise:,channel:,preamble:,estimation:,conclusion:,simulation:,backend:,metric:,jobs:,name:,test_num:,SNR:,SNR_mode:,pilot:,algorithms:,alg:,max_iter:,label:,estimated_channel:,report:,format:,plot:,table:,latex:,command:,UTF8:,appendix:,stopping_thr:,params:,macro:,value:,carriers:,in_alg:,formula:},
   upquote,

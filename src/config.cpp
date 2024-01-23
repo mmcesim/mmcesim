@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Config Class
  * @version 0.2.2
- * @date 2024-01-21
+ * @date 2024-01-23
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -75,12 +75,26 @@ bool Config::write() const {
 
 std::string Config::read(const std::string& key, std::string* msg) {
     Config c;
-    try {
-        return c[key];
-    } catch (std::runtime_error) {
-        // error already logged
-        if (msg) *msg = "Check the log for more information.";
-        return "";
+    if (key == "ALL") {
+        std::string s;
+        for (auto& k : valid_configs) {
+            try {
+                if (!c[k].empty()) s += k + ": " + c[k] + "\n";
+            } catch (std::runtime_error) {
+                // error already logged
+                if (msg) *msg = "Check the log for more information.";
+                return "";
+            }
+        }
+        return s;
+    } else {
+        try {
+            return c[key];
+        } catch (std::runtime_error) {
+            // error already logged
+            if (msg) *msg = "Check the log for more information.";
+            return "";
+        }
     }
 }
 

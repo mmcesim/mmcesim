@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Calc Class
  * @version 0.2.2
- * @date 2023-04-20
+ * @date 2024-01-24
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -87,6 +87,8 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
     _addArma(str, "atanh");
     _addArma(str, "atan2");
     _addArma(str, "tanh");
+    _addArma(str, "diagmat");
+    _addArma(str, "diagvec");
     _addArma(str, "inv");
     _addArma(str, "conj");
     _addArma(str, "pinv");
@@ -313,6 +315,10 @@ bool Calc::_changeSubScript(std::string& str, std::string lang, int8_t* d, std::
                                 subs       = ".slices(_as_uvec(" + subs_buf + "))";
                                 result_dim = 3;
                             } else {
+                                if (subs_buf.length() > 12 && subs_buf.substr(0, 11) == "arma::span(") {
+                                    subs_buf = subs_buf.substr(11);
+                                    subs_buf.pop_back(); // the terminating ')'
+                                }
                                 subs       = ".slices(" + subs_buf + ")";
                                 result_dim = 3;
                             }

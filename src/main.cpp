@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.2
- * @date 2024-01-21
+ * @date 2024-01-24
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -167,6 +167,13 @@ int main(int argc, char* argv[]) {
         Shared_Info info;
         auto&& errors = Export::exportCode(opt, &info);
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
+        // Let's style it so it looks better even for simulation.
+        if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
+            std::cerr << Term::ERR << "[ERROR] Formatting error. Astyle exit with code " << astyle_result << "."
+                      << std::endl;
+            _log.err() << "Formatting error. Astyle exit with code " << astyle_result << "." << std::endl;
+            return errorCode(Err::ASTYLE_ERROR);
+        }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
                 std::cerr << Term::ERR << "[ERROR] Compiling Error with exit code " << compile_result << "."
