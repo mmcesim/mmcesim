@@ -1,15 +1,16 @@
 # single_RIS.sim
 # Single RIS Channel Estimation Test
 # Author: Wuqiong Zhao
-# Date: 2024-01-24
+# Date: 2024-01-25
 
 version: 0.3.0
 meta:
   title: Single RIS Channel Estimation Test
   author: Wuqiong Zhao
+  description: Simple single RIS channel estimation setup based on \\url{https://wqzhao.org/publications#zhao2023ompl}.
 physics:
   frequency: narrow
-  off_grid: false
+  off_grid: true
 nodes:
   # now both BS and UE are ULA
   - id: BS
@@ -69,7 +70,7 @@ channels:
   - id: R
     from: UE
     to: RIS
-    sparsity: 1
+    sparsity: 2
   # - id: H_direct
   #   from: UE
   #   to: BS
@@ -79,6 +80,21 @@ sounding:
     received: "y"
     noise: "noise"
     channel: "H"
+preamble: |
+  Lambda::m = FUNCTION mergeToLambda J::m
+    Lambda = \zeros(`GRID.*`, `GRID[RIS]`)
+    p::u0 = LOOP 0 `GRID[RIS].y`
+      q::u0 = LOOP 0 `GRID[RIS].x`
+        u_prime::u0 = LOOP 0 `GRID[RIS].x`
+          p_prime::u0 = NEW \mod(p + `GRID[RIS]` + u_prime, `GRID[RIS].x`)
+          v_prime::u0 = LOOP 0 `GRID[RIS].y`
+            q_prime::u0 = NEW \mod(q + `GRID[RIS]` + v_prime, `GRID[RIS].y`)
+            Lambda_{:,p*`GRID[RIS].y`+q} = Lambda_{:,p*`GRID[RIS].y`+q} + J_{:,(u_prime*`GRID[RIS].y`+v_prime)*`GRID[RIS]`+p_prime*`GRID[RIS].y`+q_prime}
+          END
+        END
+      END
+    END
+  END
 estimation: |
   COMMENT STEP 1: Load Dictionary
   VNt::m = NEW `DICTIONARY.T`
@@ -108,53 +124,66 @@ estimation: |
     END
   END
 
-  COMMENT STEP 3: Apply Compressed Sensing Algorithms
-  BRANCH
+  COMMENT STEP 3: Calculate Ground Truth
+  G_ang::m = NEW VNr^H @ G @ V_M * `GRID.R` * `GRID[RIS]` / `SIZE.R` / `SIZE[RIS]`
+  R_ang::m = NEW V_M^H @ R @ VNt * `GRID.T` * `GRID[RIS]` / `SIZE.T` / `SIZE[RIS]`
+  J::m = NEW \kron(R_ang^T, G_ang)
+  Lambda::m = CALL mergeToLambda J init=true
+
+  COMMENT STEP 4: Apply Compressed Sensing Algorithms
   lambda_hat = INIT $`GRID.*` * `GRID[RIS]`$
+  BRANCH
   lambda_hat = ESTIMATE Q y
   Lambda_hat::m = NEW \reshape(lambda_hat, `GRID.*`, `GRID[RIS]`)
-  # Here we have multiple 'RECOVER's, as we need to measure the SNR for different reflection patterns.
-  # This should be carefully designed, whether it can be a fair representation.
-  i::u0 = LOOP 0 T*K
-    psi::v = NEW Psi_{:,i}
-    H_hat::m = NEW \reshape(V_N @ Lambda_hat @ D @ psi, `SIZE.R`, `SIZE.T`)
-    H = G @ \diagmat(Psi_{:,i}) @ R
-    RECOVER H_hat H num=T*K
-  END
+  RECOVER Lambda_hat Lambda
+  # # Here we have multiple 'RECOVER's, as we need to measure the SNR for different reflection patterns.
+  # # This should be carefully designed, whether it can be a fair representation.
+  # i::u0 = LOOP 0 T*K
+  #   psi::v = NEW Psi_{:,i}
+  #   H_hat::m = NEW \reshape(V_N @ Lambda_hat @ D @ psi, `SIZE.R`, `SIZE.T`)
+  #   H = G @ \diagmat(Psi_{:,i}) @ R
+  #   RECOVER H_hat H num=T*K
+  # END
   MERGE
 
 conclusion: |
   i::u0 = LOOP 0 \length(`NMSE`)
-    PRINT `NMSE`_{i} '\n'
+    PRINT $i$ ':' `NMSE`_{i} '\n'
   END
   PRINT '\n'
 
 simulation:
   backend: cpp
   jobs:
-  - name: "NMSE v.s. SNR (Pilot: 512)"
-    test_num: 20
+  - name: "NMSE v.s. SNR (Pilot: 128)"
+    test_num: 100
     SNR: [0:2:30]
     SNR_mode: dB # dB (default) | linear
-    pilot: 512
+    pilot: 128
     # pilot_mode: percent # num (default) | percent
     algorithms: # compare different languages
       - alg: OMP
-        max_iter: 1
+        max_iter: 4
         label: OMP
-      # - alg: OMPL
-      #   params: "6 1"
-      #   label: OMPL-1
-      # - alg: OMPL
-      #   params: "6 2"
-      #   label: OMPL-2
-      # - alg: OMPL
-      #   params: "6 4"
-      #   label: OMPL-4
-      # - alg: OMPL
-      #   params: "6 8"
-      #   label: OMPL-8
-      # - alg: Oracle_LS
-      #   label: Oracle LS
+      - alg: OMPL
+        params: "4 1"
+        label: OMPL-1
+      - alg: OMPL
+        params: "4 2"
+        label: OMPL-2
+  - name: "NMSE v.s. Pilot (SNR: 10 dB)"
+    test_num: 100
+    SNR: 10
+    pilot: [32:32:256]
+    algorithms: # compare different languages
+      - alg: OMP
+        max_iter: 4
+        label: OMP
+      - alg: OMPL
+        params: "4 1"
+        label: OMPL-1
+      - alg: OMPL
+        params: "4 2"
+        label: OMPL-2
   report:
     name: Single_RIS_Simulation

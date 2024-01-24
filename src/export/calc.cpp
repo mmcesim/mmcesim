@@ -95,6 +95,7 @@ bool Calc::_changeFunction(std::string& str, std::string lang, std::string* msg)
     _addArma(str, "accu");
     _addArma(str, "sum");
     _addArma(str, "sign");
+    _addMmce(str, "mod");
     boost::replace_all(str, "\\sgn", "arma::sign");
     // operations
     _addArma(str, "min");

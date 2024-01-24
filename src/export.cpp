@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Export Class
  * @version 0.2.2
- * @date 2024-01-24
+ * @date 2024-01-25
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -535,7 +535,7 @@ void Export::_sounding() {
                      << ", carriers_num, arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
                 _f() << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
-                     << "_cascaded_channel_tmp.zeros();\n"
+                     << _cascaded_channel << ".zeros();\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
                      << "for (uword k = 0; k != carriers_num; ++k) {";
@@ -568,7 +568,7 @@ void Export::_sounding() {
                      << "cx_mat " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
                      << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
-                     << "_cascaded_channel_tmp.zeros();\n"
+                     << _cascaded_channel << ".zeros();\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n";
                 if (!_channel_graph.paths.empty()) {
