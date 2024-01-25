@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief mmCEsim meta data
  * @version 0.3.0
- * @date 2024-01-12
+ * @date 2024-01-25
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -27,8 +27,8 @@ const std::string _MMCESIM_LIC     = "MIT License";
 const std::string _MMCESIM_YEARS   = "2022-2024";
 const int _MMCESIM_VER_COMP        = 0x000100; // compatibility: 0.1.0
 const int _MMCESIM_VER_MAJOR       = 0;
-const int _MMCESIM_VER_MINOR       = 2;
-const int _MMCESIM_VER_REVISION    = 2;
+const int _MMCESIM_VER_MINOR       = 3;
+const int _MMCESIM_VER_REVISION    = 0;
 const int _MMCESIM_VER             = 0x10000 * _MMCESIM_VER_MAJOR + 0x100 * _MMCESIM_VER_MINOR + _MMCESIM_VER_REVISION;
 const std::string _MMCESIM_VER_STR = std::to_string(_MMCESIM_VER_MAJOR) + "." + std::to_string(_MMCESIM_VER_MINOR) +
                                      "." + std::to_string(_MMCESIM_VER_REVISION);

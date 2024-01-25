@@ -17,6 +17,10 @@ parser.add_argument('--date', '-d', help='Update Date Only', action='store_true'
 
 args = parser.parse_args()
 
+def version_number(version):
+    """Convert version number string to integer tuple"""
+    return tuple(map(int, version.split('.')))
+
 if not args.date:
     assert args.from_version is not None and args.to_version is not None, 'Please specify --from and --to version number'
     assert args.from_version != args.to_version, 'From and To version number should be different'
@@ -69,11 +73,13 @@ if not args.date:
     # There are three macros, _MMCESIM_VER_MAJOR, _MMCESIM_VER_MINOR, _MMCESIM_VER_REVISION
     # in include/meta.h, which are used to define the version number of mmCEsim.
     # The version number is defined as _MMCESIM_VER_MAJOR._MMCESIM_VER_MINOR._MMCESIM_VER_REVISION.
+    from_version = version_number(args.from_version)
+    to_version = version_number(args.to_version)
     with open('include/meta.h', 'r') as f:
         content = f.read()
-        content = content.replace('#define _MMCESIM_VER_MAJOR {}'.format(args.from_version), '#define _MMCESIM_VER_MAJOR {}'.format(args.to_version))
-        content = content.replace('#define _MMCESIM_VER_MINOR {}'.format(args.from_version), '#define _MMCESIM_VER_MINOR {}'.format(args.to_version))
-        content = content.replace('#define _MMCESIM_VER_REVISION {}'.format(args.from_version), '#define _MMCESIM_VER_REVISION {}'.format(args.to_version))
+        content = content.replace('const int _MMCESIM_VER_MAJOR       = {}'.format(from_version[0]), 'const int _MMCESIM_VER_MAJOR       = {}'.format(to_version[0]))
+        content = content.replace('const int _MMCESIM_VER_MINOR       = {}'.format(from_version[1]), 'const int _MMCESIM_VER_MINOR       = {}'.format(to_version[1]))
+        content = content.replace('const int _MMCESIM_VER_REVISION    = {}'.format(from_version[2]), 'const int _MMCESIM_VER_REVISION    = {}'.format(to_version[2]))
     with open('include/meta.h', 'w') as f:
         f.write(content)
 
