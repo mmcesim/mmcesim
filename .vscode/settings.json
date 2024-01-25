@@ -5,6 +5,7 @@
     "cSpell.words": [
         "astyle",
         "beamforming",
+        "cppflags",
         "doxygen",
         "DTYPE",
         "ipstream",
@@ -14,6 +15,7 @@
         "normalise",
         "precoding",
         "randn",
+        "SETCH",
         "uword",
         "xelatex"
     ],

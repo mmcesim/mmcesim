@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Alg_Line Class
  * @version 0.2.2
- * @date 2023-05-04
+ * @date 2024-01-20
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -193,7 +193,7 @@ void Alg_Line::_processFuncParams(const std::vector<std::string>& v) {
         _func   = "CALC";
         start_i = 0;
     }
-    if (_func == "CALC" || _func == "NEW" || _func == "RECOVER") {
+    if (_func == "CALC" || _func == "NEW") {
         // do no more parsing for CALC or NEW
         Param_Type p;
         for (auto i = start_i; i != v.size(); ++i) { p.value += v[i]; }

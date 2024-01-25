@@ -25,7 +25,6 @@ You may consider citing it[^1]:
   year    = {2022},
   month   = jul,
   doi     = {10.5281/zenodo.6912824},
-  note    = {doi: \href{https://doi.org/10.5281/zenodo.6912824}{10.5281/zenodo.6912824}}
 }
 ```
 [^1]: In `bibtex`, the `note` field may not be necessary. It should only be used when the `doi` field does not show (for example IEEEtran style).

@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Parse Line of Alg
  * @version 0.2.2
- * @date 2023-05-04
+ * @date 2024-01-18
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -18,6 +18,7 @@
 #include "utils.h"
 #include <algorithm>
 #include <cassert>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -147,6 +148,8 @@ class Alg_Line {
      * @retval false There exist unknown keys.
      */
     bool hasUnknownKey(const std::vector<std::string>& keys) const noexcept;
+
+    bool hasUnknownKey(const std::vector<std::string>& keys, std::string& unknown_key) const noexcept;
 
     /**
      * @brief Check if parameters have repeated keys.
@@ -288,7 +291,7 @@ inline const Alg_Line::Param_Type& Alg_Line::params(const std::string& key) cons
     for (auto&& elem : _params) {
         if (elem.key == key) return elem;
     }
-    throw("No such key!");
+    throw std::runtime_error("No key '" + key + "'!");
 }
 
 inline const std::string& Alg_Line::operator[](const std::string key) const { return params(key).value; }
@@ -304,9 +307,20 @@ inline bool Alg_Line::hasKey(const std::string& key) const noexcept {
 
 inline bool Alg_Line::hasUnknownKey(const std::vector<std::string>& keys) const noexcept {
     for (auto&& elem : _params) {
-        if (!contains(keys, elem.key)) return false;
+        if (!contains(keys, elem.key)) return true;
     }
-    return true;
+    return false;
+}
+
+inline bool Alg_Line::hasUnknownKey(const std::vector<std::string>& keys, std::string& unkown_key) const noexcept {
+    for (auto&& elem : _params) {
+        if (!contains(keys, elem.key)) {
+            unkown_key = elem.key;
+            return true;
+        }
+    }
+    unkown_key.clear(); // return an empty string
+    return false;
 }
 
 inline bool Alg_Line::hasRepeatedKey() const noexcept {

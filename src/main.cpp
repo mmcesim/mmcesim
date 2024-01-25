@@ -3,7 +3,7 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Program Command Line Options
  * @version 0.2.2
- * @date 2024-01-12
+ * @date 2024-01-24
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
@@ -24,6 +24,7 @@
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/program_options.hpp>
 #include <filesystem>
+#include <fmt/core.h>
 #include <iostream>
 
 #ifdef _MSC_VER
@@ -115,7 +116,7 @@ int main(int argc, char* argv[]) {
 #ifdef __APPLE__
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path + ".app")) {
-                std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                Term::error(errorMsg(Err::NO_GUI));
                 _log.err() << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
@@ -127,7 +128,7 @@ int main(int argc, char* argv[]) {
             // open GUI app without handling its result
             if (!std::filesystem::exists(gui_path) && !std::filesystem::exists(gui_path + ".out") &&
                 !std::filesystem::exists(gui_path + ".exe")) {
-                std::cerr << Term::ERR << "Error: " << errorMsg(Err::NO_GUI) << std::endl;
+                Term::error(errorMsg(Err::NO_GUI));
                 _log.err() << errorMsg(Err::NO_GUI) << std::endl;
                 return errorCode(Err::NO_GUI);
             } else {
@@ -155,7 +156,7 @@ int main(int argc, char* argv[]) {
     if (vm.count("verbose")) opt.verbose = true;
     if (vm.count("no-error-compile")) opt.no_error_compile = true;
 
-    if (opt.cmd != "config" && !std::filesystem::exists(opt.input)) {
+    if (opt.cmd != "config" && opt.cmd != "cfg" && !std::filesystem::exists(opt.input)) {
         opt.input += ".sim";
         if (!std::filesystem::exists(opt.input)) errorExit(Err::INPUT_NOT_EXISTS);
     }
@@ -166,6 +167,13 @@ int main(int argc, char* argv[]) {
         Shared_Info info;
         auto&& errors = Export::exportCode(opt, &info);
         if (hasError(errors)) errorExit(errors[0].ec); // TODO: should distinguish error and warning
+        // Let's style it so it looks better even for simulation.
+        if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
+            std::cerr << Term::ERR << "[ERROR] Formatting error. Astyle exit with code " << astyle_result << "."
+                      << std::endl;
+            _log.err() << "Formatting error. Astyle exit with code " << astyle_result << "." << std::endl;
+            return errorCode(Err::ASTYLE_ERROR);
+        }
         if (int compile_result = Simulate::simulate(info)) {
             if (opt.no_error_compile) {
                 std::cerr << Term::ERR << "[ERROR] Compiling Error with exit code " << compile_result << "."
@@ -206,8 +214,9 @@ int main(int argc, char* argv[]) {
         _log.info() << "Export Mode [exp]" << std::endl;
         auto&& errors = Export::exportCode(opt);
         if (hasError(errors)) {
-            for (auto&& err : errors) { std::cerr << err.msg << '\n'; }
-            errorExit(errors[0].ec);
+            Term::error(fmt::format("!!! {} error(s) occurred during exporting.", errors.size()));
+            for (auto&& err : errors) { Term::error(err.msg); }
+            errorExit(errors[0].ec, false);
         }
         if (int astyle_result = Style::style(opt.output, opt.style); astyle_result) {
             std::cerr << Term::ERR << "[ERROR] Formatting error. Astyle exit with code " << astyle_result << "."
@@ -217,17 +226,23 @@ int main(int argc, char* argv[]) {
         }
     } else if (opt.cmd == "cfg" || opt.cmd == "config") {
         _log.info() << "Config Mode [cfg]" << std::endl;
+        std::string msg;
         if (vm.count("value")) {
-            std::string msg;
             if (Config::edit(opt.input, opt.value, &msg)) {
                 _log.info() << "config '" << opt.input << "' as " << opt.value << std::endl;
             } else {
-                std::cerr << Term::ERR << "[ERROR] " << msg << std::endl;
+                Term::error(msg);
                 _log.err() << msg << std::endl;
                 return errorCode(Err::CONFIG_ERROR);
             }
         } else {
-            std::cout << Config::read(opt.input) << std::endl;
+            if (auto value = Config::read(opt.input, &msg); msg.empty()) {
+                std::cout << value << std::endl;
+            } else {
+                Term::error(msg);
+                _log.err() << msg << std::endl;
+                return errorCode(Err::CONFIG_ERROR);
+            }
         }
         return 0;
     } else {
