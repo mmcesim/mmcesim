@@ -2,7 +2,7 @@
  * @file type_track.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Type_Track Class
- * @version 0.2.2
+ * @version 0.3.0
  * @date 2022-09-24
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

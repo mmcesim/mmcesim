@@ -32,7 +32,7 @@ You may consider citing it[^1]:
 ## Usage
 ```console
 $ mmcesim -h
-mmCEsim 0.2.2  (C) 2022-2024 Wuqiong Zhao
+mmCEsim 0.3.0  (C) 2022-2024 Wuqiong Zhao
 Millimeter Wave Channel Estimation Simulation
 =============================================
 

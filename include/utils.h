@@ -2,7 +2,7 @@
  * @file utils.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Utilities
- * @version 0.2.2
+ * @version 0.3.0
  * @date 2023-07-29
  *
  * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)

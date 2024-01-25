@@ -2,7 +2,7 @@
  * @file yaml.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Wrapper for yaml-cpp for static linking
- * @version 0.2.2
+ * @version 0.3.0
  * @date 2024-01-21
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)

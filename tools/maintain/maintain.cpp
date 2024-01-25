@@ -2,7 +2,7 @@
  * @file maintain.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief mmCEsim Maintainence Tool
- * @version 0.2.2
+ * @version 0.3.0
  * @date 2024-01-12
  *
  * @copyright Copyright (c) 2023-2024 Wuqiong Zhao (Teddy van Jerry)

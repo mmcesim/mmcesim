@@ -1,5 +1,5 @@
 {
-    "doxdocgen.file.versionTag": "@version 0.2.2",
+    "doxdocgen.file.versionTag": "@version 0.3.0",
     "doxdocgen.generic.authorEmail": "wqzhao@seu.edu.cn",
     "doxdocgen.generic.authorName": "Wuqiong Zhao",
     "cSpell.words": [
@@ -150,4 +150,32 @@
         "Testing/**": true,
         "build-*/**": true,
     },
+    "githubPullRequests.queries": [
+        {
+            "label": "Open PRs",
+            "query": "is:open"
+        },
+        {
+            "label": "Closed PRs",
+            "query": "is:closed"
+        },
+        {
+            "label": "All PRs",
+            "query": ""
+        }
+    ],
+    "githubIssues.queries": [
+        {
+            "label": "Open Issues",
+            "query": "is:open"
+        },
+        {
+            "label": "Closed Issues",
+            "query": "is:closed"
+        },
+        {
+            "label": "All Issues",
+            "query": ""
+        }
+    ]
 }

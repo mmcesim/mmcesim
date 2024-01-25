@@ -1,7 +1,7 @@
 # Bump mmCEsim Version Number
 #
 # Author: Teddy van Jerry (Wuqiong Zhao)
-# Date: 2023-08-11
+# Date: 2024-01-25
 
 import argparse
 import datetime
@@ -121,6 +121,7 @@ if not args.date:
         content = f.read()
         content = re.sub(r'ProvidesExplClass{simreport}{\d{4}/\d{2}/\d{2}}{[0-9.]+}{Simulation Report}', f'ProvidesExplClass{{simreport}}{{{datetime.date.today():%Y/%m/%d}}}{{{args.to_version}}}{{Simulation Report}}', content)
         content = re.sub(r'c__simreport_mmcesim_ver_str { [0-9.]+ }', f'c__simreport_mmcesim_ver_str {{ {args.to_version} }}', content)
+        content = content.replace(' Version: {}'.format(args.from_version), ' Version: {}'.format(args.to_version))
     with open('include/mmcesim/tex/simreport.cls', 'w') as f:
         f.write(content)
 

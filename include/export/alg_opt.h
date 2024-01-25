@@ -2,7 +2,7 @@
  * @file alg_opt.h
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief ALG_Opt Enum
- * @version 0.2.2
+ * @version 0.3.0
  * @date 2023-04-06
  *
  * @copyright Copyright (c) 2023 Wuqiong Zhao (Teddy van Jerry)

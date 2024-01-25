@@ -2,7 +2,7 @@
  * @file macro.cpp
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Macro class.
- * @version 0.2.2
+ * @version 0.3.0
  * @date 2024-01-15
  *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
