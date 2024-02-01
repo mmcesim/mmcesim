@@ -341,10 +341,10 @@ void Export::_generateChannels() {
              << (freq == "wide" ? "cx_cube " : "cx_mat ") << _noise;
         if (freq == "wide") {
             _f() << fmt::format(" = arma::randn<cube>({0}*{1},{2},{3}) + 1i * arma::randn<cube>({0}*{1},{2},{3});\n",
-                BMx * BMy, BNx * BNy, carriers, _data_params.max_noise_size);
+                                BMx * BMy, BNx * BNy, carriers, _data_params.max_noise_size);
         } else {
-            _f() << fmt::format(" = arma::randn<mat>({0}*{1},{2}) + 1i * arma::randn<mat>({0}*{1},{2});\n",
-                BMx * BMy, BNx * BNy, _data_params.max_noise_size);
+            _f() << fmt::format(" = arma::randn<mat>({0}*{1},{2}) + 1i * arma::randn<mat>({0}*{1},{2});\n", BMx * BMy,
+                                BNx * BNy, _data_params.max_noise_size);
         }
         _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n";
         _f() << "for (unsigned i = 0; i != " << _data_params.max_noise_size << "; ++i) {\n";
@@ -1132,7 +1132,7 @@ bool Export::_setDataParams() {
         // TODO: error handling here
         auto&& pilot = job["pilot"];
         Value_Vec<unsigned> pilot_vec(pilot, true);
-        auto max_pilot = pilot_vec.max();
+        auto max_pilot      = pilot_vec.max();
         unsigned noise_size = test_num * max_pilot;
         if (noise_size > _data_params.max_noise_size) _data_params.max_noise_size = noise_size;
     }

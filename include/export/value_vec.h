@@ -4,9 +4,9 @@
  * @brief Value Vector in .sim File
  * @version 0.2.2
  * @date 2024-01-31
- * 
+ *
  * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
- * 
+ *
  */
 
 #ifndef _EXPORT_VALUE_VEC_H_

@@ -188,7 +188,7 @@ class Export {
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
     struct DataParams {
-        unsigned max_test_num = 0;
+        unsigned max_test_num   = 0;
         unsigned max_noise_size = 0;
     } _data_params;
     std::string _cascaded_channel;
