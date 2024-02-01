@@ -1,3 +1,14 @@
+/**
+ * @file value_vec.h
+ * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
+ * @brief Value Vector in .sim File
+ * @version 0.2.2
+ * @date 2024-01-31
+ * 
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
+ * 
+ */
+
 #ifndef _EXPORT_VALUE_VEC_H_
 #define _EXPORT_VALUE_VEC_H_
 
@@ -14,6 +25,10 @@ class Value_Vec {
     Value_Vec(const YAML::Node& node, bool error_out_of_bound = false, T out_of_bound_val = 0);
 
     T operator[](size_t index) const;
+
+    T max() const;
+
+    T min() const;
 
     std::string asStr(bool quoted = false) const;
 
@@ -123,6 +138,29 @@ T Value_Vec<T>::operator[](size_t index) const {
         // std::cout << "out of bound" << _out_of_bound_val << "\n";
         return _out_of_bound_val;
     }
+}
+
+// TODO: Bette min() and max() Implementation
+// This time the implementation of max() and min() is general,
+// without considering the sequence of the data.
+template <typename T>
+T Value_Vec<T>::max() const {
+    if (_data.size() == 0) return 0;
+    T max = _data[0];
+    for (auto&& v : _data) {
+        if (v > max) max = v;
+    }
+    return max;
+}
+
+template <typename T>
+T Value_Vec<T>::min() const {
+    if (_data.size() == 0) return 0;
+    T min = _data[0];
+    for (auto&& v : _data) {
+        if (v < min) min = v;
+    }
+    return min;
 }
 
 template <typename T>
