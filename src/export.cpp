@@ -94,7 +94,7 @@ YAML_Errors Export::exportCode() {
     _topComment();
     _beginning();
     _setCascadedChannel();
-    _setMaxTestNum();
+    _setDataParams();
     _setVarNames();
     _generateChannels();
     _algorithms();
@@ -340,15 +340,14 @@ void Export::_generateChannels() {
         _f() << "std::filesystem::create_directory(\"_data\");\n"
              << (freq == "wide" ? "cx_cube " : "cx_mat ") << _noise;
         if (freq == "wide") {
-            _f() << " = arma::randn<cube>(" << BMx * BMy << "*" << BNx * BNy << ", " << carriers << ", "
-                 << _max_test_num << ") + 1i * arma::randn<cube>(" << BMx * BMy << "*" << BNx * BNy << ", " << carriers
-                 << ", " << _max_test_num << ");\n";
+            _f() << fmt::format(" = arma::randn<cube>({0}*{1},{2},{3}) + 1i * arma::randn<cube>({0}*{1},{2},{3});\n",
+                                BMx * BMy, BNx * BNy, carriers, _data_params.max_noise_size);
         } else {
-            _f() << " = arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num
-                 << ") + 1i * arma::randn<mat>(" << BMx * BMy << "*" << BNx * BNy << ", " << _max_test_num << ");\n";
+            _f() << fmt::format(" = arma::randn<mat>({0}*{1},{2}) + 1i * arma::randn<mat>({0}*{1},{2});\n", BMx * BMy,
+                                BNx * BNy, _data_params.max_noise_size);
         }
         _f() << _noise << ".save(\"_data/" << _noise << ".bin\");\n";
-        _f() << "for (unsigned i = 0; i != " << _max_test_num << "; ++i) {\n";
+        _f() << "for (unsigned i = 0; i != " << _data_params.max_noise_size << "; ++i) {\n";
     }
     _log.flush();
     for (unsigned i = 0; i != _config["channels"].size(); ++i) {
@@ -475,10 +474,18 @@ void Export::_sounding() {
             Value_Vec<double> SNR_vec(SNR, true);
             Value_Vec<unsigned> pilot_vec(pilot, true);
             bool has_loop = true; // i.e. SNR varies and/or pilot varies
+            // _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
             if (SNR_vec.size() > 1) {
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(" << SNR_vec.size() << ", "
                      << job["algorithms"].size() << ");"
-                     << "{"; //  Start a group
+                     << "{" //  Start a group
+                     << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
+                _f() << "unsigned pilot = " << pilot_vec[0] << ";\n";
+                // Note:
+                // When the number of pilots is fixed,
+                // the beamforming generation is also fixed,
+                // so the beamforming generation can be moved out of the loop.
+                _generateBF(BNx * BNy);
                 if (SNR_mode == "linear") {
                     _f() << "vec SNR_linear = { " << SNR_vec.asStr() << " };\n"
                          << "vec SNR_dB = 10 * arma::log10(SNR_linear / 10.0);\n";
@@ -487,14 +494,14 @@ void Export::_sounding() {
                     _f() << "vec SNR_dB = { " << SNR_vec.asStr() << " };\n"
                          << "vec SNR_linear = arma::exp10(SNR_dB / 10.0);\n";
                 }
-                _f() << "unsigned pilot = " << pilot_vec[0] << ";\n"
-                     << "vec sigma2_all = arma::ones<vec>(SNR_dB.n_elem) / SNR_linear;\n"
+                _f() << "vec sigma2_all = arma::ones<vec>(SNR_dB.n_elem) / SNR_linear;\n"
                      << "for (uword ii = 0; ii != SNR_dB.n_elem; ++ii) {\n"
                      << "double sigma2 = sigma2_all[ii];\n";
             } else if (pilot_vec.size() > 1) {
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(" << pilot_vec.size() << ", "
                      << job["algorithms"].size() << ");"
-                     << "{"; //  Start a group
+                     << "{" //  Start a group
+                     << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
                 if (SNR_mode == "linear") {
                     _f() << "double SNR_linear = " << SNR_vec[0] << ";\n";
                 } else {
@@ -505,19 +512,20 @@ void Export::_sounding() {
                 _f() << "double sigma2 = 1.0 / SNR_linear;\n"
                      << "uvec pilots = { " << pilot_vec.asStr() << " };\n"
                      << "for (uword ii = 0; ii != pilots.n_elem; ++ii) {\n"
-                     << "double pilot = pilots[ii];\n";
+                     << "unsigned pilot = pilots[ii];\n";
+                _generateBF(BNx * BNy);
             } else {
                 has_loop = false;
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(1, " << job["algorithms"].size() << ");"
-                     << "{"; // Start a group
+                     << "{" // Start a group
+                     << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
                 _f() << "double SNR_dB = " << SNR_vec[0] << ";\n"
                      << "double SNR_linear = std::pow(10.0, SNR_dB / 10.0);\n"
                      << "double sigma2 = 1.0 / SNR_linear;\n";
                 _f() << "unsigned pilot = " << pilot_vec[0] << ";\n";
+                _generateBF(BNx * BNy);
                 _f() << "uword ii = 0;\n";
             }
-            _generateBF(BNx * BNy);
-            _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
             for (auto&& channel : _config["channels"]) {
                 // Load channel matrices.
                 std::string ch = channel["id"].as<std::string>();
@@ -527,14 +535,13 @@ void Export::_sounding() {
                      << "std::cerr << \"ERROR: Failed to load '" << ch << "\" + std::to_string(test_n) + \""
                      << ".bin' from '_data'.\" << std::endl; return 1;}\n";
             }
-            // TODO: The cascaded channel is the only channel is valid only for a simple MIMO system.
-            // TODO: transmit pilots!
+            std::string T = "pilot/" + std::to_string(BNx * BNy);
             if (freq == "wide") { // ***** WIDEBAND *****
                 _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
                      << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
                      << ", carriers_num, arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
-                _f() << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                _f() << "for (uword t = 0; t < " << T << "; ++t) {\n"
                      << _cascaded_channel << ".zeros();\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n"
@@ -557,7 +564,7 @@ void Export::_sounding() {
                     // Give some error or warning I assume?
                 }
                 _f() << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".slice(k).as_col();\n"
-                     << "cx_vec this_noise = " << _noise << ".slice(test_n).col(k);\n"
+                     << "cx_vec this_noise = " << _noise << ".slice(test_n*" << T << "+t).col(k);\n"
                      << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
                      << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
                      << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
@@ -567,7 +574,7 @@ void Export::_sounding() {
                 _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
                      << "cx_mat " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
-                     << "for (uword t = 0; t < pilot / " << BNx * BNy << "; ++t) {\n"
+                     << "for (uword t = 0; t < " << T << "; ++t) {\n"
                      << _cascaded_channel << ".zeros();\n"
                      << "const cx_mat& _F = " << _beamforming_F << ".slice(t);"
                      << "const cx_mat& _W = " << _beamforming_W << ".slice(t);\n";
@@ -588,7 +595,7 @@ void Export::_sounding() {
                     // Give some error or warning I assume?
                 }
                 _f() << "cx_vec _y = arma::kron(_F.st(), _W.t()) * " << _cascaded_channel << ".as_col();\n"
-                     << "cx_vec this_noise = " << _noise << ".col(test_n);\n"
+                     << "cx_vec this_noise = " << _noise << ".col(test_n*" << T << "+t);\n"
                      << "double noise_power = arma::accu(arma::pow(arma::abs(this_noise), 2));\n"
                      << "double raw_signal_power = arma::accu(arma::pow(arma::abs(_y), 2));\n"
                      << "_y += std::sqrt(raw_signal_power / noise_power * sigma2) * this_noise;\n"
@@ -1111,18 +1118,25 @@ bool Export::_setCascadedChannel() {
     return true;
 }
 
-bool Export::_setMaxTestNum() {
+bool Export::_setDataParams() {
     if (!_preCheck(_config["simulation"]["jobs"], DType::SEQ)) return false;
     auto&& jobs = _config["simulation"]["jobs"];
     for (auto&& job : jobs) {
+        unsigned test_num;
         if (_preCheck(job["test_num"], DType::INT, false)) {
-            unsigned test_num = job["test_num"].as<unsigned>();
-            if (test_num > _max_test_num) _max_test_num = test_num;
+            test_num = job["test_num"].as<unsigned>();
+            if (test_num > _data_params.max_test_num) _data_params.max_test_num = test_num;
         } else {
-            if (500 > _max_test_num) _max_test_num = 500;
+            if (500 > _data_params.max_test_num) _data_params.max_test_num = 500;
         }
+        // TODO: error handling here
+        auto&& pilot = job["pilot"];
+        Value_Vec<unsigned> pilot_vec(pilot, true);
+        auto max_pilot      = pilot_vec.max();
+        unsigned noise_size = test_num * max_pilot;
+        if (noise_size > _data_params.max_noise_size) _data_params.max_noise_size = noise_size;
     }
-    if (_max_test_num == 0) _max_test_num = 500; // default as 500.
+    if (_data_params.max_test_num == 0) _data_params.max_test_num = 500; // default as 500.
     return true;
 }
 

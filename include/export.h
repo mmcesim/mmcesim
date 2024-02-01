@@ -137,7 +137,7 @@ class Export {
 
     bool _setCascadedChannel();
 
-    bool _setMaxTestNum();
+    bool _setDataParams();
 
     /**
      * @brief Set the variable names defined by users.
@@ -187,7 +187,10 @@ class Export {
     Shared_Info* const _s_info;
     std::vector<int> _transmitters;
     std::vector<int> _receivers;
-    unsigned _max_test_num = 0;
+    struct DataParams {
+        unsigned max_test_num   = 0;
+        unsigned max_noise_size = 0;
+    } _data_params;
     std::string _cascaded_channel;
     std::string _received_signal;
     std::string _noise;

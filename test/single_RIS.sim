@@ -7,10 +7,10 @@ version: 0.3.0
 meta:
   title: Single RIS Channel Estimation Test
   author: Wuqiong Zhao
-  description: Simple single RIS channel estimation setup based on \\url{https://wqzhao.org/publications#zhao2023ompl}.
+  description: Simple single RIS channel estimation setup based on https://wqzhao.org/pub/zhao2023ompl.
 physics:
   frequency: narrow
-  off_grid: true
+  off_grid: false
 nodes:
   # now both BS and UE are ULA
   - id: BS
@@ -66,7 +66,7 @@ channels:
   - id: G
     from: RIS
     to: BS
-    sparsity: 2
+    sparsity: 3
   - id: R
     from: UE
     to: RIS
@@ -155,35 +155,35 @@ conclusion: |
 simulation:
   backend: cpp
   jobs:
-  - name: "NMSE v.s. SNR (Pilot: 128)"
+  - name: "NMSE v.s. SNR (Pilot: 32)"
     test_num: 100
-    SNR: [0:2:30]
+    SNR: [0:2:20]
     SNR_mode: dB # dB (default) | linear
-    pilot: 128
+    pilot: 32
     # pilot_mode: percent # num (default) | percent
     algorithms: # compare different languages
       - alg: OMP
-        max_iter: 4
+        max_iter: 6
         label: OMP
-      - alg: OMPL
-        params: "4 1"
-        label: OMPL-1
-      - alg: OMPL
-        params: "4 2"
-        label: OMPL-2
+      # - alg: OMPL
+      #   params: "4 1"
+      #   label: OMPL-1
+      # - alg: OMPL
+      #   params: "6 2"
+      #   label: OMPL-2
   - name: "NMSE v.s. Pilot (SNR: 10 dB)"
     test_num: 100
     SNR: 10
     pilot: [32:32:256]
     algorithms: # compare different languages
       - alg: OMP
-        max_iter: 4
+        max_iter: 6
         label: OMP
-      - alg: OMPL
-        params: "4 1"
-        label: OMPL-1
-      - alg: OMPL
-        params: "4 2"
-        label: OMPL-2
+  #     # - alg: OMPL
+  #     #   params: "4 1"
+  #     #   label: OMPL-1
+  #     - alg: OMPL
+  #       params: "6 2"
+  #       label: OMPL-2
   report:
     name: Single_RIS_Simulation
