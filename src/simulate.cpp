@@ -3,9 +3,9 @@
  * @author Wuqiong Zhao (wqzhao@seu.edu.cn)
  * @brief Implementation of Simulate Class
  * @version 0.3.0
- * @date 2023-04-06
+ * @date 2024-02-01
  *
- * @copyright Copyright (c) 2022-2023 Wuqiong Zhao (Teddy van Jerry)
+ * @copyright Copyright (c) 2022-2024 Wuqiong Zhao (Teddy van Jerry)
  *
  */
 
@@ -39,7 +39,9 @@ int Simulate::simulate() const {
                                                    boost::process::std_out > is,                  // keep output
                                                    boost::process::std_err > boost::process::null // no error message
             );
-            while (simulate_process.running() && std::getline(is, line) && !line.empty()) { std::cerr << line << "\n"; }
+            while (simulate_process.running() && std::getline(is, line)) { std::cerr << line << "\n"; }
+            // Continue reading from the output stream even after the child process has exited
+            while (std::getline(is, line)) { std::cerr << line << "\n"; }
             simulate_process.wait();
             int e = simulate_process.exit_code();
             if (e) {
