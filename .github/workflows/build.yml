@@ -30,9 +30,15 @@ jobs:
           architecture: x64
           cc: "gcc"
           cxx: "g++"
-        - name: "macOS"
+        - name: "macOS-x64"
           artifact: "mmCEsim-CLI-macOS-x64.zip"
           os: macos-12
+          architecture: arm
+          cc: "clang"
+          cxx: "clang++"
+        - name: "macOS-arm"
+          artifact: "mmCEsim-CLI-macOS-x64.zip"
+          os: macos-14
           architecture: arm
           cc: "clang"
           cxx: "clang++"
@@ -300,8 +306,6 @@ jobs:
         name: mmCEsim ${{ github.ref_name }}
         append_body: true
         body_path: misc/release_note.md
-        body: |
-          > **Note** x86 and x64 binaries are built automatically by GitHub Actions; The macOS arm binary is built manually on macOS with M1 chip.
         draft: false
         prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
         files: doc/mmCEsim-doc.pdf
@@ -329,9 +333,12 @@ jobs:
           - name: "Linux"
             artifact: "mmCEsim-CLI-Linux-x86.tar.gz"
             os: ubuntu-latest
-          - name: "macOS"
+          - name: "macOS-x64"
             artifact: "mmCEsim-CLI-macOS-x64.zip"
             os: macos-12
+          - name: "macOS-arm"
+            artifact: "mmCEsim-CLI-macOS-arm.zip"
+            os: macos-14
     needs: release
 
     steps:
