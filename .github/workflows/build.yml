@@ -33,7 +33,7 @@ jobs:
         - name: "macOS-x64"
           artifact: "mmCEsim-CLI-macOS-x64.zip"
           os: macos-12
-          architecture: arm
+          architecture: x64
           cc: "clang"
           cxx: "clang++"
         - name: "macOS-arm"
@@ -121,6 +121,11 @@ jobs:
       if: ${{ runner.os == 'Linux' }}
       run: |
         echo "BOOST_ROOT=${{ steps.install-boost-ubuntu.outputs.BOOST_ROOT }}" >> $GITHUB_ENV
+
+    - name: Install Dependencies (macOS-arm)
+      if: ${{ runner.os == 'macOS' && matrix.config.architecture == 'arm' }}
+      run: |
+        brew install zstd
 
     - name: Download ccache
       id: ccache
