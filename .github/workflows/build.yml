@@ -125,7 +125,8 @@ jobs:
     - name: Install Dependencies (macOS-arm)
       if: ${{ runner.os == 'macOS' && matrix.config.architecture == 'arm' }}
       run: |
-        brew reinstall zstd
+        zstd_version=`ls /opt/homebrew/Cellar/zstd/`
+        sudo ln -s /opt/homebrew/Cellar/zstd/$zstd_version/lib/libzstd.$zstd_version.dylib /usr/local/lib/libzstd.1.dylib
 
     - name: Download ccache
       id: ccache
