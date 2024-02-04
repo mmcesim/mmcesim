@@ -125,7 +125,7 @@ jobs:
     - name: Install Dependencies (macOS-arm)
       if: ${{ runner.os == 'macOS' && matrix.config.architecture == 'arm' }}
       run: |
-        brew install zstd
+        brew reinstall zstd
 
     - name: Download ccache
       id: ccache
