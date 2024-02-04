@@ -6,7 +6,7 @@ env:
   CMAKE_VERSION: 3.24.3
   NINJA_VERSION: 1.11.1
   BUILD_TYPE: Release
-  CCACHE_VERSION: 4.7.3
+  CCACHE_VERSION: 4.9
   BOOST_VERSION: 1.81.0
 
 jobs:
@@ -122,36 +122,42 @@ jobs:
       run: |
         echo "BOOST_ROOT=${{ steps.install-boost-ubuntu.outputs.BOOST_ROOT }}" >> $GITHUB_ENV
 
-    - name: Install Dependencies (macOS-arm)
-      if: ${{ runner.os == 'macOS' && matrix.config.architecture == 'arm' }}
-      run: |
-        zstd_version=`ls /opt/homebrew/Cellar/zstd/`
-        sudo mkdir -p /usr/local/lib
-        sudo ln -s /opt/homebrew/Cellar/zstd/$zstd_version/lib/libzstd.$zstd_version.dylib /usr/local/lib/libzstd.1.dylib
+    # - name: Install Dependencies (macOS-arm)
+    #   if: ${{ runner.os == 'macOS' && matrix.config.architecture == 'arm' }}
+    #   run: |
+    #     zstd_version=`ls /opt/homebrew/Cellar/zstd/`
+    #     sudo mkdir -p /usr/local/lib
+    #     sudo ln -s /opt/homebrew/Cellar/zstd/$zstd_version/lib/libzstd.$zstd_version.dylib /usr/local/lib/libzstd.1.dylib
 
-    - name: Download ccache
-      id: ccache
-      shell: cmake -P {0}
-      run: |
-        set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
-        file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
+    # - name: Download ccache
+    #   id: ccache
+    #   shell: cmake -P {0}
+    #   run: |
+    #     set(ccache_url "https://github.com/cristianadam/ccache/releases/download/v$ENV{CCACHE_VERSION}/${{ runner.os }}.tar.xz")
+    #     file(DOWNLOAD "${ccache_url}" ./ccache.tar.xz SHOW_PROGRESS)
+    #     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ccache.tar.xz)
 
-    - name: Prepare ccache timestamp
-      id: ccache_cache_timestamp
-      shell: cmake -P {0}
-      run: |
-        string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-        file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
+    # - name: Prepare ccache timestamp
+    #   id: ccache_cache_timestamp
+    #   shell: cmake -P {0}
+    #   run: |
+    #     string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
+    #     file(APPEND "$ENV{GITHUB_OUTPUT}" "timestamp=${current_date}")
 
-    - name: ccache cache files
-      if: ${{ runner.os != 'Windows' }}
-      uses: actions/cache@v4.0.0
+    # - name: ccache cache files
+    #   if: ${{ runner.os != 'Windows' }}
+    #   uses: actions/cache@v4.0.0
+    #   with:
+    #     path: .ccache
+    #     key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+    #     restore-keys: |
+    #       ${{ matrix.config.name }}-ccache-
+
+    - name: Ccache
+      if: runner.os != 'Windows'
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
-        path: .ccache
-        key: ${{ matrix.config.name }}-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-        restore-keys: |
-          ${{ matrix.config.name }}-ccache-
+        key: ${{ github.workflow }}-${{ matrix.config.name }}
 
     - name: Configure
       shell: cmake -DBOOST_ROOT=path -P {0}
@@ -244,13 +250,13 @@ jobs:
           message(FATAL_ERROR "Build failed")
         endif()
 
-    - name: ccache statistics
-      shell: cmake -P {0}
-      run: |
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
-        set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
-        set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
-        execute_process(COMMAND ccache -s)
+    # - name: ccache statistics
+    #   shell: cmake -P {0}
+    #   run: |
+    #     file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}" ccache_basedir)
+    #     set(ENV{CCACHE_BASEDIR} "${ccache_basedir}")
+    #     set(ENV{CCACHE_DIR} "${ccache_basedir}/.ccache")
+    #     execute_process(COMMAND ccache -s)
 
     - name: Run tests
       shell: cmake -P {0}
