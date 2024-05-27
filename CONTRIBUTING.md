@@ -20,7 +20,8 @@ The project is configured with CMake, and the role of each folder is listed belo
 - `bin`: Generated Binary Executable
 - `misc`: Miscellaneous Files
 
-> **Note** This project is still under active development and the structure is subject to potential changes.
+> [!NOTE]
+> This project is still under active development and the structure is subject to potential changes.
 
 ## Code Style
 The C++ code style is based on LLVM,
