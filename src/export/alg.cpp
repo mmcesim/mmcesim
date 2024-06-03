@@ -463,7 +463,7 @@ bool Alg::write(std::ofstream& f, const std::string& lang) {
                 if (num == "1") ++_recover_cnt;
                 else _recover_cnt_var.push_back(num);
                 std::string recover_str = fmt::format("= NMSE{}_{{ii, {}}} += \\nmse({}, {})",
-                    _job_cnt, _alg_cnt, est_ch, real_ch);
+                    _job_cnt, _alg_cnt, inlineCalc(est_ch, lang), inlineCalc(real_ch, lang));
                 Alg recover_alg(recover_str, _macro, _job_cnt, _alg_cnt);
                 recover_alg.write(f, lang);
             CASE ("SETCH") // SET CHannel
