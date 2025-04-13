@@ -90,7 +90,7 @@ jobs:
     # Actual install step (only runs if the cache is empty)
     - name: Install boost (Linux)
       if: ${{ runner.os == 'Linux' }}
-      uses: MarkusJx/install-boost@v2.4.5
+      uses: MarkusJx/install-boost@v2.5.0
       id: install-boost-ubuntu
       with:
         # Set the boost version (required)
@@ -106,7 +106,7 @@ jobs:
 
     - name: Install boost (Windows)
       if: ${{ runner.os == 'Windows' && matrix.config.cc == 'cl' }}
-      uses: MarkusJx/install-boost@v2.4.5
+      uses: MarkusJx/install-boost@v2.5.0
       id: install-boost-msvc
       with:
         # Set the boost version (required)
