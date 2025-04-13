@@ -477,8 +477,7 @@ void Export::_sounding() {
             // _f() << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
             if (SNR_vec.size() > 1) {
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(" << SNR_vec.size() << ", "
-                     << job["algorithms"].size() << ");"
-                     << "{" //  Start a group
+                     << job["algorithms"].size() << ");" << "{" //  Start a group
                      << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
                 _f() << "unsigned pilot = " << pilot_vec[0] << ";\n";
                 // Note:
@@ -499,8 +498,7 @@ void Export::_sounding() {
                      << "double sigma2 = sigma2_all[ii];\n";
             } else if (pilot_vec.size() > 1) {
                 _f() << "\nmat NMSE" << job_cnt << " = arma::zeros(" << pilot_vec.size() << ", "
-                     << job["algorithms"].size() << ");"
-                     << "{" //  Start a group
+                     << job["algorithms"].size() << ");" << "{" //  Start a group
                      << "for (unsigned test_n = 0; test_n != " << test_num << "; ++test_n) {\n";
                 if (SNR_mode == "linear") {
                     _f() << "double SNR_linear = " << SNR_vec[0] << ";\n";
@@ -537,8 +535,8 @@ void Export::_sounding() {
             }
             std::string T = "pilot/" + std::to_string(BNx * BNy);
             if (freq == "wide") { // ***** WIDEBAND *****
-                _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);"
-                     << "cx_cube " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
+                _f() << "cx_mat " << _received_signal << "(pilot*" << BMx * BMy << ", carriers_num);" << "cx_cube "
+                     << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny
                      << ", carriers_num, arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n";
                 _f() << "for (uword t = 0; t < " << T << "; ++t) {\n"
@@ -571,8 +569,8 @@ void Export::_sounding() {
                      << _received_signal << "(arma::span(t * " << BNx * BNy * BMx * BMy << ",(t+1)*"
                      << BNx * BNy * BMx * BMy << "-1), k) = _y;}}\n";
             } else { // ***** NARROWBAND *****
-                _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");"
-                     << "cx_mat " << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
+                _f() << "cx_vec " << _received_signal << "(pilot*" << BMx * BMy << ");" << "cx_mat "
+                     << _cascaded_channel << "(" << Mx * My << ", " << Nx * Ny << ", arma::fill::zeros);\n"
                      << "cx_mat _cascaded_channel_tmp(" << Mx * My << ", " << Nx * Ny << ");\n"
                      << "for (uword t = 0; t < " << T << "; ++t) {\n"
                      << _cascaded_channel << ".zeros();\n"
@@ -689,8 +687,7 @@ void Export::_estimation(const Macro& macro, int job_cnt) {
         estimation_str = _asStr(_config["estimation"]);
     }
     trim(estimation_str);
-    _log.info() << "Estimation:"
-                << "\n";
+    _log.info() << "Estimation:" << "\n";
     _log.info() << "* Job Cnt: " << job_cnt << "\n";
     if (estimation_str.length() == 4 && boost::algorithm::to_lower_copy(estimation_str) == "auto") {
         // TODO: use tasked-oriented algorithm
@@ -729,8 +726,7 @@ void Export::_reporting() {
     std::filesystem::create_directory(out_dir + "/_tex_report");
 
     _f() << "std::filesystem::create_directory(\"" + out_dir + "/_tex_report\");\n";
-    _f() << "std::ofstream report_file(\"" << out_dir + "/" + report_file << "\");"
-         << "if (report_file.is_open()) {";
+    _f() << "std::ofstream report_file(\"" << out_dir + "/" + report_file << "\");" << "if (report_file.is_open()) {";
     _f() << "std::ofstream tex_file(\"" << out_dir + "/" + tex_file << "\");";
     _f() << "std::ofstream sys_file(\"" << out_dir + "/" + sys_file << "\");";
     _f() << "std::ofstream ch_file(\"" << out_dir + "/" + ch_file << "\");";
@@ -777,26 +773,20 @@ void Export::_reporting() {
                                out_dir + "/_tex_report/fig/mmCEsim_logo_256.png",
                                std::filesystem::copy_options::overwrite_existing);
 
-    _f() << "tex_file << \"\\\\documentclass[mmcesim]{simreport}\\n\";"
-         << "tex_file << \"\\\\begin{document}\\n\";"
-         << "tex_file << \"\\\\title{" << sim_title << "}\\n\";"
-         << "tex_file << \"\\\\author{" << sim_author << "}\\n\";"
-         << "tex_file << \"\\\\date{" << std::put_time(&curr_tm, "%F") << "}\\n\";"
-         << "tex_file << \"\\\\rtime{" << std::put_time(&curr_tm, "%T") << "}\\n\";"
-         << "tex_file << \"\\\\maketitle\\n"
+    _f() << "tex_file << \"\\\\documentclass[mmcesim]{simreport}\\n\";" << "tex_file << \"\\\\begin{document}\\n\";"
+         << "tex_file << \"\\\\title{" << sim_title << "}\\n\";" << "tex_file << \"\\\\author{" << sim_author
+         << "}\\n\";" << "tex_file << \"\\\\date{" << std::put_time(&curr_tm, "%F") << "}\\n\";"
+         << "tex_file << \"\\\\rtime{" << std::put_time(&curr_tm, "%T") << "}\\n\";" << "tex_file << \"\\\\maketitle\\n"
          << sim_description << "\\n\";";
-    _f() << "report_file << \"#" << std::string(78, '-') << "\\n\";"
-         << "report_file << \"# Title      : " << sim_title << "\\n\";"
-         << "report_file << \"# Description: " << sim_description << "\\n\";"
+    _f() << "report_file << \"#" << std::string(78, '-') << "\\n\";" << "report_file << \"# Title      : " << sim_title
+         << "\\n\";" << "report_file << \"# Description: " << sim_description << "\\n\";"
          << "report_file << \"# Author     : " << sim_author << "\\n\";"
          << "report_file << \"# Time       : " << std::put_time(&curr_tm, time_format) << "\\n\";"
-         << "report_file << \"# \\n\";"
-         << "report_file << \"# Report generated by " << _MMCESIM_NAME << ' ' << _MMCESIM_VER_STR << ".\\n\";"
-         << "report_file << \"# GitHub organization at " << _MMCESIM_GIT << ".\\n\";"
-         << "report_file << \"# Web app is available at " << _MMCESIM_WEBAPP << ".\\n\";"
-         << "report_file << \"# Visit " << _MMCESIM_WEB << " for more information.\\n\";"
-         << "report_file << \"#" << std::string(78, '-') << "\\n\\n\";"
-         << "report_file << \"# System Settings\\n\\n\";";
+         << "report_file << \"# \\n\";" << "report_file << \"# Report generated by " << _MMCESIM_NAME << ' '
+         << _MMCESIM_VER_STR << ".\\n\";" << "report_file << \"# GitHub organization at " << _MMCESIM_GIT << ".\\n\";"
+         << "report_file << \"# Web app is available at " << _MMCESIM_WEBAPP << ".\\n\";" << "report_file << \"# Visit "
+         << _MMCESIM_WEB << " for more information.\\n\";" << "report_file << \"#" << std::string(78, '-')
+         << "\\n\\n\";" << "report_file << \"# System Settings\\n\\n\";";
     _f() << R"(sys_file << "{Node ID}\t{Size Number}\t{Grid Number}\t{Beam Number}\n";)";
     for (size_t i = 0; i != _config["nodes"].size(); ++i) {
         bool isTx                         = contains(_transmitters, i);
@@ -878,8 +868,7 @@ void Export::_reporting() {
         _f() << "{\n"
              << "std::ofstream data_file(\"" << out_dir << "/_tex_report/d" << job_cnt << ".dat\");\n"
              << "tex_file << \"\\\\simjob{" << raw_title << "}{d" << job_cnt << ".dat}{" << test_num << "}\\n\";\n"
-             << "report_file << \"# " << title << "\\n\\n\";"
-             << "std::string col1label = \"" << col1_name << "\";\n"
+             << "report_file << \"# " << title << "\\n\\n\";" << "std::string col1label = \"" << col1_name << "\";\n"
              << "std::vector<std::string> labels = {" << stringVecAsString(labels, ", ") << "};\n"
              << "std::vector<std::string> col1 = {" << col1 << "};\n"
              << "mmce::reportTable(report_file, col1label, labels, col1, 10 * arma::log10(NMSE" << job_cnt << "));\n"
@@ -909,12 +898,8 @@ void Export::_reporting() {
             }
         }
     }
-    _f() << "tex_file << \"\\\\end{document}\\n\";"
-         << "tex_file.close();"
-         << "sys_file.close();"
-         << "ch_file.close();"
-         << "} else { std::cerr << \"Cannot write report!\\n\"; }"
-         << "report_file.close();";
+    _f() << "tex_file << \"\\\\end{document}\\n\";" << "tex_file.close();" << "sys_file.close();" << "ch_file.close();"
+         << "} else { std::cerr << \"Cannot write report!\\n\"; }" << "report_file.close();";
 }
 
 void Export::_ending() {
