@@ -32,13 +32,13 @@ jobs:
           cxx: "g++"
         - name: "macOS-x64"
           artifact: "mmCEsim-CLI-macOS-x64.zip"
-          os: macos-12
+          os: macos-latest
           architecture: x64
           cc: "clang"
           cxx: "clang++"
         - name: "macOS-arm"
           artifact: "mmCEsim-CLI-macOS-arm.zip"
-          os: macos-14
+          os: macos-latest
           architecture: arm
           cc: "clang"
           cxx: "clang++"
