@@ -44,7 +44,7 @@ jobs:
           cxx: "clang++"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: recursive
 
@@ -267,7 +267,7 @@ jobs:
     needs: build
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       name: Checkout
       with:
         submodules: recursive
