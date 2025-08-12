@@ -319,13 +319,13 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: ${{ matrix.config.artifact }}
         path: ./
 
     - name: Download URL
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: upload_url
         path: ./
